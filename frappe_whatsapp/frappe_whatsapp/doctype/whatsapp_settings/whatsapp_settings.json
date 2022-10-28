@@ -13,19 +13,19 @@
   {
    "fieldname": "token",
    "fieldtype": "Data",
-   "label": "token",
+   "label": "Token",
    "length": 250
   },
   {
    "fieldname": "url",
    "fieldtype": "Data",
-   "label": "url"
+   "label": "URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-10-27 18:40:01.276301",
+ "modified": "2022-10-28 18:40:01.276301",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
