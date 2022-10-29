@@ -17,21 +17,22 @@ WhatsApp integration for frappe
 
 #### Enter whatsapp credentials
 
-![image](https://user-images.githubusercontent.com/11792643/198565534-8d1388f4-a036-49f2-9858-b589e9c7b620.png)
+![image](https://user-images.githubusercontent.com/11792643/198827382-90283b36-f8ab-430e-a909-1b600d6f5da4.png)
 
 #### Create Template
-![image](https://user-images.githubusercontent.com/11792643/198565368-e95b51b2-8f36-49a8-9430-57d73b99f1b3.png)
+![image](https://user-images.githubusercontent.com/11792643/198827355-ebf9c113-f39a-4d37-98f7-38f719fb2d1f.png)
+
 
 
 Supports all docevents
 
 #### Create notifications
-![whatsapp_notification](https://user-images.githubusercontent.com/11792643/198564594-b811209c-c09c-493e-aa23-2d974a3f680a.png)
+![whatsapp_notification](https://user-images.githubusercontent.com/11792643/198827295-f6d756a3-6289-40b3-99ea-0394efb61041.png)
 
 
 ### Upcoming features
-* Create templates on facebook dev dynamically from UI
 * Update templates on facebook dev.
+* Display template status
 
 #### License
 
