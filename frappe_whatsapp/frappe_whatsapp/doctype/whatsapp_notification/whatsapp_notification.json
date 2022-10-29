@@ -90,6 +90,7 @@
   },
   {
    "depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
+   "description": "Mobile number filed",
    "fieldname": "field_name",
    "fieldtype": "Data",
    "label": "Field Name"
@@ -118,7 +119,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-29 16:14:23.720538",
+ "modified": "2022-10-29 16:16:31.099768",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

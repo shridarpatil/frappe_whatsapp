@@ -11,7 +11,7 @@ class WhatsAppNotification(Document):
     """Notification."""
     def validate(self):
 
-        if not any(field.fieldname == self.field_name for field in frappe.get_doc("DocType", 'Vol Activity').fields): # noqa
+        if not any(field.fieldname == self.field_name for field in frappe.get_doc("DocType", self.reference_doctype).fields): # noqa
             frappe.throw(f"Field name {self.field_name} does not exists")
 
 
