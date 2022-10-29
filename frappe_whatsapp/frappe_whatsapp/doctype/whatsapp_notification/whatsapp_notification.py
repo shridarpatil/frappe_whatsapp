@@ -20,9 +20,11 @@ class WhatsAppNotification(Document):
         if self.disabled:
             return
 
+        doc_data = doc.as_dict()
         if self.condition:
+            # check if condition satisfies
             if not frappe.safe_eval(
-                self.condition, get_safe_globals(), dict(doc=doc.as_dict())
+                self.condition, get_safe_globals(), dict(doc=doc_data)
             ):
                 return
 
@@ -44,15 +46,31 @@ class WhatsAppNotification(Document):
         if language_code:
             data = {
                 "messaging_product": "whatsapp",
-                "to": doc.__dict__[self.field_name],
+                "to": doc_data[self.field_name],
                 "type": "template",
                 "template": {
                     "name": self.template,
                     "language": {
                         "code": language_code
-                    }
+                    },
+                    "components":[]
                 }
             }
+
+            # Pass parameter values
+            if self.fields:
+                parameters = []
+                for field in self.fields:
+                    parameters.append(
+                    {
+                        "type": "text",
+                        "text": doc_data[field.field_name]
+                    })
+
+                data['template']["components"] = [{
+                    "type": "body",
+                    "parameters": parameters
+                }]
 
             response = make_post_request(
                 f"{settings.url}/{settings.version}/{settings.phone_id}/messages",

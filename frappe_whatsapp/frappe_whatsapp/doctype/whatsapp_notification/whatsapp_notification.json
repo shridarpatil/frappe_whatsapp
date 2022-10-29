@@ -16,7 +16,10 @@
   "template",
   "help_section",
   "help_html",
-  "condition"
+  "section_break_11",
+  "condition",
+  "column_break_12",
+  "fields"
  ],
  "fields": [
   {
@@ -89,11 +92,25 @@
    "fieldname": "field_name",
    "fieldtype": "Data",
    "label": "Field Name"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fields",
+   "fieldtype": "Table",
+   "label": "Fields",
+   "options": "WhatsApp Message Fields"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 15:43:24.241224",
+ "modified": "2022-10-29 14:52:44.242002",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
