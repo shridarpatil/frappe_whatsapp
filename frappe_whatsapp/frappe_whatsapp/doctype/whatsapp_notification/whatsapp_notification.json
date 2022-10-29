@@ -14,12 +14,13 @@
   "column_break_3",
   "disabled",
   "template",
-  "help_section",
-  "help_html",
+  "code",
   "section_break_11",
   "condition",
   "column_break_12",
-  "fields"
+  "fields",
+  "help_section",
+  "help_html"
  ],
  "fields": [
   {
@@ -98,6 +99,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Enter fields in the right sequence as per the template parameters.",
    "fieldname": "fields",
    "fieldtype": "Table",
    "label": "Fields",
@@ -106,11 +108,17 @@
   {
    "fieldname": "section_break_11",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Code",
+   "options": "HTML",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-29 14:52:44.242002",
+ "modified": "2022-10-29 16:14:23.720538",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
