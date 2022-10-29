@@ -7,40 +7,78 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "template_name",
   "template",
+  "column_break_6",
+  "template_name",
+  "category",
   "language",
-  "language_code"
+  "language_code",
+  "header",
+  "footer",
+  "id"
  ],
  "fields": [
   {
    "fieldname": "template_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Template Name",
+   "reqd": 1,
    "unique": 1
   },
   {
    "fieldname": "template",
    "fieldtype": "Code",
+   "in_list_view": 1,
    "label": "Template",
-   "options": "HTML"
+   "options": "HTML",
+   "reqd": 1
   },
   {
    "fieldname": "language",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Language",
-   "options": "Language"
+   "options": "Language",
+   "reqd": 1
   },
   {
    "fieldname": "language_code",
    "fieldtype": "Data",
    "label": "Language Code",
    "read_only": 1
+  },
+  {
+   "fieldname": "header",
+   "fieldtype": "Data",
+   "label": "Header"
+  },
+  {
+   "fieldname": "footer",
+   "fieldtype": "Data",
+   "label": "Footer"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "Category",
+   "options": "\nTRANSACTIONAL\nMARKETING\nOTP",
+   "reqd": 1
+  },
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "ID",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 15:13:55.271294",
+ "modified": "2022-10-28 22:57:25.811070",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",

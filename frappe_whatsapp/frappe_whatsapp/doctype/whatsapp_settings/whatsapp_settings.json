@@ -7,19 +7,37 @@
  "engine": "InnoDB",
  "field_order": [
   "token",
-  "url"
+  "url",
+  "version",
+  "phone_id",
+  "business_id"
  ],
  "fields": [
   {
    "fieldname": "token",
-   "fieldtype": "Data",
    "label": "Token",
+   "fieldtype": "Password",
    "length": 250
   },
   {
    "fieldname": "url",
    "fieldtype": "Data",
    "label": "URL"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "version"
+  },
+  {
+   "fieldname": "phone_id",
+   "fieldtype": "Data",
+   "label": "Phone ID"
+  },
+  {
+   "fieldname": "business_id",
+   "fieldtype": "Data",
+   "label": "Business ID"
   }
  ],
  "index_web_pages_for_search": 1,

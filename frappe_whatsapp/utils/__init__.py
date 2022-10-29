@@ -25,6 +25,7 @@ def run_server_script_for_doc_event(doc, event):
     if notification:
         # run all scripts for this doctype + event
         for notification_name in notification:
+            print(notification_name)
             frappe.get_doc("WhatsApp Notification", notification_name).execute_doc(doc)
 
 

@@ -11,7 +11,7 @@ class WhatsAppNotification(Document):
     """Notification."""
     def validate(self):
 
-        if not any(field.fieldname == self.field_name for field in frappe.get_doc("DocType", 'Vol Activity').fields):
+        if not any(field.fieldname == self.field_name for field in frappe.get_doc("DocType", 'Vol Activity').fields): # noqa
             frappe.throw(f"Field name {self.field_name} does not exists")
 
 
@@ -26,12 +26,13 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        settings = frappe.db.get_value(
+        settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
-            fieldname=['token', 'url'], as_dict=True
         )
+        token = settings.get_password("token")
+
         headers = {
-            "authorization": f"Bearer {settings.token}",
+            "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
 
@@ -53,10 +54,13 @@ class WhatsAppNotification(Document):
                 }
             }
 
-            response = make_post_request(settings.url, headers=headers, data=json.dumps(data))
+            response = make_post_request(
+                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                headers=headers, data=json.dumps(data)
+            )
+
             frappe.get_doc({
                 "doctype": "WhatsApp Notification Log",
                 "template": self.template,
                 "meta_data": response
             }).insert(ignore_permissions=True)
-            frappe.msgprint("Send WhatsAppNotification")
