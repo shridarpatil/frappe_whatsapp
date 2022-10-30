@@ -27,7 +27,7 @@
   {
    "fieldname": "version",
    "fieldtype": "Data",
-   "label": "version"
+   "label": "Version"
   },
   {
    "fieldname": "phone_id",
@@ -43,7 +43,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-10-28 18:40:01.276301",
+ "modified": "2022-10-30 05:40:01.276301",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
