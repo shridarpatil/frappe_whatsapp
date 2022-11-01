@@ -90,7 +90,7 @@
   },
   {
    "depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
-   "description": "Mobile number filed",
+   "description": "Mobile number field",
    "fieldname": "field_name",
    "fieldtype": "Data",
    "label": "Field Name"
