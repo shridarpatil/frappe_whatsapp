@@ -9,15 +9,15 @@ from frappe.integrations.utils import make_post_request
 
 class WhatsAppNotification(Document):
     """Notification."""
+
     def validate(self):
+        """Validate."""
         if self.notification_type == "DocType Event":
             if not any(field.fieldname == self.field_name for field in frappe.get_doc("DocType", self.reference_doctype).fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
 
-
     def execute_method(self) -> dict:
         """Specific to API endpoint Server Scripts."""
-
         safe_exec(
             self.condition, get_safe_globals(), dict(doc=self)
         )
@@ -29,14 +29,14 @@ class WhatsAppNotification(Document):
             for contact in self._contact_list:
                 data = {
                     "messaging_product": "whatsapp",
-                    "to": contact,
+                    "to": self.format_number(contact),
                     "type": "template",
                     "template": {
                         "name": self.template,
                         "language": {
                             "code": language_code
                         },
-                        "components":[]
+                        "components": []
                     }
                 }
 
@@ -56,7 +56,6 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-
         language_code = frappe.db.get_value(
             "WhatsApp Templates", self.template,
             fieldname='language_code'
@@ -65,14 +64,14 @@ class WhatsAppNotification(Document):
         if language_code:
             data = {
                 "messaging_product": "whatsapp",
-                "to": doc_data[self.field_name],
+                "to": self.format_number(doc_data[self.field_name]),
                 "type": "template",
                 "template": {
                     "name": self.template,
                     "language": {
                         "code": language_code
                     },
-                    "components":[]
+                    "components": []
                 }
             }
 
@@ -80,8 +79,7 @@ class WhatsAppNotification(Document):
             if self.fields:
                 parameters = []
                 for field in self.fields:
-                    parameters.append(
-                    {
+                    parameters.append({
                         "type": "text",
                         "text": doc_data[field.field_name]
                     })
@@ -116,12 +114,15 @@ class WhatsAppNotification(Document):
             "meta_data": response
         }).insert(ignore_permissions=True)
 
-
     def on_trash(self):
+        """On delete remove from schedule."""
         if self.notification_type == "Scheduler Event":
             frappe.delete_doc("Scheduled Job Type", self.name)
 
+        frappe.cache().delete_value("whatsapp_notification_map")
+
     def after_insert(self):
+        """After insert hook."""
         if self.notification_type == "Scheduler Event":
             method = f"frappe_whatsapp.utils.trigger_whatsapp_notifications_{self.event_frequency.lower().replace(' ', '_')}" # noqa
             job = frappe.get_doc(
@@ -133,3 +134,10 @@ class WhatsAppNotification(Document):
             )
 
             job.insert()
+
+    def format_number(self, number):
+        """Format number."""
+        if (number.startswith("+")):
+            number = number[1:len(number)]
+
+        return number
