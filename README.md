@@ -22,6 +22,11 @@ WhatsApp integration for frappe
 
 ### Send whatsapp notification from frappe app based on docevents.
 
+### Get your whats app credentials
+
+https://developers.facebook.com/docs/whatsapp/cloud-api/get-started
+
+
 #### Enter whatsapp credentials
 
 ![image](https://user-images.githubusercontent.com/11792643/198827382-90283b36-f8ab-430e-a909-1b600d6f5da4.png)
