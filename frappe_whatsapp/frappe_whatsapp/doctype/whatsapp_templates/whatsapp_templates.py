@@ -33,12 +33,12 @@ class WhatsAppTemplates(Document):
             data['components'].append({
                 "type": "HEADER",
                 "format": "TEXT",
-                "text": "Bonus Tuesday starts now!"
+                "text": self.header
             })
         if self.footer:
             data['components'].append({
                 "type": "FOOTER",
-                "text": "Not interested? Tap Stop promotions"
+                "text": self.footer
             })
 
         headers = {
