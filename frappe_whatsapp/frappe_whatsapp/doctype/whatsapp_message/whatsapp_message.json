@@ -1,35 +1,56 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:label",
  "creation": "2022-10-27 22:02:51.430491",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "label",
-  "template"
+  "type",
+  "status",
+  "message",
+  "to"
  ],
  "fields": [
   {
    "fieldname": "label",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Label",
    "unique": 1
   },
   {
-   "fieldname": "template",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Outgoing\nIncoming"
+  },
+  {
+   "fieldname": "status",
    "fieldtype": "Data",
-   "label": "Template"
+   "in_list_view": 1,
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "HTML Editor",
+   "label": "Message"
+  },
+  {
+   "description": "Mobile number with country code",
+   "fieldname": "to",
+   "fieldtype": "Data",
+   "label": "TO "
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 10:33:27.936342",
+ "modified": "2023-01-10 15:16:14.114175",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
