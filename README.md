@@ -8,7 +8,8 @@ WhatsApp integration for frappe. Use directly meta API's without any 3rd party i
 ![whatsapp](https://user-images.githubusercontent.com/11792643/203741234-29edeb1b-e2f9-4072-98c4-d73a84b48743.gif)
 
 
-## Note: If your not using live credential follow these steps to add the number on meta to which your are sending message
+## Note: If your not using live credential follow the [step no 2](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started) to add the number on meta to which your are sending message
+
 
 ## Installation Steps
 ### Step 1) One time to get app
