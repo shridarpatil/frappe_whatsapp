@@ -42,6 +42,17 @@ Supports all docevents
 ![whatsapp_notification](https://user-images.githubusercontent.com/11792643/198827295-f6d756a3-6289-40b3-99ea-0394efb61041.png)
 
 
+### Sending text message without creating template
+Create an entry in the WhatsApp message. On save it will trigger and whats app API to send a message
+
+![image](https://user-images.githubusercontent.com/11792643/211518862-de2d3fbc-69c8-48e1-b000-8eebf20b75ab.png)
+
+WhatsApp messages are received via WhatsApp cloud API.
+![image](https://user-images.githubusercontent.com/11792643/211519625-a528abe2-ba24-46a4-bcbc-170f6b4e27fb.png)
+
+![outgoing (1)](https://user-images.githubusercontent.com/11792643/211518647-45bfaa00-b06a-49c6-a3b3-3cf801d5ec68.gif)
+
+
 ### Upcoming features
 * Update templates on facebook dev.
 * Display template status
