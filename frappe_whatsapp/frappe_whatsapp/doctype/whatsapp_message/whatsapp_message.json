@@ -9,8 +9,9 @@
   "label",
   "type",
   "status",
-  "message",
-  "to"
+  "to",
+  "column_break_5",
+  "message"
  ],
  "fields": [
   {
@@ -43,11 +44,15 @@
    "fieldname": "to",
    "fieldtype": "Data",
    "label": "TO "
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 15:16:14.114175",
+ "modified": "2023-01-10 17:38:47.117612",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
