@@ -37,7 +37,7 @@ def post():
 
     messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
     for message in messages:
-        if message.type == 'text':
+        if message['type'] == 'text':
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
                 "type": "Incoming",
