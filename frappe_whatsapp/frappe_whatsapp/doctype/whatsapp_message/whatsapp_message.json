@@ -10,6 +10,7 @@
   "type",
   "status",
   "to",
+  "from",
   "column_break_5",
   "message"
  ],
@@ -25,7 +26,8 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "Outgoing\nIncoming"
+   "options": "Outgoing\nIncoming",
+   "set_only_once": 1
   },
   {
    "fieldname": "status",
@@ -37,22 +39,32 @@
   {
    "fieldname": "message",
    "fieldtype": "HTML Editor",
-   "label": "Message"
+   "label": "Message",
+   "set_only_once": 1
   },
   {
+   "depends_on": "eval:(doc.type==\"Outgoing\");",
    "description": "Mobile number with country code",
    "fieldname": "to",
    "fieldtype": "Data",
-   "label": "TO "
+   "label": "TO ",
+   "set_only_once": 1
   },
   {
    "fieldname": "column_break_5",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:(doc.type==\"Incoming\");",
+   "fieldname": "from",
+   "fieldtype": "Data",
+   "label": "From",
+   "set_only_once": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 17:38:47.117612",
+ "modified": "2023-02-23 12:17:29.070798",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
@@ -73,5 +85,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_seen": 1
 }
