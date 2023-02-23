@@ -53,7 +53,7 @@ class WhatsAppMessage(Document):
 
     def format_number(self, number):
         """Format number."""
-        if (number.startswith("+")):
+        if number.startswith("+"):
             number = number[1:len(number)]
 
         return number

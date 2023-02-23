@@ -10,7 +10,8 @@
   "url",
   "version",
   "phone_id",
-  "business_id"
+  "business_id",
+  "webhook_verify_token"
  ],
  "fields": [
   {
@@ -38,12 +39,17 @@
    "fieldname": "business_id",
    "fieldtype": "Data",
    "label": "Business ID"
+  },
+  {
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Data",
+   "label": "Webhook Verify Token"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-10-30 14:21:44.695301",
+ "modified": "2023-02-23 11:47:47.742678",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",

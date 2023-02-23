@@ -1,3 +1,4 @@
+"""test Whatsapp messages."""
 # Copyright (c) 2022, Shridhar Patil and Contributors
 # See license.txt
 
@@ -6,4 +7,6 @@ from frappe.tests.utils import FrappeTestCase
 
 
 class TestWhatsAppMessage(FrappeTestCase):
-	pass
+    """Test whatsapp messages."""
+
+    pass
