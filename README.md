@@ -55,9 +55,18 @@ WhatsApp messages are received via WhatsApp cloud API.
 ![outgoing (1)](https://user-images.githubusercontent.com/11792643/211518647-45bfaa00-b06a-49c6-a3b3-3cf801d5ec68.gif)
 
 
+### Incomming message
+- Setup webhook on meta
+  * Add verify token on meta and update the same on whatsapp settings
+  * Add webhook url on meta `<your domain>/api/method/frappe_whatsapp.utils.webhook.webhook`
+- Add apropriate webhook fields
+  * `messages` to receive message
+  * add other required web fields
+
 ### Upcoming features
 * Update templates on facebook dev.
 * Display template status
+
 
 #### License
 
