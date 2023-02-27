@@ -54,9 +54,11 @@ class WhatsAppTemplates(Document):
             self.id = response['id']
             frappe.db.set_value("WhatsApp Templates", self.name, "id", response['id'])
         except Exception as e:
+            res = frappe.flags.integration_request.json()['error']
+            error_message = res.get('error_user_msg', res.get("message"))
             frappe.msgprint(
-                msg=frappe.flags.integration_request.json()['error']['error_user_msg'],
-                title=frappe.flags.integration_request.json()['error']['error_user_title'],
+                msg=error_message,
+                title=res.get("error_user_title", "Error"),
                 indicator="red"
             )
             raise e
