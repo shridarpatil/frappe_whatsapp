@@ -46,12 +46,20 @@ class WhatsAppTemplates(Document):
             "content-type": "application/json"
         }
 
-        response = make_post_request(
-            f"{self._url}/{self._version}/{self._business_id}/message_templates",
-            headers=headers, data=json.dumps(data)
-        )
-        self.id = response['id']
-        frappe.db.set_value("WhatsApp Templates", self.name, "id", response['id'])
+        try:
+            response = make_post_request(
+                f"{self._url}/{self._version}/{self._business_id}/message_templates",
+                headers=headers, data=json.dumps(data)
+            )
+            self.id = response['id']
+            frappe.db.set_value("WhatsApp Templates", self.name, "id", response['id'])
+        except Exception as e:
+            frappe.msgprint(
+                msg=frappe.flags.integration_request.json()['error']['error_user_msg'],
+                title=frappe.flags.integration_request.json()['error']['error_user_title'],
+                indicator="red"
+            )
+            raise e
 
     def get_settings(self):
         """Get whatsapp settings."""
