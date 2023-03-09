@@ -30,7 +30,7 @@ def get_notifications_map():
         return {}
 
     notification_map = frappe.cache().get_value("whatsapp_notification_map")
-    if notification_map is None:
+    if notification_map is None or not notification_map:
         notification_map = {}
         enabled_whatsapp_notifications = frappe.get_all(
             "WhatsApp Notification",

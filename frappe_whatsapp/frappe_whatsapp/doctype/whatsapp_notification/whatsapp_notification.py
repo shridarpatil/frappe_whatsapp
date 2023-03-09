@@ -108,11 +108,20 @@ class WhatsAppNotification(Document):
             "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
-
-        response = make_post_request(
-            f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
-            headers=headers, data=json.dumps(data)
-        )
+        try:
+            response = make_post_request(
+                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                headers=headers, data=json.dumps(data)
+            )
+        except Exception as e:
+            res = frappe.flags.integration_request.json()['error']
+            error_message = res.get('Error', res.get("message"))
+            frappe.msgprint(
+                msg=error_message,
+                title=res.get("error_user_title", "Error"),
+                indicator="red"
+            )
+            raise e
 
         frappe.get_doc({
             "doctype": "WhatsApp Notification Log",

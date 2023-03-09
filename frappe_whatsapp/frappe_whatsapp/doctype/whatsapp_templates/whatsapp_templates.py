@@ -4,7 +4,7 @@
 import json
 import frappe
 from frappe.model.document import Document
-from frappe.integrations.utils import make_post_request
+from frappe.integrations.utils import make_post_request, make_request
 
 
 class WhatsAppTemplates(Document):
@@ -41,15 +41,11 @@ class WhatsAppTemplates(Document):
                 "text": self.footer
             })
 
-        headers = {
-            "authorization": f"Bearer {self._token}",
-            "content-type": "application/json"
-        }
 
         try:
             response = make_post_request(
                 f"{self._url}/{self._version}/{self._business_id}/message_templates",
-                headers=headers, data=json.dumps(data)
+                headers=self._headers, data=json.dumps(data)
             )
             self.id = response['id']
             frappe.db.set_value("WhatsApp Templates", self.name, "id", response['id'])
@@ -70,3 +66,13 @@ class WhatsAppTemplates(Document):
         self._url = settings.url
         self._version = settings.version
         self._business_id = settings.business_id
+
+        self._headers = {
+            "authorization": f"Bearer {self._token}",
+            "content-type": "application/json"
+        }
+
+    def on_trash(self):
+        self.get_settings()
+        url = f'{self._url}/{self._version}/{self._business_id}'
+        make_request("DELETE", url, headers=self._headers)

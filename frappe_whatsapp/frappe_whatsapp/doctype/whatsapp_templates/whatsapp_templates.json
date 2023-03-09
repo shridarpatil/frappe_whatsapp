@@ -15,7 +15,8 @@
   "language_code",
   "header",
   "footer",
-  "id"
+  "id",
+  "status"
  ],
  "fields": [
   {
@@ -74,11 +75,17 @@
    "fieldtype": "Data",
    "label": "ID",
    "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 22:57:25.811070",
+ "modified": "2023-03-07 10:56:52.004490",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
