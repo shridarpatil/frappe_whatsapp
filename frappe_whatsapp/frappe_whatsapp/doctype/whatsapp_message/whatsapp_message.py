@@ -11,7 +11,7 @@ class WhatsAppMessage(Document):
 
     def before_insert(self):
         """Send message."""
-        if self.type == 'Outgoing':
+        if self.type == 'Outgoing' and self.message_type != 'Template':
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(self.to),
@@ -39,17 +39,26 @@ class WhatsAppMessage(Document):
             "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
+        try:
+            response = make_post_request(
+                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                headers=headers, data=json.dumps(data)
+            )
+            self.message_id = response['messages'][0]['id']
 
-        response = make_post_request(
-            f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
-            headers=headers, data=json.dumps(data)
-        )
+        except Exception as e:
+            res = frappe.flags.integration_request.json()['error']
+            error_message = res.get('Error', res.get("message"))
+            frappe.get_doc({
+                "doctype": "WhatsApp Notification Log",
+                "template": "Text Message",
+                "meta_data": frappe.flags.integration_request.json()
+            }).insert(ignore_permissions=True)
 
-        frappe.get_doc({
-            "doctype": "WhatsApp Notification Log",
-            "template": "Text Message",
-            "meta_data": response
-        }).insert(ignore_permissions=True)
+            frappe.throw(
+                msg=error_message,
+                title=res.get("error_user_title", "Error")
+            )
 
     def format_number(self, number):
         """Format number."""

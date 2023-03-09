@@ -55,6 +55,9 @@ def update_status(data):
     if data.get("field") == "message_template_status_update":
         update_template_status(data['value'])
 
+    elif data.get("field") == "messages":
+        update_message_status(data['value'])
+
 
 def update_template_status(data):
     """Update template status."""
@@ -64,3 +67,17 @@ def update_template_status(data):
         WHERE id = %(message_template_id)s""",
         data
     )
+
+
+def update_message_status(data):
+    """Update message status."""
+    id = data['statuses'][0]['id']
+    status = data['statuses'][0]['status']
+    conversation = data['statuses'][0].get('conversation', {}).get('id')
+    name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
+
+    doc = frappe.get_doc("WhatsApp Message", name)
+    doc.status = status
+    if conversation:
+        doc.conversation_id = conversation
+    doc.save(ignore_permissions=True)

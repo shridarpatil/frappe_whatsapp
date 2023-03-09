@@ -12,15 +12,17 @@
   "to",
   "from",
   "column_break_5",
-  "message"
+  "message",
+  "message_type",
+  "message_id",
+  "conversation_id"
  ],
  "fields": [
   {
    "fieldname": "label",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Label",
-   "unique": 1
+   "label": "Label"
   },
   {
    "fieldname": "type",
@@ -60,11 +62,30 @@
    "fieldtype": "Data",
    "label": "From",
    "set_only_once": 1
+  },
+  {
+   "fieldname": "message_type",
+   "fieldtype": "Select",
+   "label": "Message Type",
+   "options": "Manual\nTemplate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "message_id",
+   "fieldtype": "Data",
+   "label": "Message ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "conversation_id",
+   "fieldtype": "Data",
+   "label": "Conversation ID",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-23 12:17:29.070798",
+ "modified": "2023-03-09 16:17:53.880368",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

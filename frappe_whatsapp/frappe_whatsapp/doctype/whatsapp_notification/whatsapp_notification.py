@@ -113,6 +113,14 @@ class WhatsAppNotification(Document):
                 f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
+            frappe.get_doc({
+                "doctype": "WhatsApp Message",
+                "type": "Outgoing",
+                "message": str(data['template']),
+                "to": data['to'],
+                "message_type": "Template",
+                "message_id": response['messages'][0]['id']
+            }).save(ignore_permissions=True)
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
             error_message = res.get('Error', res.get("message"))
