@@ -15,7 +15,9 @@
   "message",
   "message_type",
   "message_id",
-  "conversation_id"
+  "conversation_id",
+  "content_type",
+  "attach"
  ],
  "fields": [
   {
@@ -81,11 +83,22 @@
    "fieldtype": "Data",
    "label": "Conversation ID",
    "read_only": 1
+  },
+  {
+   "fieldname": "content_type",
+   "fieldtype": "Select",
+   "label": "Content Type",
+   "options": "\ntext\ndocument"
+  },
+  {
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "label": "Attach"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-09 16:17:53.880368",
+ "modified": "2023-03-20 16:07:35.445697",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

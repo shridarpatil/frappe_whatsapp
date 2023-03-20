@@ -12,15 +12,32 @@ class WhatsAppMessage(Document):
     def before_insert(self):
         """Send message."""
         if self.type == 'Outgoing' and self.message_type != 'Template':
+            if self.attach and not self.attach.startswith("http"):
+                link = frappe.utils.get_url() + '/'+ self.attach
+            else:
+                link = self.attach
+
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(self.to),
-                "type": "text",
-                "text": {
+                "type": self.content_type
+            }
+            if self.content_type in ['document', 'image', 'video']:
+                 data[self.content_type.lower()] = {
+                    "link": link,
+                    "caption": self.message
+                }
+            elif self.content_type == "text":
+                data["text"] = {
                     "preview_url": True,
                     "body": self.message
                 }
-            }
+
+            elif self.content_type == "audio":
+                data["text"] = {
+                    "link": link
+                }
+
             try:
                 self.notify(data)
                 self.status = "Success"

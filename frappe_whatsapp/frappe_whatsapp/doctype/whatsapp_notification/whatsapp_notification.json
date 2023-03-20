@@ -15,6 +15,7 @@
   "disabled",
   "template",
   "code",
+  "attach_document_print",
   "section_break_11",
   "condition",
   "column_break_12",
@@ -115,11 +116,18 @@
    "fieldtype": "Code",
    "options": "HTML",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "WhatsApp Template requires document",
+   "fieldname": "attach_document_print",
+   "fieldtype": "Check",
+   "label": " Attach Document Print"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-30 14:19:54.340173",
+ "modified": "2023-03-20 17:16:45.685487",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

@@ -96,6 +96,18 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
+                key = frappe.get_doc(doc_data['doctype'], doc_data['name']).get_signature()  # noqa
+
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "document",
+                        "document": {
+                            "link": f'{frappe.utils.get_url()}/{doc_data['doctype']}/{doc_data['name']}?key={key}', # noqa
+                        }
+                    }]
+                })
+
             self.notify(data)
 
     def notify(self, data):
@@ -123,20 +135,18 @@ class WhatsAppNotification(Document):
                 "message_id": response['messages'][0]['id']
             }).save(ignore_permissions=True)
         except Exception as e:
-            res = frappe.flags.integration_request.json()['error']
-            error_message = res.get('Error', res.get("message"))
-            frappe.msgprint(
+            response = frappe.flags.integration_request.json()['error']
+            error_message = response.get('Error', response.get("message"))
+            frappe.throw(
                 msg=error_message,
-                title=res.get("error_user_title", "Error"),
-                indicator="red"
+                title=response.get("error_user_title", "Error")
             )
-            raise e
-
-        frappe.get_doc({
-            "doctype": "WhatsApp Notification Log",
-            "template": self.template,
-            "meta_data": response
-        }).insert(ignore_permissions=True)
+        finally:
+            frappe.get_doc({
+                "doctype": "WhatsApp Notification Log",
+                "template": self.template,
+                "meta_data": frappe.flags.integration_request.json()
+            }).insert(ignore_permissions=True)
 
     def on_trash(self):
         """On delete remove from schedule."""
