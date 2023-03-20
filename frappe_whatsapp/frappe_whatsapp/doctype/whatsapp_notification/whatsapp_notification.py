@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils.safe_exec import get_safe_globals, safe_exec
 from frappe.integrations.utils import make_post_request
+from frappe.desk.form.utils import get_pdf_link
 
 
 class WhatsAppNotification(Document):
@@ -103,7 +104,7 @@ class WhatsAppNotification(Document):
                     "parameters": [{
                         "type": "document",
                         "document": {
-                            "link": f'{frappe.utils.get_url()}/{doc_data["doctype"]}/{doc_data["name"]}?key={key}', # noqa
+                            "link": f'{frappe.utils.get_url()}{get_pdf_link(doc_data["doctype"], doc_data["name"])}' # noqa
                         }
                     }]
                 })

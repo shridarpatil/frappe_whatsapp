@@ -5,6 +5,7 @@ import json
 import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
+from frappe.desk.form.utils import get_pdf_link
 
 
 class WhatsAppTemplates(Document):
@@ -139,8 +140,7 @@ class WhatsAppTemplates(Document):
 
         else:
             if not self.sample:
-                key = frappe.get_doc(self.doctype, self.name).get_signature()
-                self.sample = f'{frappe.utils.get_url()}/{self.doctype}/{self.name}?key={key}'
+                self.sample = f'{frappe.utils.get_url()}{get_pdf_link(self.doctype, self.name)}'
             header.update({"example": {
                 "header_handle": [self.sample]
             }})
