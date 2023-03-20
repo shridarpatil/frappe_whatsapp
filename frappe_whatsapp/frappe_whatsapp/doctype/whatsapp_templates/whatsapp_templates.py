@@ -30,9 +30,12 @@ class WhatsAppTemplates(Document):
             "text": self.template,
         }
         if self.sample_values:
-            body["example"]: {
-                "body_text": [self.sample_values.split(',')]
-            }
+            body.update({
+                "example": {
+                    "body_text": [self.sample_values.split(',')]
+                }
+            })
+
         data['components'].append(body)
         if self.header_type:
             data['components'].append(self.get_header())
@@ -73,9 +76,11 @@ class WhatsAppTemplates(Document):
             "text": self.template,
         }
         if self.sample_values:
-            body["example"] = {
-                "body_text": [self.sample_values.split(',')]
-            }
+            body.update({
+                "example": {
+                    "body_text": [self.sample_values.split(',')]
+                }
+            })
         data['components'].append(body)
         if self.header:
             data['components'].append(self.get_header())
@@ -136,9 +141,9 @@ class WhatsAppTemplates(Document):
             if not self.sample:
                 key = frappe.get_doc(self.doctype, self.name).get_signature()
                 self.sample = f'{frappe.utils.get_url()}/{self.doctype}/{self.name}?key={key}'
-            header["example"] = {
+            header.update({"example": {
                 "header_handle": [self.sample]
-            }
+            }})
 
         return header
 
