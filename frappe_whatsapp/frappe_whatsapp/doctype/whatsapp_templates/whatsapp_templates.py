@@ -49,7 +49,6 @@ class WhatsAppTemplates(Document):
             })
 
         try:
-            print(data)
             response = make_post_request(
                 f"{self._url}/{self._version}/{self._business_id}/message_templates",
                 headers=self._headers, data=json.dumps(data)
@@ -83,7 +82,7 @@ class WhatsAppTemplates(Document):
                 }
             })
         data['components'].append(body)
-        if self.header:
+        if self.header_type:
             data['components'].append(self.get_header())
         if self.footer:
             data['components'].append({

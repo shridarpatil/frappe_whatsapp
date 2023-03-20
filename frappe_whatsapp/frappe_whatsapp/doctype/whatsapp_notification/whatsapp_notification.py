@@ -104,7 +104,8 @@ class WhatsAppNotification(Document):
                     "parameters": [{
                         "type": "document",
                         "document": {
-                            "link": f'{frappe.utils.get_url()}{get_pdf_link(doc_data["doctype"], doc_data["name"])}' # noqa
+                            "link": f'{frappe.utils.get_url()}{get_pdf_link(doc_data["doctype"], doc_data["name"])}', # noqa
+                            "filename": f'{doc_data["name"]}.pdf'
                         }
                     }]
                 })
