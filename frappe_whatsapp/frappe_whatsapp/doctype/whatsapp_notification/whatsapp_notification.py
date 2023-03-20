@@ -103,7 +103,7 @@ class WhatsAppNotification(Document):
                     "parameters": [{
                         "type": "document",
                         "document": {
-                            "link": f'{frappe.utils.get_url()}/{doc_data['doctype']}/{doc_data['name']}?key={key}', # noqa
+                            "link": f'{frappe.utils.get_url()}/{doc_data["doctype"]}/{doc_data["name"]}?key={key}', # noqa
                         }
                     }]
                 })
