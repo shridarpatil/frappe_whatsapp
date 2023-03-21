@@ -20,7 +20,6 @@ frappe.ui.form.on('WhatsApp Notification', {
 						frm.set_value("attach_document_print", 1)
 					}else{
 						frm.toggle_display("attach_document_print", false);
-						frm.set_df_property("attach_document_print", "read_only", 1);
 						frm.set_value("attach_document_print", 0)
 					}
 

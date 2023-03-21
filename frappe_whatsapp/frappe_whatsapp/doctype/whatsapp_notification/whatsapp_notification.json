@@ -122,12 +122,13 @@
    "description": "WhatsApp Template requires document",
    "fieldname": "attach_document_print",
    "fieldtype": "Check",
-   "label": " Attach Document Print"
+   "label": " Attach Document Print",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-20 17:16:45.685487",
+ "modified": "2023-03-21 18:17:45.325115",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

@@ -124,7 +124,7 @@ class WhatsAppTemplates(Document):
         except Exception:
             res = frappe.flags.integration_request.json()['error']
             if res.get("error_user_title") == "Message Template Not Found":
-                frappe.msgprint("Deleted locally", res.get("error_user_title", "Error"), "red")
+                frappe.msgprint("Deleted locally", res.get("error_user_title", "Error"), alert=True)
             else:
                 frappe.throw(
                     msg=res.get("error_user_msg"),
