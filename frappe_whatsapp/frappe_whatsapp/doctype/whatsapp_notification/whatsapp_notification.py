@@ -97,9 +97,9 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
-                # key = frappe.get_doc(doc_data['doctype'], doc_data['name']).get_document_share_key()
+                frappe.db.begin()
                 key = doc.get_document_share_key()  # noqa
-
+                frappe.db.commit()
                 print_format = "Standard"
                 doctype = frappe.get_doc("DocType", doc_data['doctype'])
                 if doctype.custom:
@@ -133,6 +133,7 @@ class WhatsAppNotification(Document):
                 })
 
             self.notify(data)
+            frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
 
     def notify(self, data):
         """Notify."""
@@ -150,7 +151,7 @@ class WhatsAppNotification(Document):
                 f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
-            frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
+
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
                 "type": "Outgoing",
