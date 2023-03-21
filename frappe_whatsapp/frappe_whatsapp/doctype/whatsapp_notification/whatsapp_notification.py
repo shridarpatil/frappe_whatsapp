@@ -97,8 +97,29 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
-                key = frappe.get_doc(doc_data['doctype'], doc_data['name']).get_document_share_key()  # noqa
-                link = get_pdf_link(doc_data['doctype'], doc_data['name'])
+                # key = frappe.get_doc(doc_data['doctype'], doc_data['name']).get_document_share_key()
+                key = doc.get_document_share_key()  # noqa
+
+                print_format = "Standard"
+                doctype = frappe.get_doc("DocType", doc_data['doctype'])
+                if doctype.custom:
+                    if doctype.default_print_format:
+                        print_format = doctype.default_print_format
+                else:
+                    default_print_format = frappe.db.get_value(
+                        "Property Setter",
+                        filters={
+                            "doc_type": doc_data['doctype'],
+                            "property": "default_print_format"
+                        },
+                        fieldname="value"
+                    )
+                    print_format = default_print_format if default_print_format else print_format
+                link = get_pdf_link(
+                    doc_data['doctype'],
+                    doc_data['name'],
+                    print_format=print_format
+                )
 
                 data['template']['components'].append({
                     "type": "header",
@@ -129,6 +150,7 @@ class WhatsAppNotification(Document):
                 f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
+            frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
                 "type": "Outgoing",
