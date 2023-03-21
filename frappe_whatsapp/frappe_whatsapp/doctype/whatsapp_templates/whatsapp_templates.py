@@ -11,12 +11,6 @@ from frappe.desk.form.utils import get_pdf_link
 class WhatsAppTemplates(Document):
     """Create whatsapp template."""
 
-    def  validate(self):
-        if not self.sample and not frappe.has_permission(self.doctype, ptype='print', user="Guest"):
-            frappe.throw(
-                f"""Add sample document or add read and print permission to guest user for
-                 <b>{self.doctype}</b> doctype from <b>Role Permission Manager</b>""")
-
     def after_insert(self):
         """Set template code."""
         self.template_name = self.template_name.lower().replace(' ', '_')
@@ -137,7 +131,6 @@ class WhatsAppTemplates(Document):
                     title=res.get("error_user_title", "Error"),
                 )
 
-
     def get_header(self):
         """Get header format."""
         header = {
@@ -149,7 +142,9 @@ class WhatsAppTemplates(Document):
 
         else:
             if not self.sample:
-                self.sample = f'{frappe.utils.get_url()}{get_pdf_link(self.doctype, self.name)}'
+                key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
+                link = get_pdf_link(self.doctype, self.name)
+                self.sample = f'{frappe.utils.get_url()}{link}&key={key}'
             header.update({"example": {
                 "header_handle": [self.sample]
             }})
