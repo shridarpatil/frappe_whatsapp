@@ -11,6 +11,12 @@ from frappe.desk.form.utils import get_pdf_link
 class WhatsAppTemplates(Document):
     """Create whatsapp template."""
 
+    def  validate(self):
+        if not self.sample and not frappe.has_permission(self.doctype, ptype='print', user="Guest"):
+            frappe.throw(
+                f"""Add sample document or add read and print permission to guest user for
+                 <b>{self.doctype}</b> doctype from <b>Role Permission Manager</b>""")
+
     def after_insert(self):
         """Set template code."""
         self.template_name = self.template_name.lower().replace(' ', '_')
@@ -121,12 +127,16 @@ class WhatsAppTemplates(Document):
         url = f'{self._url}/{self._version}/{self._business_id}/message_templates?name={self.name}'
         try:
             make_request("DELETE", url, headers=self._headers)
-        except Exception as e:
+        except Exception:
             res = frappe.flags.integration_request.json()['error']
-            frappe.throw(
-                msg=res.get("error_user_msg"),
-                title=res.get("error_user_title", "Error"),
-            )
+            if res.get("error_user_title") == "Message Template Not Found":
+                frappe.msgprint("Deleted locally", res.get("error_user_title", "Error"), "red")
+            else:
+                frappe.throw(
+                    msg=res.get("error_user_msg"),
+                    title=res.get("error_user_title", "Error"),
+                )
+
 
     def get_header(self):
         """Get header format."""

@@ -108,7 +108,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-20 18:58:45.645868",
+ "modified": "2023-03-21 11:20:04.891815",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
@@ -130,7 +130,8 @@
   {
    "print": 1,
    "read": 1,
-   "role": "Guest"
+   "role": "Guest",
+   "select": 1
   }
  ],
  "sort_field": "modified",

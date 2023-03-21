@@ -24,6 +24,12 @@ class WhatsAppNotification(Document):
             if not any(field.fieldname == self.field_name for field in fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
 
+        if not frappe.has_permission(self.reference_doctype, ptype='print', user="Guest"):
+            frappe.throw(f"""
+                Add read and print permission to guest for <b>{self.reference_doctype}</b>
+                from Role Permission Manager to generate attachment""")
+
+
     def execute_method(self) -> dict:
         """Specific to API endpoint Server Scripts."""
         safe_exec(
