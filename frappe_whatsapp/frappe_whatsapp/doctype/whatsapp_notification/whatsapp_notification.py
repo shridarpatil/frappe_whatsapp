@@ -132,7 +132,7 @@ class WhatsAppNotification(Document):
                             }
                         }]
                     })
-                elif self.header_type == 'TEXT':
+                elif template.header_type == 'TEXT':
                     data['template']['components'].append({
                         "type": "header",
                         "parameters": [{
@@ -141,7 +141,7 @@ class WhatsAppNotification(Document):
                         }]
                     })
 
-                if self.footer:
+                if template.footer:
                     data['template']['components'].append({
                         "type": "footer",
                         "parameters": [{
