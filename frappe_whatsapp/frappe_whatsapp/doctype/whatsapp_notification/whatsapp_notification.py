@@ -64,12 +64,12 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        language_code = frappe.db.get_value(
+        tmeplate = frappe.db.get_value(
             "WhatsApp Templates", self.template,
-            fieldname='language_code'
+            fieldname='*'
         )
 
-        if language_code:
+        if tmeplate:
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(doc_data[self.field_name]),
@@ -77,7 +77,7 @@ class WhatsAppNotification(Document):
                 "template": {
                     "name": self.template,
                     "language": {
-                        "code": language_code
+                        "code": tmeplate.language_code
                     },
                     "components": []
                 }
@@ -97,40 +97,58 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
-                # frappe.db.begin()
-                key = doc.get_document_share_key()  # noqa
-                frappe.db.commit()
-                print_format = "Standard"
-                doctype = frappe.get_doc("DocType", doc_data['doctype'])
-                if doctype.custom:
-                    if doctype.default_print_format:
-                        print_format = doctype.default_print_format
-                else:
-                    default_print_format = frappe.db.get_value(
-                        "Property Setter",
-                        filters={
-                            "doc_type": doc_data['doctype'],
-                            "property": "default_print_format"
-                        },
-                        fieldname="value"
+                if self.attach_document_print:
+                    # frappe.db.begin()
+                    key = doc.get_document_share_key()  # noqa
+                    frappe.db.commit()
+                    print_format = "Standard"
+                    doctype = frappe.get_doc("DocType", doc_data['doctype'])
+                    if doctype.custom:
+                        if doctype.default_print_format:
+                            print_format = doctype.default_print_format
+                    else:
+                        default_print_format = frappe.db.get_value(
+                            "Property Setter",
+                            filters={
+                                "doc_type": doc_data['doctype'],
+                                "property": "default_print_format"
+                            },
+                            fieldname="value"
+                        )
+                        print_format = default_print_format if default_print_format else print_format
+                    link = get_pdf_link(
+                        doc_data['doctype'],
+                        doc_data['name'],
+                        print_format=print_format
                     )
-                    print_format = default_print_format if default_print_format else print_format
-                link = get_pdf_link(
-                    doc_data['doctype'],
-                    doc_data['name'],
-                    print_format=print_format
-                )
 
-                data['template']['components'].append({
-                    "type": "header",
-                    "parameters": [{
-                        "type": "document",
-                        "document": {
-                            "link": f'{frappe.utils.get_url()}{link}&key={key}',
-                            "filename": f'{doc_data["name"]}.pdf'
-                        }
-                    }]
-                })
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "document",
+                            "document": {
+                                "link": f'{frappe.utils.get_url()}{link}&key={key}',
+                                "filename": f'{doc_data["name"]}.pdf'
+                            }
+                        }]
+                    })
+                elif self.header_type == 'TEXT':
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "text",
+                            "text": template.header
+                        }]
+                    })
+
+                if self.footer:
+                    data['template']['components'].append({
+                        "type": "footer",
+                        "parameters": [{
+                            "type": "text",
+                            "text": template.footer
+                        }]
+                    })
 
             self.notify(data)
             frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
