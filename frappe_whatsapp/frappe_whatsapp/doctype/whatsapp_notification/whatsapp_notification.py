@@ -64,12 +64,12 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        tmeplate = frappe.db.get_value(
+        template = frappe.db.get_value(
             "WhatsApp Templates", self.template,
             fieldname='*'
         )
 
-        if tmeplate:
+        if template:
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(doc_data[self.field_name]),
@@ -77,7 +77,7 @@ class WhatsAppNotification(Document):
                 "template": {
                     "name": self.template,
                     "language": {
-                        "code": tmeplate.language_code
+                        "code": template.language_code
                     },
                     "components": []
                 }
@@ -138,15 +138,6 @@ class WhatsAppNotification(Document):
                         "parameters": [{
                             "type": "text",
                             "text": template.header
-                        }]
-                    })
-
-                if template.footer:
-                    data['template']['components'].append({
-                        "type": "footer",
-                        "parameters": [{
-                            "type": "text",
-                            "text": template.footer
                         }]
                     })
 
