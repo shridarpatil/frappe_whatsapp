@@ -132,14 +132,6 @@ class WhatsAppNotification(Document):
                             }
                         }]
                     })
-                elif template.header_type == 'TEXT':
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "text",
-                            "text": template.header
-                        }]
-                    })
 
             self.notify(data)
             frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
