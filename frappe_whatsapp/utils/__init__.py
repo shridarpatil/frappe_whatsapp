@@ -23,27 +23,29 @@ def run_server_script_for_doc_event(doc, event):
         for notification_name in notification:
             frappe.get_doc("WhatsApp Notification", notification_name).execute_doc(doc)
 
+        frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
+
 
 def get_notifications_map():
     """Get mapping."""
     if frappe.flags.in_patch and not frappe.db.table_exists("WhatsApp Notification"):
         return {}
 
-    notification_map = frappe.cache().get_value("whatsapp_notification_map")
-    if notification_map is None or not notification_map:
-        notification_map = {}
-        enabled_whatsapp_notifications = frappe.get_all(
-            "WhatsApp Notification",
-            fields=("name", "reference_doctype", "doctype_event", "notification_type"),
-            filters={"disabled": 0},
-        )
-        for notification in enabled_whatsapp_notifications:
-            if notification.notification_type == "DocType Event":
-                notification_map.setdefault(notification.reference_doctype, {}).setdefault(
-                    notification.doctype_event, []
-                ).append(notification.name)
+    notification_map = {}
+    enabled_whatsapp_notifications = frappe.get_all(
+        "WhatsApp Notification",
+        fields=("name", "reference_doctype", "doctype_event", "notification_type"),
+        filters={"disabled": 0},
+    )
+    for notification in enabled_whatsapp_notifications:
+        if notification.notification_type == "DocType Event":
+            notification_map.setdefault(
+                notification.reference_doctype, {}
+            ).setdefault(
+                notification.doctype_event, []
+            ).append(notification.name)
 
-        frappe.cache().set_value("whatsapp_notification_map", notification_map)
+    frappe.cache().set_value("whatsapp_notification_map", notification_map)
 
     return notification_map
 

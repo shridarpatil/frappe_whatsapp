@@ -13,7 +13,6 @@ class WhatsAppNotification(Document):
 
     def validate(self):
         """Validate."""
-        frappe.cache().delete_key("whatsapp_notification_map")
         if self.notification_type == "DocType Event":
             fields = frappe.get_doc("DocType", self.reference_doctype).fields
             fields += frappe.get_all(
@@ -134,7 +133,6 @@ class WhatsAppNotification(Document):
                     })
 
             self.notify(data)
-            frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
 
     def notify(self, data):
         """Notify."""
