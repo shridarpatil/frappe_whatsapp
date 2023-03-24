@@ -21,7 +21,10 @@ def run_server_script_for_doc_event(doc, event):
     if notification:
         # run all scripts for this doctype + event
         for notification_name in notification:
-            frappe.get_doc("WhatsApp Notification", notification_name).execute_doc(doc)
+            frappe.get_doc(
+                "WhatsApp Notification",
+                notification_name
+            ).send_template_message(doc)
 
         frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
 
@@ -105,5 +108,5 @@ def trigger_whatsapp_notifications(event):
     frappe.get_doc(
         "WhatsApp Notification",
         frappe.db.get_value("WhatsApp Notification", filters={"event_frequency": event})
-    ).execute_method()
+    ).send_scheduled_message()
     pass

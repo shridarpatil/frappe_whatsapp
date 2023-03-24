@@ -23,7 +23,7 @@ class WhatsAppNotification(Document):
             if not any(field.fieldname == self.field_name for field in fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
 
-    def execute_method(self) -> dict:
+    def send_scheduled_message(self) -> dict:
         """Specific to API endpoint Server Scripts."""
         safe_exec(
             self.condition, get_safe_globals(), dict(doc=self)
@@ -50,7 +50,7 @@ class WhatsAppNotification(Document):
                 self.notify(data)
         # return _globals.frappe.flags
 
-    def execute_doc(self, doc: Document):
+    def send_template_message(self, doc: Document):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
