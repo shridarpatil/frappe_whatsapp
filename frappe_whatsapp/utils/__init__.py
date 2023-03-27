@@ -26,8 +26,6 @@ def run_server_script_for_doc_event(doc, event):
                 notification_name
             ).send_template_message(doc)
 
-        frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
-
 
 def get_notifications_map():
     """Get mapping."""
