@@ -121,16 +121,26 @@ class WhatsAppNotification(Document):
                         print_format=print_format
                     )
 
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "document",
-                            "document": {
-                                "link": f'{frappe.utils.get_url()}{link}&key={key}',
-                                "filename": f'{doc_data["name"]}.pdf'
-                            }
-                        }]
-                    })
+                    filename = f'{self.name}.pdf'
+                    url = f'{frappe.utils.get_url()}{link}&key={key}'
+
+                elif self.custom_attachment:
+                    filename = self.file_name
+                    if self.attach.startswith("http"):
+                        url = f'{self.attach}'
+                    else:
+                        url = f'{frappe.utils.get_url()}{self.attach}'
+
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "document",
+                        "document": {
+                            "link": url,
+                            "filename": filename
+                        }
+                    }]
+                })
 
             self.notify(data)
 
