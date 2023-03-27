@@ -96,52 +96,52 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
-                if self.attach_document_print:
-                    # frappe.db.begin()
-                    key = doc.get_document_share_key()  # noqa
-                    frappe.db.commit()
-                    print_format = "Standard"
-                    doctype = frappe.get_doc("DocType", doc_data['doctype'])
-                    if doctype.custom:
-                        if doctype.default_print_format:
-                            print_format = doctype.default_print_format
-                    else:
-                        default_print_format = frappe.db.get_value(
-                            "Property Setter",
-                            filters={
-                                "doc_type": doc_data['doctype'],
-                                "property": "default_print_format"
-                            },
-                            fieldname="value"
-                        )
-                        print_format = default_print_format if default_print_format else print_format
-                    link = get_pdf_link(
-                        doc_data['doctype'],
-                        doc_data['name'],
-                        print_format=print_format
+            if self.attach_document_print:
+                # frappe.db.begin()
+                key = doc.get_document_share_key()  # noqa
+                frappe.db.commit()
+                print_format = "Standard"
+                doctype = frappe.get_doc("DocType", doc_data['doctype'])
+                if doctype.custom:
+                    if doctype.default_print_format:
+                        print_format = doctype.default_print_format
+                else:
+                    default_print_format = frappe.db.get_value(
+                        "Property Setter",
+                        filters={
+                            "doc_type": doc_data['doctype'],
+                            "property": "default_print_format"
+                        },
+                        fieldname="value"
                     )
+                    print_format = default_print_format if default_print_format else print_format
+                link = get_pdf_link(
+                    doc_data['doctype'],
+                    doc_data['name'],
+                    print_format=print_format
+                )
 
-                    filename = f'{self.name}.pdf'
-                    url = f'{frappe.utils.get_url()}{link}&key={key}'
+                filename = f'{self.name}.pdf'
+                url = f'{frappe.utils.get_url()}{link}&key={key}'
 
-                elif self.custom_attachment:
-                    filename = self.file_name
-                    if self.attach.startswith("http"):
-                        url = f'{self.attach}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{self.attach}'
+            elif self.custom_attachment:
+                filename = self.file_name
+                if self.attach.startswith("http"):
+                    url = f'{self.attach}'
+                else:
+                    url = f'{frappe.utils.get_url()}{self.attach}'
 
-                if template.header_type == 'DOCUMENT':
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "document",
-                            "document": {
-                                "link": url,
-                                "filename": filename
-                            }
-                        }]
-                    })
+            if template.header_type == 'DOCUMENT':
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "document",
+                        "document": {
+                            "link": url,
+                            "filename": filename
+                        }
+                    }]
+                })
 
             self.notify(data)
 
