@@ -18,7 +18,9 @@ frappe.ui.form.on('WhatsApp Notification', {
 					if (r.header_type == 'DOCUMENT'){
 						frm.toggle_display("custom_attachment", true);
 						frm.toggle_display("attach_document_print", true);
-						frm.set_value("attach_document_print", 1)
+						if (!frm.doc.custom_attachment){
+							frm.set_value("attach_document_print", 1)
+						}
 					}else{
 						frm.toggle_display("custom_attachment", false);
 						frm.toggle_display("attach_document_print", false);
