@@ -131,16 +131,17 @@ class WhatsAppNotification(Document):
                     else:
                         url = f'{frappe.utils.get_url()}{self.attach}'
 
-                data['template']['components'].append({
-                    "type": "header",
-                    "parameters": [{
-                        "type": "document",
-                        "document": {
-                            "link": url,
-                            "filename": filename
-                        }
-                    }]
-                })
+                if template.header_type == 'DOCUMENT':
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "document",
+                            "document": {
+                                "link": url,
+                                "filename": filename
+                            }
+                        }]
+                    })
 
             self.notify(data)
 
