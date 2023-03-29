@@ -121,7 +121,7 @@ class WhatsAppNotification(Document):
                     print_format=print_format
                 )
 
-                filename = f'{self.name}.pdf'
+                filename = f'{doc_data["name"]}.pdf'
                 url = f'{frappe.utils.get_url()}{link}&key={key}'
 
             elif self.custom_attachment:
