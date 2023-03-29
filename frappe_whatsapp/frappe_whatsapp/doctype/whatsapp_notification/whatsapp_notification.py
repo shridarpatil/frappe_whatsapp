@@ -176,10 +176,7 @@ class WhatsAppNotification(Document):
         except Exception as e:
             response = frappe.flags.integration_request.json()['error']
             error_message = response.get('Error', response.get("message"))
-            frappe.throw(
-                msg=error_message,
-                title=response.get("error_user_title", "Error")
-            )
+            frappe.msgprint(error_message, indicator="red", alert=True)
         finally:
             frappe.get_doc({
                 "doctype": "WhatsApp Notification Log",
