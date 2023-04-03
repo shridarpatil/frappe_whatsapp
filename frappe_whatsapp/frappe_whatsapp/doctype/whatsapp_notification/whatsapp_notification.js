@@ -14,6 +14,7 @@ frappe.ui.form.on('WhatsApp Notification', {
 			frm.doc.template,
 			["template", "header_type"],
 			(r) => {
+				console.log(r)
 				if (r && r.template) {
 					if (r.header_type == 'DOCUMENT'){
 						frm.toggle_display("custom_attachment", true);
@@ -35,9 +36,10 @@ frappe.ui.form.on('WhatsApp Notification', {
 		)
 	},
 	custom_attachment: function(frm){
-
-		frm.set_df_property('attach', 'reqd', frm.doc.custom_attachment)
-		frm.set_df_property('file_name', 'reqd', frm.doc.custom_attachment)
+		if(frm.doc.custom_attachment){
+			frm.set_df_property('attach', 'reqd', frm.doc.custom_attachment)
+			frm.set_df_property('file_name', 'reqd', frm.doc.custom_attachment)
+		}
 
 		// frm.toggle_display("attach_document_print", !frm.doc.custom_attachment);
 		frm.set_value("attach_document_print", !frm.doc.custom_attachment)
