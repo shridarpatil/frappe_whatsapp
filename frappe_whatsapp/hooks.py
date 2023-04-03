@@ -201,7 +201,6 @@ doc_events = {
         "on_trash": "frappe_whatsapp.utils.run_server_script_for_doc_event",
         "after_delete": "frappe_whatsapp.utils.run_server_script_for_doc_event",
         "before_update_after_submit": "frappe_whatsapp.utils.run_server_script_for_doc_event",
-        "on_update_after_submit": "frappe_whatsapp.utils.run_server_script_for_doc_event",
-        "on_payment_authorized": "frappe_whatsapp.utils.run_server_script_for_doc_event"
+        "on_update_after_submit": "frappe_whatsapp.utils.run_server_script_for_doc_event"
     }
 }
