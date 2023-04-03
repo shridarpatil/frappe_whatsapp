@@ -24,7 +24,8 @@
   "column_break_12",
   "fields",
   "help_section",
-  "help_html"
+  "help_html",
+  "header_type"
  ],
  "fields": [
   {
@@ -149,11 +150,17 @@
    "fieldname": "file_name",
    "fieldtype": "Data",
    "label": "File name"
+  },
+  {
+   "fieldname": "header_type",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Header Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-03 11:46:13.308519",
+ "modified": "2023-04-03 13:59:27.758318",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
