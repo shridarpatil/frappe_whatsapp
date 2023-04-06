@@ -61,10 +61,6 @@ WhatsApp messages are received via WhatsApp cloud API.
   * `messages` to receive message
   * add other required web fields
 
-### Upcoming features
-* Update templates on facebook dev.
-* Display template status
-
 
 #### License
 
