@@ -51,12 +51,12 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
     else:
+        changes = None
         try:
             changes = data["entry"][0]["changes"][0]
-            update_status(changes)
         except KeyError:
             changes = data["entry"]["changes"][0]
-            update_status(changes)
+        update_status(changes)
     return
 
 
