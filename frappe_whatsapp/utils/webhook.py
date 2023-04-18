@@ -35,7 +35,12 @@ def post():
         "meta_data": json.dumps(data)
     }).insert(ignore_permissions=True)
 
-    messages = data["entry"]["changes"][0]["value"].get("messages", [])
+    messages = []
+    try:
+        messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
+    except KeyError:
+        messages = data["entry"]["changes"][0]["value"].get("messages", [])
+
     if messages:
         for message in messages:
             if message['type'] == 'text':
