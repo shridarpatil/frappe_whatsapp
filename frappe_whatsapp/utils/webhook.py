@@ -35,7 +35,7 @@ def post():
         "meta_data": json.dumps(data)
     }).insert(ignore_permissions=True)
 
-    messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
+    messages = data["entry"]["changes"][0]["value"].get("messages", [])
     if messages:
         for message in messages:
             if message['type'] == 'text':
@@ -46,7 +46,7 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
     else:
-        update_status(data["entry"][0]["changes"][0])
+        update_status(data["entry"]["changes"][0])
     return
 
 
