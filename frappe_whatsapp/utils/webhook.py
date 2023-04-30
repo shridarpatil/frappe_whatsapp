@@ -52,6 +52,28 @@ def post():
                     "from": message['from'],
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
+            elif message['type'] == 'image':
+                frappe.get_doc({
+                    "doctype": "WhatsApp Message",
+                    "type": "Incoming",
+                    "from": message['from'],
+                    "message": message['image']['url'],
+                    "media_type": "image",
+                    "media_caption": message['caption'],
+                    "media_file_name": message['image']['file_name']
+                }).insert(ignore_permissions=True)
+            elif message['type'] == 'document':
+                frappe.get_doc({
+                    "doctype": "WhatsApp Message",
+                    "type": "Incoming",
+                    "from": message['from'],
+                    "message": message['document']['url'],
+                    "media_type": "document",
+                    "media_caption": message['caption'],
+                    "media_file_name": message['document']['file_name']
+                }).insert(ignore_permissions=True)
+            # Aggiungere ulteriori blocchi if-elif per gestire altri tipi di messaggi multimediali, come audio, video, ecc.
+
     else:
         changes = None
         try:
@@ -60,6 +82,7 @@ def post():
             changes = data["entry"]["changes"][0]
         update_status(changes)
     return
+
 
 
 def update_status(data):
