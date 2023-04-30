@@ -2,6 +2,8 @@
 import frappe
 import json
 
+"""ciao"""
+
 from werkzeug.wrappers import Response
 
 
