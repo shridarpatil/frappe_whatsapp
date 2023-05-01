@@ -22,20 +22,32 @@ class WhatsAppMessage(Document):
                 "to": self.format_number(self.to),
                 "type": self.content_type
             }
-            if self.content_type in ['document', 'image', 'video']:
-                 data[self.content_type.lower()] = {
-                    "link": link,
-                    "caption": self.message
-                }
-            elif self.content_type == "text":
+
+            if self.content_type == "text":
                 data["text"] = {
                     "preview_url": True,
                     "body": self.message
                 }
-
+            elif self.content_type == "image":
+                data["image"] = {
+                    "link": link,
+                    "caption": self.message
+                }
+            elif self.content_type == "video":
+                data["video"] = {
+                    "link": link,
+                    "caption": self.message
+                }
             elif self.content_type == "audio":
-                data["text"] = {
-                    "link": link
+                data["audio"] = {
+                    "link": link,
+                    "caption": self.message
+                }
+            elif self.content_type == "document":
+                data["document"] = {
+                    "link": link,
+                    "filename": self.name,
+                    "caption": self.message
                 }
 
             try:
@@ -83,3 +95,4 @@ class WhatsAppMessage(Document):
             number = number[1:len(number)]
 
         return number
+
