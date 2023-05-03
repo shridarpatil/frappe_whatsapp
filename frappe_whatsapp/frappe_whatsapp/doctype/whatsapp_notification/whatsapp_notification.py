@@ -171,7 +171,11 @@ class WhatsAppNotification(Document):
                 "message_id": response['messages'][0]['id']
             }).save(ignore_permissions=True)
 
-            frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
+            mobile_no = data['to']
+            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
+
+
+            frappe.msgprint("Messaggio di benvenuto inviato a " + customer_name + "(" +str(data['to']) +")", indicator="green", alert=True)
 
         except Exception as e:
             response = frappe.flags.integration_request.json()['error']
@@ -215,3 +219,4 @@ class WhatsAppNotification(Document):
             number = number[1:len(number)]
 
         return number
+    
