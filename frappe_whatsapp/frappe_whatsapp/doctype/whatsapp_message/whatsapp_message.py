@@ -4,6 +4,8 @@ import json
 import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
+from frappe.utils import cstr
+from frappe.model.utils import get_fetch_values
 
 
 class WhatsAppMessage(Document):
@@ -16,13 +18,29 @@ class WhatsAppMessage(Document):
                 link = frappe.utils.get_url() + '/'+ self.attach
             else:
                 link = self.attach
+            
+            # recupera i nomi dei clienti
+            customers = frappe.db.get_list("Customer", filters={}, fields=["name"])
+
+          # popola le opzioni del campo di selezione
+            for customer in customers:
+             fetch_values = get_fetch_values("Customer", customer.name, ["name"])
+             customer_name = fetch_values.get("name")
+             if customer_name:
+                options += '\n' + cstr(customer_name) #customer_name e' il nome coorente selezionato dall'utent enella select
+            
+            # assegna le opzioni al campo di selezione
+            doc.customer.options = options
+
+            mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")
 
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(self.to),
+                "to": self.format_number(mobile_no),
                 "type": self.content_type
             }
-
+             
+                         
             if self.content_type == "text":
                 data["text"] = {
                     "preview_url": True,
@@ -57,6 +75,7 @@ class WhatsAppMessage(Document):
                 self.status = "Failed"
                 frappe.throw(f"Failed to send message {str(e)}")
 
+
     def notify(self, data):
         """Notify."""
 
@@ -79,7 +98,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            frappe.msgprint("Messaggio inviato a " + customer_name + "(" +str(self.format_number(self.to)) +")"+ "/n" + self.message, indicator="green", alert=True)
+            frappe.msgprint("Messaggio inviato a " + customer_name + "(" +str(self.format_number(self.to)) +")"+ "\n" + self.message, indicator="green", alert=True)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -101,11 +120,3 @@ class WhatsAppMessage(Document):
             number = number[1:len(number)]
 
         return number
-
-#class WhatsAppMessageWithPreview(WhatsAppMessage):
- #   def get_list_context(self, filters=None):
- #       context = super().get_list_context(filters=filters)
-  #      for message in context.get("messages"):
-  #          if message.content_type in ["image", "video"]:
-  #              message.preview = f"<img src='{message.attach}' height='50px'>"
-   #     return context

@@ -175,7 +175,7 @@ class WhatsAppNotification(Document):
                 "message_id": response['messages'][0]['id']
             }).save(ignore_permissions=True)
 
-            frappe.msgprint("Messaggio di benvenuto inviato a " + customer_name + "(" +str(data['to']) +")", indicator="green", alert=True)
+            frappe.msgprint("Messaggio di benvenuto inviato a " + "(" +str(data['to']) +")", indicator="green", alert=True)
 
         except Exception as e:
             response = frappe.flags.integration_request.json()['error']
