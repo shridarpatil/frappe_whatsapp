@@ -57,11 +57,13 @@ class WhatsAppMessage(Document):
                 self.status = "Failed"
                 frappe.throw(f"Failed to send message {str(e)}")
 
-                if self.message.content_type in ["image", "video"]:
-                 self.message.preview = f"<img src='{self.message.attach}' height='50px'>"
-
     def notify(self, data):
         """Notify."""
+
+        mobile_no = (self.to)
+        customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
+        
+
         settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
         )
@@ -77,9 +79,6 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-
-            mobile_no = self.format_number(self.to)
-            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
             frappe.msgprint("Messaggio inviato a " + customer_name + "(" +str(self.format_number(self.to)) +")"+ "/n" + self.message, indicator="green", alert=True)
 
         except Exception as e:

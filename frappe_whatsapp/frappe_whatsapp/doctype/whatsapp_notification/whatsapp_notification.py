@@ -147,6 +147,10 @@ class WhatsAppNotification(Document):
 
     def notify(self, data):
         """Notify."""
+
+        mobile_no = data['to']
+        customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
+
         settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
         )
@@ -170,10 +174,6 @@ class WhatsAppNotification(Document):
                 "message_type": "Template",
                 "message_id": response['messages'][0]['id']
             }).save(ignore_permissions=True)
-
-            mobile_no = data['to']
-            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-
 
             frappe.msgprint("Messaggio di benvenuto inviato a " + customer_name + "(" +str(data['to']) +")", indicator="green", alert=True)
 
