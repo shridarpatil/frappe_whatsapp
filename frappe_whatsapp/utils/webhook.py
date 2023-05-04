@@ -1,9 +1,6 @@
 """Webhook."""
 import frappe
 import json
-from frappe.utils.file_manager import save_url
-
-"""Webhook."""
 
 from werkzeug.wrappers import Response
 
@@ -44,74 +41,87 @@ def post():
     except KeyError:
         messages = data["entry"]["changes"][0]["value"].get("messages", [])
 
+#if messages:
+        #for message in messages:
+            #if message['type'] == 'text':
+                
+               
+              #  frappe.get_doc({
+              #      "doctype": "WhatsApp Message",
+                #    "type": "Incoming",
+                #    "from": message['from'],
+                 #   "message": message['text']['body']
+              #  }).insert(ignore_permissions=True)
+                
+        #    elif message['type'] == 'image':
+          #      file_url = message['image']['url']
+              #  file_name = message['image']['file_name']
+            #    file_size = message['image']['file_size']
+           #     file_data = frappe.utils.file_manager.get_file(file_url)
+             #   save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
+              #  frappe.get_doc({
+              #      "doctype": "WhatsApp Message",
+                   # "type": "Incoming",
+                  #  "from": message['from'],
+                   # "attachment": {
+                   #     "doctype": "File",
+                   #     "file_name": file_name,
+                   #     "file_url": file_url,
+                     #   "file_size": file_size,
+                    #    "is_private": 1
+                  #  }
+             #   }).insert(ignore_permissions=True)
+       #     elif message['type'] == 'audio':
+      #          file_url = message['audio']['url']
+       #         file_name = message['audio']['file_name']
+      #          file_size = message['audio']['file_size']
+       #         file_data = frappe.utils.file_manager.get_file(file_url)
+        #        save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
+         #       frappe.get_doc({
+          #          "doctype": "WhatsApp Message",
+          #          "type": "Incoming",
+            #        "from": message['from'],
+            #        "attachment": {
+             #          "doctype": "File",
+                 #       "file_name": file_name,
+                 #       "file_url": file_url,
+                 #       "file_size": file_size,
+                  #      "is_private": 1
+                  #  }
+             #   }).insert(ignore_permissions=True)
+         #   elif message['type'] == 'video':
+           #     file_url = message['video']['url']
+         #       file_name = message['video']['file_name']
+           #     file_size = message['video']['file_size']
+          #      file_data = frappe.utils.file_manager.get_file(file_url)
+            #    save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
+           #     frappe.get_doc({
+             #       "doctype": "WhatsApp Message",
+                #    "type": "Incoming",
+               #     "from": message['from'],
+                #    "attachment": {
+              #          "doctype": "File",
+               #         "file_name": file_name,
+               #         "file_url": file_url,
+               #         "file_size": file_size,
+               #         "is_private": 1
+              #      }
+             #   }).insert(ignore_permissions=True)
+
+
     if messages:
         for message in messages:
             if message['type'] == 'text':
-                mobile_no = message['from']
-                customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-                frappe.msgprint("Messaggio inviato da " + customer_name + "(" +str(message['from']) +")"+ "\n" + message['text']['body'], indicator="green", alert=True)
-               
                 frappe.get_doc({
                     "doctype": "WhatsApp Message",
                     "type": "Incoming",
                     "from": message['from'],
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
-                
-            elif message['type'] == 'image':
-                file_url = message['image']['url']
-                file_name = message['image']['file_name']
-                file_size = message['image']['file_size']
-                file_data = frappe.utils.file_manager.get_file(file_url)
-                save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
-                frappe.get_doc({
-                    "doctype": "WhatsApp Message",
-                    "type": "Incoming",
-                    "from": message['from'],
-                    "attachment": {
-                        "doctype": "File",
-                        "file_name": file_name,
-                        "file_url": file_url,
-                        "file_size": file_size,
-                        "is_private": 1
-                    }
-                }).insert(ignore_permissions=True)
-            elif message['type'] == 'audio':
-                file_url = message['audio']['url']
-                file_name = message['audio']['file_name']
-                file_size = message['audio']['file_size']
-                file_data = frappe.utils.file_manager.get_file(file_url)
-                save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
-                frappe.get_doc({
-                    "doctype": "WhatsApp Message",
-                    "type": "Incoming",
-                    "from": message['from'],
-                    "attachment": {
-                        "doctype": "File",
-                        "file_name": file_name,
-                        "file_url": file_url,
-                        "file_size": file_size,
-                        "is_private": 1
-                    }
-                }).insert(ignore_permissions=True)
-            elif message['type'] == 'video':
-                file_url = message['video']['url']
-                file_name = message['video']['file_name']
-                file_size = message['video']['file_size']
-                file_data = frappe.utils.file_manager.get_file(file_url)
-                save_url(file_name, file_data, "WhatsApp Attachments", "Home/Attachments", file_size=file_size)
-                frappe.get_doc({
-                    "doctype": "WhatsApp Message",
-                    "type": "Incoming",
-                    "from": message['from'],
-                    "attachment": {
-                        "doctype": "File",
-                        "file_name": file_name,
-                        "file_url": file_url,
-                        "file_size": file_size,
-                        "is_private": 1
-                    }
-                }).insert(ignore_permissions=True)
+
+                mobile_no = message['from']
+                customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
+                frappe.msgprint("Messaggio inviato da " + customer_name + "(" +str(message['from']) +")"+ "\n" + message['text']['body'], indicator="green", alert=True)
     else:
         changes = None
         try:
@@ -120,7 +130,6 @@ def post():
             changes = data["entry"]["changes"][0]
         update_status(changes)
     return
-
 
 
 def update_status(data):
@@ -154,3 +163,4 @@ def update_message_status(data):
     if conversation:
         doc.conversation_id = conversation
     doc.save(ignore_permissions=True)
+

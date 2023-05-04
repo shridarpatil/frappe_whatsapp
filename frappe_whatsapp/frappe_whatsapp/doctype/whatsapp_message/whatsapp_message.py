@@ -16,15 +16,16 @@ class WhatsAppMessage(Document):
             else:
                 link = self.attach
 
-            cur_frm.set_df_property("to", "options", ['option a', 'option b'])
-            mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")
+            
+           # mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")
 
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(mobile_no),
+                "to": self.format_number(frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")),
                 "type": self.content_type
             }
              
+            cur_frm.set_df_property("to", "options", ['option a', 'option b'])
                          
             if self.content_type == "text":
                 data["text"] = {
