@@ -18,20 +18,8 @@ class WhatsAppMessage(Document):
                 link = frappe.utils.get_url() + '/'+ self.attach
             else:
                 link = self.attach
-            
-            # recupera i nomi dei clienti
-            customers = frappe.db.get_list("Customer", filters={}, fields=["name"])
 
-          # popola le opzioni del campo di selezione
-            for customer in customers:
-             fetch_values = get_fetch_values("Customer", customer.name, ["name"])
-             customer_name = fetch_values.get("name")
-             if customer_name:
-                options += '\n' + cstr(customer_name) #customer_name e' il nome coorente selezionato dall'utent enella select
-            
-            # assegna le opzioni al campo di selezione
-            doc.customer.options = options
-
+            frm.set_df_property('to', 'options', ['option a', 'option b']);
             mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")
 
             data = {
