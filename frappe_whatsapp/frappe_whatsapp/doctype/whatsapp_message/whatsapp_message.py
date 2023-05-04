@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 from frappe.utils import cstr
 from frappe.model.utils import get_fetch_values
+from frappe.ui.form import Frm
 
 
 class WhatsAppMessage(Document):
@@ -19,7 +20,7 @@ class WhatsAppMessage(Document):
             else:
                 link = self.attach
 
-            frm.set_df_property('to', 'options', ['option a', 'option b']);
+            frm.set_df_property(self.to, 'options', ['option a', 'option b']);
             mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")
 
             data = {
