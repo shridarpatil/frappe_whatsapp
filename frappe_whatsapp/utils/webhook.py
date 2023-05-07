@@ -35,13 +35,14 @@ def post():
         "meta_data": json.dumps(data)
     }).insert(ignore_permissions=True)
 
+    frappe.msgprint("prova12")
+
     messages = []
     try:
         messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
-        frappe.msgprint("prova12")
     except KeyError:
         messages = data["entry"]["changes"][0]["value"].get("messages", [])
-        frappe.msgprint("prova12")
+        
 
 #if messages:
         #for message in messages:
