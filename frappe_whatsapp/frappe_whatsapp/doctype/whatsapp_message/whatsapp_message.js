@@ -4,7 +4,7 @@
 frappe.ui.form.on("WhatsAppMessage", {
     onload: function(frm) {
         frappe.call({
-            method: "nome_modulo.nome_file.set_to_field_options",
+            method: "frappe_whatsapp.whatsapp_message.py.set_to_field_options",
             callback: function(r) {
                 frm.refresh_field("to");
             }
