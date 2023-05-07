@@ -124,19 +124,9 @@ def post():
         try:
             changes = data["entry"][0]["changes"][0]
 
-            frappe.msgprint("prova1")
-            mobile_no = message['from']
-            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-            frappe.msgprint("Messaggio inviato da " + customer_name + "(" +str(message['from']) +")"+ "\n" + message['text']['body'], indicator="green", alert=True)
-
         except KeyError:
             changes = data["entry"]["changes"][0]
 
-            frappe.msgprint("prova2")
-            mobile_no = message['from']
-            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-            frappe.msgprint("Messaggio inviato da " + customer_name + "(" +str(message['from']) +")"+ "\n" + message['text']['body'], indicator="green", alert=True)
-            
         update_status(changes)
     return
 
@@ -152,6 +142,7 @@ def update_status(data):
 
 def update_template_status(data):
     """Update template status."""
+     frappe.msgprint("prova11")
     frappe.db.sql(
         """UPDATE `tabWhatsApp Templates`
         SET status = %(event)s
@@ -166,8 +157,13 @@ def update_message_status(data):
     status = data['statuses'][0]['status']
     conversation = data['statuses'][0].get('conversation', {}).get('id')
     name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
+    
 
     doc = frappe.get_doc("WhatsApp Message", name)
+
+    frappe.msgprint("prova12")
+
+
     doc.status = status
     if conversation:
         doc.conversation_id = conversation
