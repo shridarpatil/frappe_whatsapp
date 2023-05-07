@@ -119,9 +119,6 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
 
-                mobile_no = message['from']
-                customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-                frappe.logger.info("Messaggio inviato da " + customer_name + " (" + str(message['from']) + ")\n" + message['text']['body'])
     else:
         changes = None
         try:
