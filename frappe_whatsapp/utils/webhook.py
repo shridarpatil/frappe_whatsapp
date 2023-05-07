@@ -118,6 +118,7 @@ def post():
                     "from": message['from'],
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
+                frappe.msgprint("prova12")
 
     else:
         changes = None
@@ -135,14 +136,15 @@ def update_status(data):
     """Update status hook."""
     if data.get("field") == "message_template_status_update":
         update_template_status(data['value'])
+        frappe.msgprint("prova12")
 
     elif data.get("field") == "messages":
         update_message_status(data['value'])
+        frappe.msgprint("prova12")
 
 
 def update_template_status(data):
     """Update template status."""
-     frappe.msgprint("prova11")
     frappe.db.sql(
         """UPDATE `tabWhatsApp Templates`
         SET status = %(event)s
@@ -161,7 +163,7 @@ def update_message_status(data):
 
     doc = frappe.get_doc("WhatsApp Message", name)
 
-    frappe.msgprint("prova12")
+
 
 
     doc.status = status
