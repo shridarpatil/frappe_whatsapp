@@ -38,8 +38,10 @@ def post():
     messages = []
     try:
         messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
+        frappe.msgprint("prova12")
     except KeyError:
         messages = data["entry"]["changes"][0]["value"].get("messages", [])
+        frappe.msgprint("prova12")
 
 #if messages:
         #for message in messages:
@@ -118,7 +120,6 @@ def post():
                     "from": message['from'],
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
-                frappe.msgprint("prova12")
 
     else:
         changes = None
@@ -136,11 +137,9 @@ def update_status(data):
     """Update status hook."""
     if data.get("field") == "message_template_status_update":
         update_template_status(data['value'])
-        frappe.msgprint("prova12")
 
     elif data.get("field") == "messages":
         update_message_status(data['value'])
-        frappe.msgprint("prova12")
 
 
 def update_template_status(data):
