@@ -16,13 +16,6 @@ class WhatsAppMessage(Document):
             else:
                 link = self.attach
 
-        if self.type == 'Incoming' and self.message_type != 'Template':
-            if self.attach and not self.attach.startswith("http"):
-                frappe.msgprint("Messaggio ricevuto da " + customer_name + "(" +str(self.format_number(self.to)) +")"+ "\n" + self.message, indicator="green", alert=True)
-                link = frappe.utils.get_url() + '/'+ self.attach
-            else:
-                link = self.attach        
-
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")),
