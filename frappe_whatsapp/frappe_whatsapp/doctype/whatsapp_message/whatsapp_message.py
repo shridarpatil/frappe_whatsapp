@@ -108,3 +108,11 @@ class WhatsAppMessage(Document):
             number = number[1:len(number)]
 
         return number
+
+@frappe.whitelist()
+def set_to_field_options():
+    """Set options for 'to' field."""
+    options = ['option a', 'option b']
+    field = frappe.meta.get_docfield("WhatsAppMessage", "to", self)
+    field.options = "\n".join(options)
+    field.default = options[0]
