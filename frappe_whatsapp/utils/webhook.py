@@ -123,6 +123,11 @@ def post():
         changes = None
         try:
             changes = data["entry"][0]["changes"][0]
+
+            mobile_no = message['from']
+            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
+            frappe.msgprint("Messaggio inviato da " + customer_name + "(" +str(message['from']) +")"+ "\n" + message['text']['body'], indicator="green", alert=True)
+            
         except KeyError:
             changes = data["entry"]["changes"][0]
         update_status(changes)
