@@ -10,7 +10,7 @@ frappe.ui.form.on("WhatsApp Message", {
                 method: "refresh"
             },
             callback: function(r) {
-                frm.refresh_field("to");
+                frm.refresh_field("a");
             }
         });
     }

@@ -45,7 +45,6 @@ def post():
     if messages:
      for message in messages:
         if message['type'] == 'text':
-            frappe.throw("prova")
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
                 "type": "Incoming",

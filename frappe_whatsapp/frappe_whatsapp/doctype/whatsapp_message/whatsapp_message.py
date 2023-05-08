@@ -108,4 +108,4 @@ class WhatsAppMessage(Document):
 def set_to_field_options(doc, method):
     options = ['a', 'b']
     meta = frappe.get_meta("WhatsApp Message")
-    meta.get_field("to").options = options
+    meta.get_field("a").options = options
