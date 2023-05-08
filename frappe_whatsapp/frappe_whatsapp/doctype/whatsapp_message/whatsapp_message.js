@@ -3,15 +3,6 @@
 
 frappe.ui.form.on("WhatsApp Message", {
     refresh: function(frm) {
-        frappe.call({
-            method: "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.set_to_field_options",
-            args: {
-                doc: frm.doc,
-                method: "refresh"
-            },
-            callback: function(r) {
-                frm.refresh_field("a");
-            }
-        });
+      cur_frm.set_df_property("a", "options", ['option a', 'option b']);
     }
 });

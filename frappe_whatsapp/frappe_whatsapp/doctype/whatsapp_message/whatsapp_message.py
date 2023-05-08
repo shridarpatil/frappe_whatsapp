@@ -8,6 +8,7 @@ from frappe.integrations.utils import make_post_request
 class WhatsAppMessage(Document):
     """Send whats app messages."""
 
+
     def before_insert(self):
         """Send message."""
         if self.type == 'Outgoing' and self.message_type != 'Template':
@@ -104,8 +105,8 @@ class WhatsAppMessage(Document):
 
         return number
 
-@frappe.whitelist()
-def set_to_field_options(doc, method):
-    options = ['a', 'b']
-    meta = frappe.get_meta("WhatsApp Message")
-    meta.get_field("a").options = options
+#@frappe.whitelist()
+#def set_to_field_options(doc, method):
+ #   options = ['a', 'b']
+   # meta = frappe.get_meta("WhatsApp Message")
+   #  meta.get_field("a").options = options
