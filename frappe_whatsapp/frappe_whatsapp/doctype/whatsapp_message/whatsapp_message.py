@@ -19,7 +19,7 @@ class WhatsAppMessage(Document):
 
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(frappe.db.get_value("Customer", filters={"customer_name": customer_name}, fieldname="mobile_no")),
+                "to": self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")),
                 "type": self.content_type
             }
              
