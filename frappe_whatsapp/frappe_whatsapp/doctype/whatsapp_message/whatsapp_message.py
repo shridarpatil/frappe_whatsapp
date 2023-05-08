@@ -30,34 +30,33 @@ class WhatsAppMessage(Document):
                     "preview_url": True,
                     "body": self.message
                 }
-            elif self.content_type == "image":
-                data["image"] = {
-                    "link": link,
-                    "caption": self.message
-                }
-            elif self.content_type == "video":
-                data["video"] = {
-                    "link": link,
-                    "caption": self.message
-                }
-            elif self.content_type == "audio":
-                data["audio"] = {
-                    "link": link,
-                    "caption": self.message
-                }
-            elif self.content_type == "document":
-                data["document"] = {
-                    "link": link,
-                    "filename": self.name,
-                    "caption": self.message
-                }
-
+           # elif self.content_type == "image":
+                   #data["image"] = {
+                    #   "link": link,
+                    #   "caption": self.message
+                 #  }
+             #  elif self.content_type == "video":
+               #    data["video"] = {
+               #        "link": link,
+                #       "caption": self.message
+                 #  }
+             #  elif self.content_type == "audio":
+               #    data["audio"] = {
+                 #      "link": link,
+                #       "caption": self.message
+               #    }
+            #   elif self.content_type == "document":
+               #    data["document"] = {
+                  #     "link": link,
+                 #      "filename": self.name,
+                 #      "caption": self.message
+               #    }
             try:
                 self.notify(data)
                 self.status = "Success"
             except Exception as e:
                 self.status = "Failed"
-                frappe.throw(f"Failed to send message {str(e)}")
+                   #frappe.throw(f"Failed to send message {str(e)}")
 
 
     def notify(self, data):
