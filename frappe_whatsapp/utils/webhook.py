@@ -116,15 +116,16 @@ def post():
     if messages:
      for message in messages:
         if message['type'] == 'text':
+            frappe.throw("prova")
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
                 "type": "Incoming",
                 "from": message['from'],
                 "message": message['text']['body']
             }).insert(ignore_permissions=True)
-            customer_name = frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="name")
-            frappe.msgprint("Messaggio inviato da {customer_name}: {message['text']['body']}", indicator="green", alert=True)
-            frappe.throw("prova")
+            #customer_name = frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="name")
+            #frappe.msgprint("Messaggio inviato da {customer_name}: {message['text']['body']}", indicator="green", alert=True)
+            
     else:
         changes = None
         try:
