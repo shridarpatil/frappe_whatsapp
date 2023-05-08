@@ -106,6 +106,6 @@ class WhatsAppMessage(Document):
 
 @frappe.whitelist()
 def set_to_field_options(doc, method):
-    options = ['option a', 'option b']
-    meta = frappe.get_meta("WhatsApp Message")
+    options = ['a', 'b']
+    meta = frappe.get_meta("WhatsAppMessage")
     meta.get_field("to").options = options
