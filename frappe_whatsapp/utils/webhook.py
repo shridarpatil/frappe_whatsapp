@@ -120,10 +120,8 @@ def post():
                 "from": message['from'],
                 "message": message['text']['body']
             }).insert(ignore_permissions=True)
-
-            # Genera la notifica
             customer_name = frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="name")
-            frappe.msgprint(f"Messaggio inviato da {customer_name}: {message['text']['body']}", indicator="green", alert=True)
+            frappe.msgprint("Messaggio inviato da {customer_name}: {message['text']['body']}", indicator="green", alert=True)
 
     else:
         changes = None
@@ -162,12 +160,7 @@ def update_message_status(data):
     status = data['statuses'][0]['status']
     conversation = data['statuses'][0].get('conversation', {}).get('id')
     name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
-    
-
     doc = frappe.get_doc("WhatsApp Message", name)
-
-
-
 
     doc.status = status
     if conversation:

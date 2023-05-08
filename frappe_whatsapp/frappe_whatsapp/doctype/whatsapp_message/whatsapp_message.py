@@ -8,11 +8,6 @@ from frappe.integrations.utils import make_post_request
 class WhatsAppMessage(Document):
     """Send whats app messages."""
 
-    def onload(self):
-        """Set options for 'to' field."""
-        cur_frm.set_df_property("to", "options", ['option a', 'option b'])
-
-
     def before_insert(self):
         """Send message."""
         if self.type == 'Outgoing' and self.message_type != 'Template':
@@ -113,6 +108,6 @@ class WhatsAppMessage(Document):
 def set_to_field_options():
     """Set options for 'to' field."""
     options = ['option a', 'option b']
-    field = frappe.meta.get_docfield("WhatsAppMessage", "to", self)
+    field = frappe.meta.get_docfield("WhatsApp Message", "to", self)
     field.options = "\n".join(options)
     field.default = options[0]
