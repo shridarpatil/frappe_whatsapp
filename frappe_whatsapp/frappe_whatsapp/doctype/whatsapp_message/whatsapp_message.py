@@ -63,7 +63,6 @@ class WhatsAppMessage(Document):
         """Notify."""
 
         mobile_no = (self.to)
-        customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
         
 
         settings = frappe.get_doc(
@@ -81,7 +80,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            frappe.msgprint("Messaggio inviato a " + customer_name + "(" +str(self.format_number(self.to)) +")"+ "\n" + self.message, indicator="green", alert=True)
+            frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -103,9 +102,3 @@ class WhatsAppMessage(Document):
             number = number[1:len(number)]
 
         return number
-
-#@frappe.whitelist()
-#def set_to_field_options(doc, method):
- #   options = ['a', 'b']
-   # meta = frappe.get_meta("WhatsApp Message")
-   #  meta.get_field("a").options = options
