@@ -101,7 +101,7 @@ import requests
 
 def send_message_to_whatsapp_message(message):
     """Send message to WhatsApp Message."""
-    url = "http://localhost:8000/api/method/frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.receive" 
+    url = "https://ced.confcommercioimola.cloud/api/method/frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.receive" 
     data = {
         "messaging_product": "whatsapp",
         "to": message['from'],
