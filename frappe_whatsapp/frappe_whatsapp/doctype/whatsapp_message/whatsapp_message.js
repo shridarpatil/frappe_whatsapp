@@ -10,6 +10,14 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("a", "options", customerNames);
         });
+  
+      frappe.db.get_list('Customer Group', { fields: ['name'] })
+        .then(function(result) {
+          var groupNames = result.map(function(item) {
+            return item.name;
+          });
+          cur_frm.set_df_property("gruppo", "options", groupNames);
+        });
     },
     switch: function(frm) {
       if (frm.doc.switch) {
@@ -21,3 +29,4 @@ frappe.ui.form.on("WhatsApp Message", {
       }
     }
   });
+  
