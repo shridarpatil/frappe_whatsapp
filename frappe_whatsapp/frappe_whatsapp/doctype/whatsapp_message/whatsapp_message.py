@@ -13,50 +13,64 @@ class WhatsAppMessage(Document):
         """Send message."""
         if self.type == 'Outgoing' and self.message_type != 'Template':
             if self.attach and not self.attach.startswith("http"):
-                link = frappe.utils.get_url() + '/'+ self.attach
+                link = frappe.utils.get_url() + '/' + self.attach
             else:
                 link = self.attach
 
-            data = {
-                "messaging_product": "whatsapp",
-                "to": self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")),
-                "type": self.content_type
+            if self.switch:
+                # Invia messaggio a tutti i numeri degli utenti nel gruppo
+                customer_group = frappe.get_doc("Customer Group", self.gruppo)
+                for customer in customer_group.customers:
+                    mobile_no = frappe.db.get_value("Customer", customer.customer, "mobile_no")
+                    if mobile_no:
+                        self.send_message(mobile_no, link)
+            else:
+                # Invia messaggio al singolo utente nel campo "a"
+                mobile_no = frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")
+                if mobile_no:
+                    self.send_message(mobile_no, link)
+
+    def send_message(self, mobile_no, link):
+        """Send WhatsApp message to the specified mobile number."""
+        data = {
+            "messaging_product": "whatsapp",
+            "to": self.format_number(mobile_no),
+            "type": self.content_type
+        }
+
+        if self.content_type == "text":
+            data["text"] = {
+                "preview_url": True,
+                "body": self.message
             }
-             
-            
-                         
-            if self.content_type == "text":
-                data["text"] = {
-                    "preview_url": True,
-                    "body": self.message
-                }
-           # elif self.content_type == "image":
-                   #data["image"] = {
-                    #   "link": link,
-                    #   "caption": self.message
-                 #  }
-             #  elif self.content_type == "video":
-               #    data["video"] = {
-               #        "link": link,
-                #       "caption": self.message
-                 #  }
-             #  elif self.content_type == "audio":
-               #    data["audio"] = {
-                 #      "link": link,
-                #       "caption": self.message
-               #    }
-            #   elif self.content_type == "document":
-               #    data["document"] = {
-                  #     "link": link,
-                 #      "filename": self.name,
-                 #      "caption": self.message
-               #    }
-            try:
-                self.notify(data)
-                self.status = "Success"
-            except Exception as e:
-                self.status = "Failed"
-                   #frappe.throw(f"Failed to send message {str(e)}")
+        elif self.content_type == "image":
+            data["image"] = {
+                "link": link,
+                "caption": self.message
+            }
+        elif self.content_type == "video":
+            data["video"] = {
+                "link": link,
+                "caption": self.message
+            }
+        elif self.content_type == "audio":
+            data["audio"] = {
+                "link": link,
+                "caption": self.message
+            }
+        elif self.content_type == "document":
+            data["document"] = {
+                "link": link,
+                "filename": self.name,
+                "caption": self.message
+            }
+
+        try:
+            self.notify(data)
+            self.status = "Success"
+        except Exception as e:
+            self.status = "Failed"
+            frappe.throw(f"Failed to send message: {str(e)}")
 
 
     def notify(self, data):
