@@ -106,7 +106,7 @@ class WhatsAppMessage(Document):
 @frappe.whitelist(allow_guest=True)
 def receive():
     """Handle WhatsApp Message POST request."""
-    data = frappe.request.get_json()
+    data = json.loads(frappe.request.get_data())
 
     # Estrai i dati necessari dalla richiesta POST
     messaging_product = data.get("messaging_product")
