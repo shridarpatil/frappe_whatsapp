@@ -11,7 +11,7 @@ frappe.ui.form.on("WhatsApp Message", {
               cur_frm.set_df_property("a", "options", customerNames);
           });
   },
-  refresh: function(frm) {
+  mode: function(frm) {
     if (frm.doc.mode) {
         frm.set_df_property("a", "read_only", 1);
         frm.set_df_property("gruppo", "read_only", 0);
