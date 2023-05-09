@@ -10,15 +10,14 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("a", "options", customerNames);
         });
-
-        if (frm.doc.switch === 1) {
-          cur_frm.set_df_property('a', 'read_only', 1);
-          cur_frm.set_df_property('gruppo', 'read_only', 0);
-        }
-        
-        if (frm.doc.switch === 0) {
-            cur_frm.set_df_property('a', 'read_only', 0);
-            cur_frm.set_df_property('gruppo', 'read_only', 1);
-        }
-  }});
-  
+    },
+    switch: function(frm) {
+      if (frm.doc.switch) {
+        cur_frm.set_df_property("a", "read_only", 1);
+        cur_frm.set_df_property("gruppo", "read_only", 0);
+      } else {
+        cur_frm.set_df_property("a", "read_only", 0);
+        cur_frm.set_df_property("gruppo", "read_only", 1);
+      }
+    }
+  });
