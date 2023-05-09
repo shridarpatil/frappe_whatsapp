@@ -102,3 +102,45 @@ class WhatsAppMessage(Document):
             number = number[1:len(number)]
 
         return number
+
+@frappe.whitelist()
+def receive():
+    """Handle WhatsApp Message POST request."""
+    data = frappe.request.get_json()
+
+    # Estrai i dati necessari dalla richiesta POST
+    messaging_product = data.get("messaging_product")
+    to = data.get("to")
+    message_type = data.get("type")
+    message = ""
+
+    # Gestisci i vari tipi di messaggio
+    if message_type == "text":
+        message = data.get("text", {}).get("body")
+    elif message_type == "image":
+        message = data.get("image", {}).get("caption")
+    elif message_type == "video":
+        message = data.get("video", {}).get("caption")
+    elif message_type == "audio":
+        message = data.get("audio", {}).get("caption")
+    elif message_type == "document":
+        message = data.get("document", {}).get("caption")
+
+    # Esegui le operazioni necessarie con i dati del messaggio
+    try:
+        # Ottieni il nome dell'utente da Customer tramite il numero di telefono
+        customer_name = frappe.db.get_value("Customer", filters={"mobile_no": to}, fieldname="customer_name")
+
+        # Crea una notifica per l'arrivo del messaggio
+        frappe.create_notification(
+            subject="Nuovo messaggio WhatsApp",
+            message="È arrivato un nuovo messaggio da {}:\n{}".format(customer_name, message),
+            type="Info",
+            user=frappe.session.user
+        )
+
+        frappe.msgprint("Notification created for new WhatsApp message!")
+    except Exception as e:
+        frappe.log_error("Error creating notification for WhatsApp message: {}".format(str(e)))
+
+    return "Success"

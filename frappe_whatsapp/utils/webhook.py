@@ -1,6 +1,7 @@
 """Webhook."""
 import frappe
 import json
+import requests
 
 from werkzeug.wrappers import Response
 
@@ -51,6 +52,7 @@ def post():
                 "from": message['from'],
                 "message": message['text']['body']
             }).insert(ignore_permissions=True)
+            send_message_to_whatsapp_message(message)
     else:
         changes = None
         try:
@@ -95,3 +97,25 @@ def update_message_status(data):
         doc.conversation_id = conversation
     doc.save(ignore_permissions=True)
 
+import requests
+
+def send_message_to_whatsapp_message(message):
+    """Send message to WhatsApp Message."""
+    url = "http://localhost:8000/api/method/frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.receive" 
+    data = {
+        "messaging_product": "whatsapp",
+        "to": message['from'],
+        "type": "incoming",
+        "message": message['text']['body']
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        frappe.msgprint("Message sent to WhatsApp Message successfully!")
+    except requests.exceptions.RequestException as e:
+        frappe.log_error("Error sending message to WhatsApp Message: {}".format(str(e)))
