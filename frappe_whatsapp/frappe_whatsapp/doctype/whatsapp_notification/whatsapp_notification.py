@@ -148,9 +148,6 @@ class WhatsAppNotification(Document):
     def notify(self, data):
         """Notify."""
 
-        mobile_no = data['to']
-        customer_name = frappe.db.get_value("Customer", filters={"mobile_no": mobile_no}, fieldname="name")
-
         settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
         )

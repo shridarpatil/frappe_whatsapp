@@ -20,15 +20,10 @@ class WhatsAppMessage(Document):
             if self.switch:
                 # Invia messaggio a tutti i numeri degli utenti nel gruppo
                 customer_group = frappe.get_doc("Customer Group", self.gruppo)
-                for customer in frappe.db.get_list('Customer', filters={"customer_group": self.gruppo} ):
+                for customer in frappe.db.get_list('Customer', filters={"customer_group": self.gruppo}):
                     mobile_no = customer.mobile_no
                     if mobile_no:
                         self.send_message(mobile_no, link)
-                    else:
-                         frappe.throw(
-                msg="messaggio non inviato correttamente a " + customer.account_name,
-                title="Error"
-                         )
                         
             else:
                 # Invia messaggio al singolo utente nel campo "a"
@@ -100,7 +95,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
+            confirm()
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -164,3 +159,13 @@ def receive():
         frappe.log_error("Error creating notification for WhatsApp message: {}".format(str(e)))
 
     return "Success"
+
+
+def confirm():
+   if self.switch:
+    # Invia messaggio a tutti i numeri degli utenti nel gruppo
+      frappe.msgprint("Messaggio inviato correttamente a tutti i membri del gruppo", indicator="green", alert=True)
+   else:
+    # Invia messaggio al singolo utente
+        frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
+       
