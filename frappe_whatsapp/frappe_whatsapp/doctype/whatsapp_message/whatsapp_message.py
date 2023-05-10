@@ -4,6 +4,8 @@ import json
 import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
+import frappe_whatsapp.whatsapp_notification as whatsapp_notification
+
 
 class WhatsAppMessage(Document):
     """Send whats app messages."""
@@ -16,16 +18,24 @@ class WhatsAppMessage(Document):
                 link = frappe.utils.get_url() + '/' + self.attach
             else:
                 link = self.attach
-
+         
             if self.switch:
                 # Invia messaggio a tutti i numeri degli utenti nel gruppo
-                customer_group = frappe.get_doc("Customer Group", self.gruppo)
-                for customer in frappe.db.get_list('Customer', filters={"customer_group": self.gruppo}):
-                    mobile_no = customer.mobile_no
+                for customer in (frappe.db.get_all('Customer', filters={"customer_group": self.gruppo})):
+                    mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer.customer_name}, fieldname="mobile_no")
                     if mobile_no:
                         self.send_message(mobile_no, link)
-                        
-            else:
+              
+            if self.notifica:
+             # Invia notifiche a tutti i Customers di tutti i gruppi
+               customers = frappe.get_all("Customer", filters={"disabled": 0}, pluck="name")
+               for customer in customers:
+                 doc = frappe.get_doc("Customer", customer)
+                 if doc and doc.mobile_no:
+                   notification = whatsapp_notification.WhatsAppNotification()
+                   notification.send_template_message(doc)
+
+            if not self.notifica and not self.switch:
                 # Invia messaggio al singolo utente nel campo "a"
                 mobile_no = frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")
                 if mobile_no:
@@ -95,7 +105,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            confirm()
+            self.confirm(self)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -161,7 +171,7 @@ def receive():
     return "Success"
 
 
-def confirm():
+def confirm(self):
    if self.switch:
     # Invia messaggio a tutti i numeri degli utenti nel gruppo
       frappe.msgprint("Messaggio inviato correttamente a tutti i membri del gruppo", indicator="green", alert=True)
