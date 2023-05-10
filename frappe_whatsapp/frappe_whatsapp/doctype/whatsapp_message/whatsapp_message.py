@@ -4,7 +4,7 @@ import json
 import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
-import frappe_whatsapp.whatsapp_notification as whatsapp_notification
+import frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification as whatsapp_notification
 
 
 class WhatsAppMessage(Document):
