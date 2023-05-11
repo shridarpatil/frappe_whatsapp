@@ -23,10 +23,9 @@ class WhatsAppMessage(Document):
                 # Invia messaggio a tutti i numeri degli utenti nel gruppo
                 customers = frappe.db.get_list("Customer", filters={"customer_group": self.gruppo}, pluck="customer_name")
                 for customer in customers:
-                    frappe.msgprint(customer)
-                    # mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer.customer_name}, fieldname="mobile_no")
-                    #if mobile_no:
-                    #    self.send_message(mobile_no, link)
+                    mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer}, fieldname="mobile_no")
+                    if mobile_no:
+                        self.send_message(mobile_no, link)
               
             else:
                 # Invia messaggio al singolo utente nel campo "a"
