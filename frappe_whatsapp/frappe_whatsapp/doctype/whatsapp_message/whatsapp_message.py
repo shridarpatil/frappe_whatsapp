@@ -21,10 +21,10 @@ class WhatsAppMessage(Document):
          
             if self.switch:
                 # Invia messaggio a tutti i numeri degli utenti nel gruppo
-                customers = frappe.get_list("Customer", filters={"customer_group": self.gruppo})
+                customers = frappe.db.get_list("Customer", filters={"customer_group": self.gruppo}, fieldname="customer_name")
                 for customer in customers:
-                    frappe.msgprint(customer.customer_name)
-                    # mobile_no = frappe.db.get_value("Customer", filters={"customer_name": c   ustomer.customer_name}, fieldname="mobile_no")
+                    frappe.msgprint(customer)
+                    # mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer.customer_name}, fieldname="mobile_no")
                     #if mobile_no:
                     #    self.send_message(mobile_no, link)
               
