@@ -38,20 +38,20 @@ class WhatsAppMessage(Document):
         data = {
             "messaging_product": "whatsapp",
             "to": self.format_number(mobile_no),
-            "type": self.content_type
+            "type": self.media
         }
 
-        if self.content_type in ['document', 'image', 'video']:
-                 data[self.content_type.lower()] = {
+        if self.media in ['document', 'image', 'video']:
+                 data[self.media.lower()] = {
                     "link": link,
                     "caption": self.message
                 }
-        elif self.content_type == "text":
+        elif self.media == "text":
                 data["text"] = {
                     "preview_url": True,
                     "body": self.message
                 }
-        elif self.content_type == "audio":
+        elif self.media == "audio":
                 data["text"] = {
                     "link": link
                 }     
@@ -82,7 +82,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
+            #frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -97,6 +97,7 @@ class WhatsAppMessage(Document):
                 msg=error_message,
                 title=res.get("error_user_title", "Error")
             )
+
 
     def format_number(self, number):
         """Format number."""
