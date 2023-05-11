@@ -27,17 +27,6 @@ frappe.ui.form.on("WhatsApp Message", {
         cur_frm.set_df_property("a", "read_only", 0);
         cur_frm.set_df_property("gruppo", "read_only", 1);
       }
-    },
-    notifica: function(frm) {
-      if (frm.doc.notifica) {
-        cur_frm.set_df_property("a", "read_only", 1);
-        cur_frm.set_df_property("gruppo", "read_only", 1);
-        cur_frm.set_df_property("switch", "read_only", 1);
-      } else {
-        cur_frm.set_df_property("a", "read_only", 0);
-        cur_frm.set_df_property("gruppo", "read_only", 0);
-        cur_frm.set_df_property("switch", "read_only", 0);
-      }
     }
   });
   

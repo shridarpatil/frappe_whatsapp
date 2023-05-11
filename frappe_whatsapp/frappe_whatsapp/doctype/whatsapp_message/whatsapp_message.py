@@ -26,16 +26,7 @@ class WhatsAppMessage(Document):
                     if mobile_no:
                         self.send_message(mobile_no, link)
               
-            if self.notifica:
-             # Invia notifiche a tutti i Customers di tutti i gruppi
-               customers = frappe.get_all("Customer", filters={"disabled": 0}, pluck="name")
-               for customer in customers:
-                 doc = frappe.get_doc("Customer", customer)
-                 if doc and doc.mobile_no:
-                   notification = whatsapp_notification.WhatsAppNotification()
-                   notification.send_template_message(doc)
-
-            if not self.notifica and not self.switch:
+            else:
                 # Invia messaggio al singolo utente nel campo "a"
                 mobile_no = frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")
                 if mobile_no:
@@ -49,32 +40,20 @@ class WhatsAppMessage(Document):
             "type": self.content_type
         }
 
-        if self.content_type == "text":
-            data["text"] = {
-                "preview_url": True,
-                "body": self.message
-            }
-        elif self.content_type == "image":
-            data["image"] = {
-                "link": link,
-                "caption": self.message
-            }
-        elif self.content_type == "video":
-            data["video"] = {
-                "link": link,
-                "caption": self.message
-            }
+        if self.content_type in ['document', 'image', 'video']:
+                 data[self.content_type.lower()] = {
+                    "link": link,
+                    "caption": self.message
+                }
+        elif self.content_type == "text":
+                data["text"] = {
+                    "preview_url": True,
+                    "body": self.message
+                }
         elif self.content_type == "audio":
-            data["audio"] = {
-                "link": link,
-                "caption": self.message
-            }
-        elif self.content_type == "document":
-            data["document"] = {
-                "link": link,
-                "filename": self.name,
-                "caption": self.message
-            }
+                data["text"] = {
+                    "link": link
+                }     
 
         try:
             self.notify(data)
