@@ -38,20 +38,20 @@ class WhatsAppMessage(Document):
         data = {
             "messaging_product": "whatsapp",
             "to": self.format_number(mobile_no),
-            "type": self.media
+            "type": self.content_type
         }
 
-        if self.media in ['document', 'image', 'video']:
-                 data[self.media.lower()] = {
+        if self.content_type in ['document', 'image', 'video']:
+                 data[self.content_type.lower()] = {
                     "link": link,
                     "caption": self.message
                 }
-        elif self.media == "text":
+        elif self.content_type == "text":
                 data["text"] = {
                     "preview_url": True,
                     "body": self.message
                 }
-        elif self.media == "audio":
+        elif self.content_type == "audio":
                 data["text"] = {
                     "link": link
                 }     
@@ -97,7 +97,6 @@ class WhatsAppMessage(Document):
                 msg=error_message,
                 title=res.get("error_user_title", "Error")
             )
-
 
     def format_number(self, number):
         """Format number."""

@@ -10,6 +10,9 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("a", "options", customerNames);
         });
+
+          cur_frm.set_df_property("content_type", "options", ["text", "document", "image", "video", "audio"]);
+        
   
       frappe.db.get_list('Customer Group', { fields: ['name'] })
         .then(function(result) {
