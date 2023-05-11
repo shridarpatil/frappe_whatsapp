@@ -21,7 +21,8 @@ class WhatsAppMessage(Document):
          
             if self.switch:
                 # Invia messaggio a tutti i numeri degli utenti nel gruppo
-                for customer in (frappe.db.get_all('Customer', filters={"customer_group": self.gruppo})):
+                customers = frappe.get_list("Customer", filters={"customer_group": self.gruppo})
+                for customer in customers:
                     mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer.customer_name}, fieldname="mobile_no")
                     if mobile_no:
                         self.send_message(mobile_no, link)
@@ -66,9 +67,6 @@ class WhatsAppMessage(Document):
     def notify(self, data):
         """Notify."""
 
-        mobile_no = (self.to)
-        
-
         settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
         )
@@ -84,7 +82,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            self.confirm(self)
+            frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
@@ -148,13 +146,3 @@ def receive():
         frappe.log_error("Error creating notification for WhatsApp message: {}".format(str(e)))
 
     return "Success"
-
-
-def confirm(self):
-   if self.switch:
-    # Invia messaggio a tutti i numeri degli utenti nel gruppo
-      frappe.msgprint("Messaggio inviato correttamente a tutti i membri del gruppo", indicator="green", alert=True)
-   else:
-    # Invia messaggio al singolo utente
-        frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")"+ "\n" + self.message, indicator="green", alert=True)
-       
