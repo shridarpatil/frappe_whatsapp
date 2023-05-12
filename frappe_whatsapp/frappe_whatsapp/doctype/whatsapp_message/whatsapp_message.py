@@ -26,9 +26,10 @@ class WhatsAppMessage(Document):
                 for customer in customers:
                     mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer}, fieldname="mobile_no")
                     if mobile_no:
-                        frappe.msgprint(str(mobile_no), indicator="green", alert=True)
+                        self.send_message(mobile_no, link)
+                        #frappe.msgprint(str(mobile_no), indicator="green", alert=True)
                         time.sleep(2) #"dorme" per due secondi
-                        #self.send_message(mobile_no, link)
+                        
               
             else:
                 # Invia messaggio al singolo utente nel campo "a"
@@ -56,8 +57,7 @@ class WhatsAppMessage(Document):
                 }
         elif self.content_type == "audio":
                 data[self.content_type.lower()] = {
-                    "link": link,
-                    "caption": self.message
+                    "link": link
                 }     
 
         try:
