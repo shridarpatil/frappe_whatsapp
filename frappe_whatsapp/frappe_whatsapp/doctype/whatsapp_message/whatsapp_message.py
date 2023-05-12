@@ -28,7 +28,7 @@ class WhatsAppMessage(Document):
                     if mobile_no:
                         self.send_message(mobile_no, link)
                         #frappe.msgprint(str(mobile_no), indicator="green", alert=True)
-                        time.sleep(1) #"dorme" per mezzo secondo
+                        time.sleep(2) #"dorme" per mezzo secondo
                         
               
             else:
@@ -87,6 +87,7 @@ class WhatsAppMessage(Document):
             )
             self.message_id = response['messages'][0]['id']
             frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")", indicator="green", alert=True)
+            time.sleep(1)
 
         except Exception as e:
             res = frappe.flags.integration_request.json()['error']
