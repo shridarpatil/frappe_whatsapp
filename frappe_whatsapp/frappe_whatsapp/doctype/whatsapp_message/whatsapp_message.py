@@ -42,21 +42,21 @@ class WhatsAppMessage(Document):
         data = {
             "messaging_product": "whatsapp",
             "to": self.format_number(mobile_no),
-            "type": self.content_type
+            "type": self.media
         }
 
-        if self.content_type in ['document', 'image', 'video']:
-                 data[self.content_type.lower()] = {
+        if self.media in ['document', 'image', 'video']:
+                 data[self.media.lower()] = {
                     "link": link,
                     "caption": self.message
                 }
-        elif self.content_type == "text":
+        elif self.media == "text":
                 data["text"] = {
                     "preview_url": True,
                     "body": self.message
                 }
-        elif self.content_type == "audio":
-                data[self.content_type.lower()] = {
+        elif self.media == "audio":
+                data[self.media.lower()] = {
                     "link": link
                 }     
 
