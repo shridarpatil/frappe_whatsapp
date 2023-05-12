@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 import json
 import frappe
+import time
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 import frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification as whatsapp_notification
@@ -25,7 +26,9 @@ class WhatsAppMessage(Document):
                 for customer in customers:
                     mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer}, fieldname="mobile_no")
                     if mobile_no:
-                        self.send_message(mobile_no, link)
+                        frappe.msgprint(str(mobile_no), indicator="green", alert=True)
+                        time.sleep(2) #"dorme" per due secondi
+                        #self.send_message(mobile_no, link)
               
             else:
                 # Invia messaggio al singolo utente nel campo "a"
@@ -52,8 +55,9 @@ class WhatsAppMessage(Document):
                     "body": self.message
                 }
         elif self.content_type == "audio":
-                data["text"] = {
-                    "link": link
+                data[self.content_type.lower()] = {
+                    "link": link,
+                    "caption": self.message
                 }     
 
         try:
