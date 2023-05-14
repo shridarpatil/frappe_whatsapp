@@ -61,7 +61,7 @@ def post():
                 file_data = base64.b64decode(media_data)
 
                 # Salvataggio del file nel percorso desiderato
-                file_path = "/path/to/save/files/"  # Sostituisci con il percorso desiderato
+                file_path = "/opt/bench/media/"  # Sostituisci con il percorso desiderato
                 file_full_path = file_path + file_name + "." + file_extension
 
                 with open(file_full_path, "wb") as file:
