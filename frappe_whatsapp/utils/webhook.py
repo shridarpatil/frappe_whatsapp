@@ -2,6 +2,8 @@
 import frappe
 import json
 import requests
+import base64
+
 
 from werkzeug.wrappers import Response
 
@@ -36,7 +38,6 @@ def post():
         "meta_data": json.dumps(data)
     }).insert(ignore_permissions=True)
 
-
     messages = []
     try:
         messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
@@ -44,25 +45,44 @@ def post():
         messages = data["entry"]["changes"][0]["value"].get("messages", [])
 
     if messages:
-     for message in messages:
-        if message['type'] == 'text':
-            frappe.get_doc({
-                "doctype": "WhatsApp Message",
-                "type": "Incoming",
-                "from": message['from'],
-                "message": message['text']['body']
-            }).insert(ignore_permissions=True)
-            send_message_to_whatsapp_message(message)
+        for message in messages:
+            message_type = message['type']
+            if message_type == 'text':
+                frappe.get_doc({
+                    "doctype": "WhatsApp Message",
+                    "type": "Incoming",
+                    "from": message['from'],
+                    "message": message['text']['body']
+                }).insert(ignore_permissions=True)
+            elif message_type in ['image', 'audio', 'video', 'document']:
+                media_data = message[message_type]['body']
+                file_name = message[message_type]['filename']
+                file_extension = message[message_type]['extension']
+                file_data = base64.b64decode(media_data)
+
+                # Salvataggio del file nel percorso desiderato
+                file_path = "/path/to/save/files/"  # Sostituisci con il percorso desiderato
+                file_full_path = file_path + file_name + "." + file_extension
+
+                with open(file_full_path, "wb") as file:
+                    file.write(file_data)
+
+                frappe.get_doc({
+                    "doctype": "WhatsApp Message",
+                    "type": "Incoming",
+                    "from": message['from'],
+                    "message": f"{message_type} file: {file_name}",
+                    "attachment": file_full_path
+                }).insert(ignore_permissions=True)
     else:
         changes = None
         try:
             changes = data["entry"][0]["changes"][0]
-
         except KeyError:
             changes = data["entry"]["changes"][0]
-
         update_status(changes)
     return
+
 
 
 def update_status(data):
