@@ -55,7 +55,8 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
-                frappe.msgprint(json.dumps(message, indent=4))
+                frappe.log_error(json.dumps(message, indent=4))
+                print(json.dumps(message, indent=4))
 
                 # media_data = message[message_type]["data"]
                 # file_extension = message[message_type]["extension"]
