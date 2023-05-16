@@ -54,15 +54,15 @@ def post():
                     "from": message['from'],
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
-            elif message_type in ['image', 'audio', 'video', 'document']:
-                media_data = message[message_type]['body']
-                file_name = message[message_type]['filename']
-                file_extension = message[message_type]['extension']
+            elif message_type in ["image", "audio", "video", "document"]:
+                media_data = message[message_type]["data"]
+                file_extension = message[message_type]["extension"]
                 file_data = base64.b64decode(media_data)
 
                 # Salvataggio del file nel percorso desiderato
                 file_path = "/opt/bench/media/"  # Sostituisci con il percorso desiderato
-                file_full_path = file_path + file_name + "." + file_extension
+                file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
+                file_full_path = file_path + file_name
 
                 with open(file_full_path, "wb") as file:
                     file.write(file_data)
