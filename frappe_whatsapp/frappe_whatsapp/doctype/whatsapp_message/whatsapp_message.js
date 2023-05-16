@@ -17,14 +17,23 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("gruppo", "options", groupNames);
         });
+      frappe.db.get_list('WhatsApp Templates', { fields: ['template_name'] })
+        .then(function(result) {
+          var templateNames = result.map(function(item) {
+            return item.name;
+          });
+          cur_frm.set_df_property("templates", "options", templateNames);
+        });
     },
     switch: function(frm) {
       if (frm.doc.switch) {
         cur_frm.set_df_property("a", "read_only", 1);
         cur_frm.set_df_property("gruppo", "read_only", 0);
+        cur_frm.set_df_property("templates", "read_only", 1);
       } else {
         cur_frm.set_df_property("a", "read_only", 0);
         cur_frm.set_df_property("gruppo", "read_only", 1);
+        cur_frm.set_df_property("templates", "read_only", 0);
       }
     },
     notifica: function(frm) {
@@ -32,10 +41,12 @@ frappe.ui.form.on("WhatsApp Message", {
         cur_frm.set_df_property("a", "read_only", 1);
         cur_frm.set_df_property("gruppo", "read_only", 1);
         cur_frm.set_df_property("switch", "read_only", 1);
+        cur_frm.set_df_property("templates", "read_only", 0);
       } else {
         cur_frm.set_df_property("a", "read_only", 0);
         cur_frm.set_df_property("gruppo", "read_only", 0);
         cur_frm.set_df_property("switch", "read_only", 0);
+        cur_frm.set_df_property("templates", "read_only", 1);
       }
     }
   });

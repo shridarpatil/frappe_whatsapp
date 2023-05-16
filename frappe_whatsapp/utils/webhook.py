@@ -86,10 +86,10 @@ def post():
 
 def customer(message):
     if (frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")):
-        return frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")
+        return "+" + frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")
 
     else:
-        return "non registrato: " + str(message['from'])
+        return "non registrato: " + "+" + str(message['from'])
     
 
 def update_status(data):

@@ -120,7 +120,7 @@ class WhatsAppMessage(Document):
         )
         token = settings.get_password("token")
 
-        template = '{ \"messaging_product\": \"whatsapp\", \"to\": \"'+str(mobile_no)+'\", \"type\": \"template\", \"template\": { \"name\": \"hello_world\", \"language\": { \"code\": \"en_US\" } } }'
+        template = '{ \"messaging_product\": \"whatsapp\", \"to\": \"'+str(mobile_no)+'\", \"type\": \"template\", \"template\": { \"name\": \"'+self.templates+'\", \"language\": { \"code\": \"en_US\" } } }'
 
         headers = {
             "authorization": f"Bearer {token}",
