@@ -55,8 +55,7 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
-                frappe.log_error(json.dumps(message, indent=4))
-                print(json.dumps(message, indent=4))
+                 frappe.log_error(title="Errore nel webhook", message=frappe.get_traceback(), exception=e)
 
                 # media_data = message[message_type]["data"]
                 # file_extension = message[message_type]["extension"]
