@@ -51,7 +51,7 @@ def post():
                 frappe.get_doc({
                     "doctype": "WhatsApp Message",
                     "type": "Incoming",
-                    "from": message['from'],
+                    "from": customer(message),
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
@@ -84,7 +84,13 @@ def post():
         update_status(changes)
     return
 
+def customer(message):
+    if (frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")):
+        return frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")
 
+    else:
+        return "non registrato: " + str(message['from'])
+    
 
 def update_status(data):
     """Update status hook."""
