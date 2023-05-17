@@ -55,26 +55,24 @@ def post():
                     "message": message['text']['body']
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
-                 frappe.log_error(title="Errore nel webhook", message=frappe.get_traceback(), exception=e)
+                media_data = message[message_type]["data"]
+                file_extension = message[message_type]["extension"]
+                file_data = base64.b64decode(media_data)
 
-                # media_data = message[message_type]["data"]
-                # file_extension = message[message_type]["extension"]
-                # file_data = base64.b64decode(media_data)
+                file_path = "/opt/bench/media/"  # Sostituisci con il percorso desiderato
+                file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
+                file_full_path = file_path + file_name
 
-                # file_path = "/opt/bench/media/"  # Sostituisci con il percorso desiderato
-                # file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
-                # file_full_path = file_path + file_name
+                with open(file_full_path, "wb") as file:
+                   file.write(file_data)
 
-                # with open(file_full_path, "wb") as file:
-                   #  file.write(file_data)
-
-             #    frappe.get_doc({
-               #      "doctype": "WhatsApp Message",
-              #       "type": "Incoming",
-               #      "from": message['from'],
-              #       "message": f"{message_type} file: {file_name}",
-              #       "attachment": file_full_path
-              #   }).insert(ignore_permissions=True)
+                frappe.get_doc({
+                    "doctype": "WhatsApp Message",
+                    "type": "Incoming",
+                    "from": customer(message),
+                    "message": f"{message_type} file: {file_name}",
+                    "attach": file_full_path
+                }).insert(ignore_permissions=True)
     else:
         changes = None
         try:
@@ -85,7 +83,7 @@ def post():
     return
 
 def customer(message):
-    if (frappe.db.get_value("Customer", filters={"mobile_no": message['from']}, fieldname="customer_name")):
+    if (frappe.db.get_value("Customer", filters={"mobile_no": ("+" + str(message['from']))}, fieldname="customer_name")):
         return frappe.db.get_value("Customer", filters={"mobile_no": ("+" + str(message['from']))}, fieldname="customer_name")
 
     else:
