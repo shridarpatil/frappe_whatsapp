@@ -7,13 +7,19 @@ import base64
 
 from werkzeug.wrappers import Response
 
+settings = frappe.get_doc(# ricavo il token di verifica
+            "WhatsApp Settings", "WhatsApp Settings",
+        )
+token = settings.get_password("token")
 
 @frappe.whitelist(allow_guest=True)
 def webhook():
     """Meta webhook."""
     if frappe.request.method == "GET":
         return get()
-    return post()
+    return post(token)
+
+
 
 
 def get():
@@ -29,7 +35,7 @@ def get():
     return Response(hub_challenge, status=200)
 
 
-def post():
+def post(token):
     """Post."""
     data = frappe.local.form_dict
     frappe.get_doc({
@@ -53,62 +59,47 @@ def post():
                     "type": "Incoming",
                     "from": customer(message),
                     "message": message['text']['body'],
-                    "view": "" # il campo HTML e' vuoto, nessun file multimediale in arrivo
+                    "view": ""  # il campo HTML è vuoto, nessun file multimediale in arrivo
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
                 media_id = message[message_type]["id"]
-                mime_type = message[message_type]["mime_type"]
-                file_extension = mime_type.split('/')[1]  # Ricavo l'estensione del file in arrivo
-
-               # Effettua la richiesta per scaricare il file utilizzando l'ID
-                url = f'https://api.whatsapp.com/{message_type}/{media_id}'
-                response = requests.get(url)
-
+                headers = {
+                    'Authorization': 'Bearer ' + token  # sostituisce con il tuo token di accesso
+                }
+                response = requests.get(f'https://graph.facebook.com/v16.0/{media_id}/', headers=headers)
                 if response.status_code == 200:
-                 file_data = response.content
+                    media_data = response.json()
+                    media_url = media_data.get("url")
+                    mime_type = media_data.get("mime_type")
+                    file_extension = mime_type.split('/')[1]
 
-                 file_path = "/"  # Sostituisci con il percorso desiderato
-                 file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
-                 file_full_path = file_path + file_name
+                    response = requests.get(media_url)
+                    if response.status_code == 200:
+                        file_data = response.content
 
-                 with open(file_full_path, "wb") as file:
-                  file.write(file_data)
- 
-                  if message_type == "video":
-                   frappe.get_doc({
-                     "doctype": "WhatsApp Message",
-                     "type": "Incoming",
-                     "from": customer(message),
-                     "message": f"{message_type} file: {file_name}",
-                     "view": '<html><head><title>Player video</title></head><body><video width="640" height="360" controls><source src=' + file_full_path + ' type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
-                   }).insert(ignore_permissions=True)
+                        file_path = "/"  # sostituisci con il percorso desiderato
+                        file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
+                        file_full_path = file_path + file_name
 
-                  elif message_type == "audio":
-                   frappe.get_doc({
-                     "doctype": "WhatsApp Message",
-                     "type": "Incoming",
-                     "from": customer(message),
-                     "message": f"{message_type} file: {file_name}",
-                     "view": '<html><head><title>Player audio</title></head><body><audio controls><source src='+ file_full_path +' type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
-                   }).insert(ignore_permissions=True)
+                        with open(file_full_path, "wb") as file:
+                            file.write(file_data)
 
-                  elif message_type == "image":
-                   frappe.get_doc({
-                     "doctype": "WhatsApp Message",
-                     "type": "Incoming",
-                     "from": customer(message),
-                     "message": f"{message_type} file: {file_name}",
-                     "view": '<html> <head> <style> .image-viewer { display: flex; align-items: center; justify-content: center; height: 100vh; } .image-container { max-width: 100%; max-height: 100%; } .image { max-width: 100%; max-height: 100%; } </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src=' + file_full_path + ' alt="Image"> </div> </div> </body> </html>'
-                   }).insert(ignore_permissions=True)
+                        if message_type == "video":
+                            view_html = f'<html><head><title>Player video</title></head><body><video width="640" height="360" controls><source src="{file_full_path}" type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
+                        elif message_type == "audio":
+                            view_html = f'<html><head><title>Player audio</title></head><body><audio controls><source src="{file_full_path}" type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
+                        elif message_type == "image":
+                            view_html = f'<html> <head> <style> .image-viewer {{ display: flex; align-items: center; justify-content: center; height: 100vh; }} .image-container {{ max-width: 100%; max-height: 100%; }} .image {{ max-width: 100%; max-height: 100%; }} </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src="{file_full_path}" alt="Image"> </div> </div> </body> </html>'
+                        elif message_type == "document":
+                            view_html = f'<html> <head> <title>Visualizzatore di documenti</title> <style> #document-viewer {{ width: 100%; height: 600px; }} </style> </head> <body> <div id="document-viewer"> <iframe src="{file_full_path}" width="100%" height="100%"></iframe> </div> </body> </html>'
 
-                  elif message_type == "document":
-                   frappe.get_doc({
-                     "doctype": "WhatsApp Message",
-                     "type": "Incoming",
-                     "from": customer(message),
-                     "message": f"{message_type} file: {file_name}",
-                     "view": '<html> <head> <title>Visualizzatore di ocumenti</title> <style> #document-viewer { width: 100%; height: 600px; } </style> </head> <body> <div id="document-viewer"> <iframe src=' + file_full_path + ' width="100%" height="100%"></iframe> </div> </body> </html>'
-                   }).insert(ignore_permissions=True)
+                        frappe.get_doc({
+                            "doctype": "WhatsApp Message",
+                            "type": "Incoming",
+                            "from": customer(message),
+                            "message": f"{message_type} file: {file_name}",
+                            "view": view_html
+                        }).insert(ignore_permissions=True)
     else:
         changes = None
         try:
@@ -117,6 +108,7 @@ def post():
             changes = data["entry"]["changes"][0]
         update_status(changes)
     return
+
 
 def customer(message):
     if (frappe.db.get_value("Customer", filters={"mobile_no": ("+" + str(message['from']))}, fieldname="customer_name")):
