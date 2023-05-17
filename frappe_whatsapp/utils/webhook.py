@@ -56,52 +56,59 @@ def post():
                     "view": "" # il campo HTML e' vuoto, nessun file multimediale in arrivo
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
-                media_data = message[message_type]["data"]
-                file_extension = message[message_type]["extension"]
-                file_data = base64.b64decode(media_data)
+                media_id = message[message_type]["id"]
+                mime_type = message[message_type]["mime_type"]
+                file_extension = mime_type.split('/')[1]  # Ricavo l'estensione del file in arrivo
 
-                file_path = "/"  # Sostituisci con il percorso desiderato
-                file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
-                file_full_path = file_path + file_name
+               # Effettua la richiesta per scaricare il file utilizzando l'ID
+                url = f'https://api.whatsapp.com/{message_type}/{media_id}'
+                response = requests.get(url)
 
-                with open(file_full_path, "wb") as file:
-                   file.write(file_data)
+                if response.status_code == 200:
+                 file_data = response.content
 
-                if message_type == "video":
-                 frappe.get_doc({
+                 file_path = "/"  # Sostituisci con il percorso desiderato
+                 file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
+                 file_full_path = file_path + file_name
+
+                 with open(file_full_path, "wb") as file:
+                  file.write(file_data)
+ 
+                  if message_type == "video":
+                   frappe.get_doc({
                      "doctype": "WhatsApp Message",
                      "type": "Incoming",
                      "from": customer(message),
                      "message": f"{message_type} file: {file_name}",
                      "view": '<html><head><title>Player video</title></head><body><video width="640" height="360" controls><source src=' + file_full_path + ' type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
-                 }).insert(ignore_permissions=True)
+                   }).insert(ignore_permissions=True)
 
-                elif message_type == "audio":
-                 frappe.get_doc({
+                  elif message_type == "audio":
+                   frappe.get_doc({
                      "doctype": "WhatsApp Message",
                      "type": "Incoming",
                      "from": customer(message),
                      "message": f"{message_type} file: {file_name}",
                      "view": '<html><head><title>Player audio</title></head><body><audio controls><source src='+ file_full_path +' type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
-                 }).insert(ignore_permissions=True)
+                   }).insert(ignore_permissions=True)
 
-                elif message_type == "image":
-                 frappe.get_doc({
+                  elif message_type == "image":
+                   frappe.get_doc({
                      "doctype": "WhatsApp Message",
                      "type": "Incoming",
                      "from": customer(message),
                      "message": f"{message_type} file: {file_name}",
                      "view": '<html> <head> <style> .image-viewer { display: flex; align-items: center; justify-content: center; height: 100vh; } .image-container { max-width: 100%; max-height: 100%; } .image { max-width: 100%; max-height: 100%; } </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src=' + file_full_path + ' alt="Image"> </div> </div> </body> </html>'
-                 }).insert(ignore_permissions=True)
+                   }).insert(ignore_permissions=True)
 
-                elif message_type == "document":
-                 frappe.get_doc({
+                  elif message_type == "document":
+                   frappe.get_doc({
                      "doctype": "WhatsApp Message",
                      "type": "Incoming",
                      "from": customer(message),
                      "message": f"{message_type} file: {file_name}",
                      "view": '<html> <head> <title>Visualizzatore di ocumenti</title> <style> #document-viewer { width: 100%; height: 600px; } </style> </head> <body> <div id="document-viewer"> <iframe src=' + file_full_path + ' width="100%" height="100%"></iframe> </div> </body> </html>'
-                 }).insert(ignore_permissions=True)
+                   }).insert(ignore_permissions=True)
     else:
         changes = None
         try:
