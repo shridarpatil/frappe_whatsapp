@@ -86,21 +86,23 @@ def post(token):
 
                         time.sleep(1) #"dorme" per mezzo secondo 
 
-                        if message_type == "video":
-                         view_html = f'<html><head><title>Player video</title></head><body><video controls><source src="/files/{file_name}" type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
-                        elif message_type == "audio":
-                         view_html = f'<html><head><title>Player audio</title></head><body><audio controls><source src="/files/{file_name}" type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
-                        elif message_type == "image":
-                         view_html = f'<html> <head> <style> .image-viewer {{ display: flex; align-items: center; justify-content: center; height: 100vh; }} .image-container {{ max-width: 100%; max-height: 100%; }} .image {{ max-width: 100%; max-height: 100%; }} </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src="/files/{file_name}" alt="Image"> </div> </div> </body> </html>'
-                        elif message_type == "document":
-                         view_html = f'<html> <head> <title>Visualizzatore di documenti</title> <style> #document-viewer {{ width: 100%; height: 600px; }} </style> </head> <body> <div id="document-viewer"> <iframe src="/files/{file_name}" width="100%" height="100%"></iframe> </div> </body> </html>'
+                        #if message_type == "video":
+                       #  view_html = f'<html><head><title>Player video</title></head><body><video controls><source src="/files/{file_name}" type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
+                      #  elif message_type == "audio":
+                        # view_html = f'<html><head><title>Player audio</title></head><body><audio controls><source src="/files/{file_name}" type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
+                       # elif message_type == "image":
+                       #  view_html = f'<html> <head> <style> .image-viewer {{ display: flex; align-items: center; justify-content: center; height: 100vh; }} .image-container {{ max-width: 100%; max-height: 100%; }} .image {{ max-width: 100%; max-height: 100%; }} </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src="/files/{file_name}" alt="Image"> </div> </div> </body> </html>'
+                      #  elif message_type == "document":
+                      #   view_html = f'<html> <head> <title>Visualizzatore di documenti</title> <style> #document-viewer {{ width: 100%; height: 600px; }} </style> </head> <body> <div id="document-viewer"> <iframe src="/files/{file_name}" width="100%" height="100%"></iframe> </div> </body> </html>'
+
+                        download_url = f"/files/{file_name}"
 
                         frappe.get_doc({
                             "doctype": "WhatsApp Message",
                             "type": "Incoming",
                             "from": customer(message),
                             "message": f"{message_type} file: {file_name}",
-                            "view": view_html
+                            "view": f'<html><body><a href="{download_url}" download>Scarica il file</a></body></html>'
                         }).insert(ignore_permissions=True)
     else:
         changes = None
