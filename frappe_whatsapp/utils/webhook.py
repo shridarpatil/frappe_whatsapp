@@ -2,7 +2,6 @@
 import frappe
 import json
 import requests
-import base64
 
 
 from werkzeug.wrappers import Response
@@ -64,7 +63,7 @@ def post(token):
             elif message_type in ["image", "audio", "video", "document"]:
                 media_id = message[message_type]["id"]
                 headers = {
-                    'Authorization': 'Bearer ' + token  # sostituisce con il tuo token di accesso
+                    'Authorization': 'Bearer ' + token  # sostituisci con il tuo token di accesso
                 }
                 response = requests.get(f'https://graph.facebook.com/v16.0/{media_id}/', headers=headers)
                 if response.status_code == 200:
@@ -73,11 +72,11 @@ def post(token):
                     mime_type = media_data.get("mime_type")
                     file_extension = mime_type.split('/')[1]
 
-                    response = requests.get(media_url)
-                    if response.status_code == 200:
-                        file_data = response.content
+                    media_response = requests.get(media_url, headers=headers)
+                    if media_response.status_code == 200:
+                        file_data = media_response.content
 
-                        file_path = "/"  # sostituisci con il percorso desiderato
+                        file_path = "/opt/bench/frappe-bench/sites/ced.confcommercioimola.cloud/public/files/"  # sostituisci con il percorso desiderato
                         file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
                         file_full_path = file_path + file_name
 
@@ -152,23 +151,3 @@ def update_message_status(data):
 
 import requests
 
-def send_message_to_whatsapp_message(message):
-    """Send message to WhatsApp Message."""
-    url = "https://ced.confcommercioimola.cloud/api/method/frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.receive" 
-    data = {
-        "messaging_product": "whatsapp",
-        "to": message['from'],
-        "type": "incoming",
-        "message": message['text']['body']
-    }
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    try:
-        response = requests.post(url, json=data, headers=headers)
-        response.raise_for_status()
-        frappe.msgprint("Message sent to WhatsApp Message successfully!")
-    except requests.exceptions.RequestException as e:
-        frappe.log_error("Error sending message to WhatsApp Message: {}".format(str(e)))
