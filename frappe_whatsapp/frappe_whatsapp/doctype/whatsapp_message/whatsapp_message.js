@@ -24,17 +24,17 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("templates", "options", templateNames);
         });
-        if (frm.doc.type == "Incoming") {
-          cur_frm.set_df_property("attach", "read_only", 1);
-          if (((frm.doc.message).split(":")[0]) == "media") {
-            var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
-            var downloadButton = $('<button class="btn btn-default">Download File</button>');
-            downloadButton.click(function() {
-              window.open(fileUrl);
-            });
-            frm.fields_dict.view.$wrapper.append(downloadButton);
-          }
-        }
+      if (frm.doc.type == "Incoming") { //controlliamo che il messaggio sia in ingresso
+        cur_frm.set_df_property("attach", "read_only", 1); //rendo readonly l'attachment dei files
+        if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
+          var downloadButton = $('<button class="btn btn-default">Download File</button>');
+          downloadButton.click(function() {
+          var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
+          window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
+      });
+      frm.dashboard.add_inner_button(downloadButton[0].outerHTML);
+     }
+    }
     },
     switch: function(frm) {
       if (frm.doc.switch) {
