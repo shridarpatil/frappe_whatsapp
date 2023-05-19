@@ -99,7 +99,7 @@ def post(token):
                             "doctype": "WhatsApp Message",
                             "type": "Incoming",
                             "from": customer(message),
-                            "message": f"{message_type} file: {file_name}",
+                            "message": f"media:{file_name}",
                            # "view": view_html
                         }).insert(ignore_permissions=True)
     else:

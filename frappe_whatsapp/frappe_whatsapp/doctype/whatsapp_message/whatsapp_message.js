@@ -24,6 +24,17 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("templates", "options", templateNames);
         });
+        if (frm.doc.type == "Incoming") {
+          cur_frm.set_df_property("attach", "read_only", 1);
+          if (((frm.doc.message).split(":")[0]) == "media") {
+            var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
+            var downloadButton = $('<button class="btn btn-default">Download File</button>');
+            downloadButton.click(function() {
+              window.open(fileUrl);
+            });
+            frm.fields_dict.view.$wrapper.append(downloadButton);
+          }
+        }
     },
     switch: function(frm) {
       if (frm.doc.switch) {
