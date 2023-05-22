@@ -58,8 +58,7 @@ def post(token):
                     "doctype": "WhatsApp Message",
                     "type": "Incoming",
                     "from": customer(message),
-                    "message": message['text']['body'],
-                  #  "view": ""  # il campo HTML è vuoto, nessun file multimediale in arrivo
+                    "message": message['text']['body']
                 }).insert(ignore_permissions=True)
             elif message_type in ["image", "audio", "video", "document"]:
                 media_id = message[message_type]["id"]
@@ -99,8 +98,7 @@ def post(token):
                             "doctype": "WhatsApp Message",
                             "type": "Incoming",
                             "from": customer(message),
-                            "message": f"media:{file_name}",
-                           # "view": view_html
+                            "message": f"media:{file_name}"
                         }).insert(ignore_permissions=True)
     else:
         changes = None

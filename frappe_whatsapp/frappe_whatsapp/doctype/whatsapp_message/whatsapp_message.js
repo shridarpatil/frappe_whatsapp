@@ -32,7 +32,7 @@ frappe.ui.form.on("WhatsApp Message", {
           var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
           window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
       });
-      frm.dashboard.add_inner_button(downloadButton[0].outerHTML);
+      frm.page.add_inner_button(downloadButton[0].outerHTML);
      }
     }
     },
