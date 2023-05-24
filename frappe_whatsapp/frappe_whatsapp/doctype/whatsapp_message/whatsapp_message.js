@@ -29,8 +29,7 @@ frappe.ui.form.on("WhatsApp Message", {
         frappe.msgprint("Messaggio in arrivo da " + frm.doc.from, indicator="green", alert=True)
         if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
           
-          var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
-          frappe.msgprint(fileUrl, indicator="green", alert=True)
+          var fileUrl = "https://ced.confcommercioimola.cloud/files/" + ((frm.doc.message).split(":")[1]);
        //   var fileData = {
         //    file_url: fileUrl,
         //    file_name: frappe.get_file_name(fileUrl)
@@ -47,9 +46,7 @@ frappe.ui.form.on("WhatsApp Message", {
             // Si è verificato un errore durante l'allegato del file
            // console.error(error);
          //   });
-          
-
-          // window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
+           window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
 
         }
       }
