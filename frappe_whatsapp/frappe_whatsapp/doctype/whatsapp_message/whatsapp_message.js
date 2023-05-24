@@ -25,16 +25,41 @@ frappe.ui.form.on("WhatsApp Message", {
           cur_frm.set_df_property("templates", "options", templateNames);
         });
       if (frm.doc.type == "Incoming") { //controlliamo che il messaggio sia in ingresso
-        cur_frm.set_df_property("attach", "read_only", 1); //rendo readonly l'attachment dei files
+        //notifico l'arrivo di un nuovo messaggio in ingresso specificando il mittente
+        frappe.msgprint("Messaggio in arrivo da " + frm.doc.from, indicator="green", alert=True)
         if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
-          var downloadButton = $('<button class="btn btn-default">Download File</button>');
-          downloadButton.click(function() {
+          
           var fileUrl = frappe.urllib.get_full_url(frappe.urllib.get_file_url("/files/" + ((frm.doc.message).split(":").pop())));
-          window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
+
+          var fileData = {
+            file_url: fileUrl,
+            file_name: frappe.get_file_name(fileUrl)
+          };
+
+          frappe.upload.upload_file(fileData)
+           .then(function(attachment) {
+            // Il file è stato allegato con successo
+             var doc = cur_frm.doc; // Riferimento al documento corrente
+             doc.attachment = attachment.file_url; // Imposta il campo di allegato
+             cur_frm.refresh_field("attachment"); // Aggiorna il campo nel form
+            })
+            .catch(function(error) {
+            // Si è verificato un errore durante l'allegato del file
+            console.error(error);
+            });
+          }
+
+          //window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
+      }
+      
+      //bottone per rispondere alle domande
+      frm.add_custom_button(__('risposndi'), function(){
+        // Apertura di un nuovo documento "WhatsApp Message" con il campo "a" selezionato sul nome del mittente
+        var newDoc = frappe.model.get_new_doc("WhatsApp Message");
+        newDoc.a = customerName;
+        frappe.set_route("Form", "WhatsApp Message", newDoc.name);
       });
-      frm.page.add_inner_button(downloadButton[0].outerHTML);
-     }
-    }
+
     },
     switch: function(frm) {
       if (frm.doc.switch) {
