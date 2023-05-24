@@ -21,7 +21,8 @@
   "message_id",
   "conversation_id",
   "content_type",
-  "attach"
+  "attach",
+  "button"
  ],
  "fields": [
   {
@@ -123,6 +124,11 @@
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
+  },
+  {
+   "fieldname": "button",
+   "fieldtype": "Button",
+   "label": "button"
   }
  ],
  "index_web_pages_for_search": 1,

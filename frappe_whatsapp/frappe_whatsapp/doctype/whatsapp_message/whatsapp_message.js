@@ -85,6 +85,9 @@ frappe.ui.form.on("WhatsApp Message", {
         cur_frm.set_df_property("switch", "read_only", 0);
         cur_frm.set_df_property("templates", "read_only", 1);
       }
+    },
+    button: function() {
+      frappe.msgprint("lalalal", indicator="green", alert=True)
     }
   });
   
