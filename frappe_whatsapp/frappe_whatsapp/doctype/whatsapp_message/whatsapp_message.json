@@ -9,7 +9,11 @@
   "label",
   "type",
   "status",
-  "to",
+  "switch",
+  "notifica",
+  "a",
+  "gruppo",
+  "templates",
   "from",
   "column_break_5",
   "message",
@@ -41,6 +45,18 @@
    "read_only": 1
   },
   {
+    "default": "0",
+    "fieldname": "switch",
+    "fieldtype": "Check",
+    "label": "send to groups"
+   },
+   {
+    "default": "0",
+    "fieldname": "notifica",
+    "fieldtype": "Check",
+    "label": "notifica"
+   },
+  {
    "fieldname": "message",
    "fieldtype": "HTML Editor",
    "label": "Message",
@@ -48,12 +64,25 @@
   },
   {
    "depends_on": "eval:(doc.type==\"Outgoing\");",
-   "description": "Mobile number with country code",
-   "fieldname": "to",
-   "fieldtype": "Data",
-   "label": "TO ",
-   "set_only_once": 1
+   "description": "Select the client",
+   "fieldname": "a",
+   "fieldtype": "Select",
+   "label": "a"
   },
+  {
+    "depends_on": "eval:(doc.type==\"Outgoing\");",
+    "description": "Select the group",
+    "fieldname": "gruppo",
+    "fieldtype": "Select",
+    "label": "gruppo"
+   },
+   {
+    "depends_on": "eval:(doc.type==\"Outgoing\");",
+    "description": "Select the template",
+    "fieldname": "templates",
+    "fieldtype": "Select",
+    "label": "templates"
+   },
   {
    "fieldname": "column_break_5",
    "fieldtype": "Column Break"
@@ -88,7 +117,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument"
+   "options": "\ntext\ndocument\nimage\nvideo\naudio"
   },
   {
    "fieldname": "attach",
