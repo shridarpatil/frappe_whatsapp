@@ -24,6 +24,10 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("templates", "options", templateNames);
         });
+      cur_frm.page.add_menu_item(__("Custom Print"), function() {
+          frappe.msgprint("Printed Document");
+          cur_frm.print_doc();
+      });
       if (frm.doc.type == "Incoming") { //controlliamo che il messaggio sia in ingresso
         if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
           
