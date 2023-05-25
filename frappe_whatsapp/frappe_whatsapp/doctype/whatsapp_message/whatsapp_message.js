@@ -25,8 +25,6 @@ frappe.ui.form.on("WhatsApp Message", {
           cur_frm.set_df_property("templates", "options", templateNames);
         });
       if (frm.doc.type == "Incoming") { //controlliamo che il messaggio sia in ingresso
-        //notifico l'arrivo di un nuovo messaggio in ingresso specificando il mittente
-        frappe.msgprint("Messaggio in arrivo da " + frm.doc.from, indicator="green", alert=True)
         if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
           
           var fileUrl = "https://ced.confcommercioimola.cloud/files/" + ((frm.doc.message).split(":")[1]);
@@ -85,9 +83,6 @@ frappe.ui.form.on("WhatsApp Message", {
         cur_frm.set_df_property("switch", "read_only", 0);
         cur_frm.set_df_property("templates", "read_only", 1);
       }
-    },
-    button: function() {
-      frappe.msgprint("lalalal", indicator="green", alert=True)
     }
   });
   
