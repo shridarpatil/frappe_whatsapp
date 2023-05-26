@@ -7,7 +7,7 @@ import time
 
 from werkzeug.wrappers import Response
 
-settings = frappe.get_doc(# ricavo il token di verifica
+settings = frappe.get_doc(
             "WhatsApp Settings", "WhatsApp Settings",
         )
 token = settings.get_password("token")
@@ -18,9 +18,6 @@ def webhook():
     if frappe.request.method == "GET":
         return get()
     return post(token)
-
-
-
 
 def get():
     """Get."""
@@ -63,7 +60,7 @@ def post(token):
             elif message_type in ["image", "audio", "video", "document"]:
                 media_id = message[message_type]["id"]
                 headers = {
-                    'Authorization': 'Bearer ' + token  # sostituisci con il tuo token di accesso
+                    'Authorization': 'Bearer ' + token 
                 }
                 response = requests.get(f'https://graph.facebook.com/v16.0/{media_id}/', headers=headers)
                 if response.status_code == 200:
@@ -71,29 +68,16 @@ def post(token):
                     media_url = media_data.get("url")
                     mime_type = media_data.get("mime_type")
                     file_extension = mime_type.split('/')[1]
-
                     media_response = requests.get(media_url, headers=headers)
                     if media_response.status_code == 200:
                         file_data = media_response.content
-
-                        file_path = "/opt/bench/frappe-bench/sites/ced.confcommercioimola.cloud/public/files/"  # sostituisci con il percorso desiderato
+                        file_path = "/opt/bench/frappe-bench/sites/ced.confcommercioimola.cloud/public/files/"
                         file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
                         file_full_path = file_path + file_name
 
                         with open(file_full_path, "wb") as file:
                             file.write(file_data)
-
-                        time.sleep(1) #"dorme" per mezzo secondo 
-
-                       # if message_type == "video":
-                       #  view_html = f'<html><head><title>Player video</title></head><body><video controls><source src="/files/{file_name}" type="video/mp4">Il tuo browser non supporta il tag video.</video></body></html>'
-                       # elif message_type == "audio":
-                       #  view_html = f'<html><head><title>Player audio</title></head><body><audio controls><source src="/files/{file_name}" type="audio/mp3">Il tuo browser non supporta audio.</audio></body></html>'
-                       #elif message_type == "image":
-                       #  view_html = f'<html> <head> <style> .image-viewer {{ display: flex; align-items: center; justify-content: center; height: 100vh; }} .image-container {{ max-width: 100%; max-height: 100%; }} .image {{ max-width: 100%; max-height: 100%; }} </style> </head> <body> <div class="image-viewer"> <div class="image-container"> <img class="image" src="/files/{file_name}" alt="Image"> </div> </div> </body> </html>'
-                       # elif message_type == "document":
-                      #   view_html = f'<html> <head> <title>Visualizzatore di documenti</title> <style> #document-viewer {{ width: 100%; height: 600px; }} </style> </head> <body> <div id="document-viewer"> <iframe src="/files/{file_name}" width="100%" height="100%"></iframe> </div> </body> </html>'
-
+                        time.sleep(1) 
                         frappe.get_doc({
                             "doctype": "WhatsApp Message",
                             "type": "Incoming",
@@ -115,7 +99,7 @@ def customer(message):
         return frappe.db.get_value("Customer", filters={"mobile_no": ("+" + str(message['from']))}, fieldname="customer_name")
 
     else:
-        return "non registrato: " + "+" + str(message['from'])
+        return "not registered:" + "+" + str(message['from'])
     
 
 def update_status(data):

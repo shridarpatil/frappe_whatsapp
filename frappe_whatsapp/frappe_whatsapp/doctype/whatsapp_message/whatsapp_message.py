@@ -1,11 +1,10 @@
-# Copyright (c) 2022, Shridhar Patil and contributors
+# Copyright (c) 2023, Shridhar Patil and contributors
 # For license information, please see license.txt
 import json
 import frappe
 import time
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
-import frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification as whatsapp_notification
 
 
 class WhatsAppMessage(Document):
@@ -21,27 +20,23 @@ class WhatsAppMessage(Document):
                 link = self.attach
          
             if self.switch:
-                # Invia messaggio a tutti i numeri degli utenti nel gruppo
                 customers = frappe.db.get_list("Customer", filters={"customer_group": self.gruppo}, pluck="customer_name")
                 for customer in customers:
                     mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer}, fieldname="mobile_no")
                     if mobile_no:
                         self.send_message(mobile_no, link)
-                        #frappe.msgprint(str(mobile_no), indicator="green", alert=True)
-                        time.sleep(2) #"dorme" per mezzo secondo
+                        time.sleep(2)
 
             if self.notifica:
-                # Invia il template di benvenuto a tutti i numeri degli utenti
                 customers = frappe.db.get_list("Customer", pluck="customer_name")
                 for customer in customers:
                     mobile_no = frappe.db.get_value("Customer", filters={"customer_name": customer}, fieldname="mobile_no")
                     if mobile_no:
                         self.notifyAll(mobile_no)
-                        time.sleep(2) #"dorme" per mezzo secondo            
+                        time.sleep(2)          
                         
               
             if not self.switch and not self.notifica:
-                # Invia messaggio al singolo utente nel campo "a"
                 mobile_no = frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no")
                 if mobile_no:
                     self.send_message(mobile_no, link)
@@ -95,7 +90,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=json.dumps(data)
             )
             self.message_id = response['messages'][0]['id']
-            #frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")", indicator="green", alert=True)
+            frappe.msgprint("Meessage send to " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")", indicator="green", alert=True)
             
 
         except Exception as e:
@@ -132,7 +127,7 @@ class WhatsAppMessage(Document):
                 headers=headers, data=template
             )
             self.message_id = response['messages'][0]['id']
-            #frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")", indicator="green", alert=True)
+            frappe.msgprint("Messaggio inviato a " + self.a + "(" +str(self.format_number(frappe.db.get_value("Customer", filters={"customer_name": self.a}, fieldname="mobile_no"))) +")", indicator="green", alert=True)
             
 
         except Exception as e:

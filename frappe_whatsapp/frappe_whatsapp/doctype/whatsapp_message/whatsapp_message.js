@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Shridhar Patil and contributors
+// Copyright (c) 2023, Shridhar Patil and contributors
 // For license information, please see license.txt
 
 frappe.ui.form.on("WhatsApp Message", {
@@ -24,19 +24,23 @@ frappe.ui.form.on("WhatsApp Message", {
           });
           cur_frm.set_df_property("templates", "options", templateNames);
         });
-      if (frm.doc.type == "Incoming") { //controlliamo che il messaggio sia in ingresso
-        //bottone per rispondere alle domande
-      frm.add_custom_button(__('rispondi al messaggio'), function(){
-        // Apertura di un nuovo documento "WhatsApp Message" con il campo "a" selezionato sul nome del mittente
-        var newDoc = frappe.model.get_new_doc("WhatsApp Message");
-        newDoc.a = frm.doc.from;
-        frappe.set_route("Form", "WhatsApp Message", newDoc.name);
-      }, __("rispondi"));
-        if (((frm.doc.message).split(":")[0]) == "media") { //controlliamo che il messaggio in ingresso sia un file multimediale
-          //bottone per scaricare i files multimediali
-         frm.add_custom_button(__('download media'), function(){
+      if (frm.doc.type == "Incoming") {
+      frm.add_custom_button(__('reply to the message'), function(){
+          var newDoc = frappe.model.get_new_doc("WhatsApp Message");
+          newDoc.a = frm.doc.from;
+          frappe.set_route("Form", "WhatsApp Message", newDoc.name);
+      }, __("reply"));
+        if (((frm.doc.from).split(":")[0]) == "not registered") {
+         frm.add_custom_button(__('register customer'), function(){
+          var newDoc = frappe.model.get_new_doc("Customer");
+          newDoc.mobile_no = ((frm.doc.from).split(":")[1]);
+          frappe.set_route("Form", "Customer", newDoc.name);
+         }, __("register"));
+        }
+        if (((frm.doc.message).split(":")[0]) == "media") {
+          frm.add_custom_button(__('download media'), function(){
           var fileUrl = "https://ced.confcommercioimola.cloud/files/" + ((frm.doc.message).split(":")[1]);
-          window.open(fileUrl); //apre l'immagine scaricata in un'altra finestra
+          window.open(fileUrl);
          }, __("download"));
         }
       }
