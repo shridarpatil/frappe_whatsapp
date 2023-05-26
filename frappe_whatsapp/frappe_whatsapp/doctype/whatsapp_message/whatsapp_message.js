@@ -25,11 +25,13 @@ frappe.ui.form.on("WhatsApp Message", {
           cur_frm.set_df_property("templates", "options", templateNames);
         });
       if (frm.doc.type == "Incoming") {
-      frm.add_custom_button(__('reply to the message'), function(){
-          var newDoc = frappe.model.get_new_doc("WhatsApp Message");
-          newDoc.a = frm.doc.from;
-          frappe.set_route("Form", "WhatsApp Message", newDoc.name);
-      }, __("reply"));
+        if (!(((frm.doc.from).split(":")[0]) == "not registered")) {  
+         frm.add_custom_button(__('reply to the message'), function(){
+             var newDoc = frappe.model.get_new_doc("WhatsApp Message");
+             newDoc.a = frm.doc.from;
+             frappe.set_route("Form", "WhatsApp Message", newDoc.name);
+         }, __("reply"));
+        }
         if (((frm.doc.from).split(":")[0]) == "not registered") {
          frm.add_custom_button(__('register customer'), function(){
           var newDoc = frappe.model.get_new_doc("Customer");
