@@ -11,7 +11,8 @@
   "version",
   "phone_id",
   "business_id",
-  "webhook_verify_token"
+  "webhook_verify_token",
+  "bench_location"
  ],
  "fields": [
   {
@@ -44,12 +45,17 @@
    "fieldname": "webhook_verify_token",
    "fieldtype": "Data",
    "label": "Webhook Verify Token"
+  },
+  {
+   "fieldname": "bench_location",
+   "fieldtype": "Data",
+   "label": "Bench Location"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-02-23 11:47:47.742678",
+ "modified": "2023-06-15 11:48:56.871779",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
