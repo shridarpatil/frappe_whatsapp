@@ -5,13 +5,14 @@ import requests
 import time
 from frappe.utils import get_site_name
 from werkzeug.wrappers import Response
+import frappe.utils
 
 settings = frappe.get_doc(
 			"WhatsApp Settings", "WhatsApp Settings",
 		)
 token = settings.get_password("token")
 url = f"{settings.url}/{settings.version}/"
-bench_location = f"{settings.bench_location}"
+bench_location = frappe.utils.get_bench_path()
 site_name = get_site_name(frappe.local.request.host)
 
 @frappe.whitelist(allow_guest=True)
