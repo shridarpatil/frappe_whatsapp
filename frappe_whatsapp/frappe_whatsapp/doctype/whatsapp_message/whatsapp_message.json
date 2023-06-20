@@ -88,7 +88,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument"
+   "options": "\ntext\ndocument\nimage\nvideo\naudio"
   },
   {
    "fieldname": "attach",
@@ -98,7 +98,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-20 16:07:35.445697",
+ "modified": "2023-06-15 11:47:06.542923",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
