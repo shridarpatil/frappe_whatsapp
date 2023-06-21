@@ -1,5 +1,8 @@
 name: publish
-on: [push]
+on:
+  push:
+    tags:
+      - 'v*.*.*'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,6 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -20,5 +25,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build and deploy
         run: |
-         docker build . --tag ghcr.io/shridarpatil/frappe_whatsapp:latest
-         docker push ghcr.io/shridarpatil/frappe_whatsapp:latest
+         docker build . --tag ghcr.io/shridarpatil/frappe_whatsapp:${{ env.RELEASE_VERSION }}
+         docker push ghcr.io/shridarpatil/frappe_whatsapp:${{ env.RELEASE_VERSION }}
