@@ -1,0 +1,29 @@
+name: publish
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build and deploy
+        run: |
+         docker build . --tag ghcr.io/shridarpatil/frappe_whatsapp:${{ env.RELEASE_VERSION }}
+         docker push ghcr.io/shridarpatil/frappe_whatsapp:${{ env.RELEASE_VERSION }}
