@@ -58,7 +58,9 @@ def post():
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
 					"from": message['from'],
-					"message": message['text']['body']
+					"message": message['text']['body'],
+					"message_id": message['id'],
+					"content_type":message_type
 				}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				media_id = message[message_type]["id"]
@@ -92,6 +94,7 @@ def post():
 							"doctype": "WhatsApp Message",
 							"type": "Incoming",
 							"from": message['from'],
+							"message_id": message['id'],
 							"message": f"/files/{file_name}",
 							"attach" : f"/files/{file_name}",
 							"content_type" : message_type
