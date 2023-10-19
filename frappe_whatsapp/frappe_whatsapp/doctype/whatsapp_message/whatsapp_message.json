@@ -21,6 +21,7 @@
  ],
  "fields": [
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "label",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -41,12 +42,14 @@
    "read_only": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "message",
    "fieldtype": "HTML Editor",
    "label": "Message",
    "set_only_once": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "depends_on": "eval:(doc.type==\"Outgoing\");",
    "description": "Mobile number with country code",
    "fieldname": "to",
@@ -66,6 +69,7 @@
    "set_only_once": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "message_type",
    "fieldtype": "Select",
    "label": "Message Type",
@@ -85,12 +89,16 @@
    "read_only": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument\nimage\nvideo\naudio"
+   "options": "\ntext\ndocument\nimage\nvideo\naudio",
+   "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
+   "depends_on": "eval:(doc.content_type =='audio' || doc.content_type =='video' || doc.content_type =='document' || doc.content_type =='image')",
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
@@ -98,7 +106,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-06-15 11:47:06.542923",
+ "modified": "2023-10-19 18:27:53.611028",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
@@ -117,6 +125,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
