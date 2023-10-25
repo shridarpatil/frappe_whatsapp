@@ -33,10 +33,10 @@ class WhatsAppNotification(Document):
             fieldname='language_code'
         )
         if language_code:
-            for contact in self._contact_list:
+            for contact in self.contact_list:
                 data = {
                     "messaging_product": "whatsapp",
-                    "to": self.format_number(contact),
+                    "to": f"91{self.format_number(contact)}",
                     "type": "template",
                     "template": {
                         "name": self.template,
@@ -71,7 +71,7 @@ class WhatsAppNotification(Document):
         if template:
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(doc_data[self.field_name]),
+                "to": f"91{self.format_number(doc_data[self.field_name])}",
                 "type": "template",
                 "template": {
                     "name": self.template,
