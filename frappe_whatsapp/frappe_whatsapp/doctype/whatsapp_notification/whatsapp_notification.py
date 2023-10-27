@@ -217,4 +217,7 @@ class WhatsAppNotification(Document):
             pass
         else:
             number = f"91{number}"
-        return number
+        if len(number)==12:
+            return number
+        else:
+            frappe.throw("Please enter the correct 10 digit number")
