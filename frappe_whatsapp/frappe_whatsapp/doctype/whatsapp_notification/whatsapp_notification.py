@@ -36,7 +36,7 @@ class WhatsAppNotification(Document):
             for contact in self.contact_list:
                 data = {
                     "messaging_product": "whatsapp",
-                    "to": f"91{self.format_number(contact)}",
+                    "to": self.format_number(contact),
                     "type": "template",
                     "template": {
                         "name": self.template,
@@ -71,7 +71,7 @@ class WhatsAppNotification(Document):
         if template:
             data = {
                 "messaging_product": "whatsapp",
-                "to": f"91{self.format_number(doc_data[self.field_name])}",
+                "to": self.format_number(doc_data[self.field_name]),
                 "type": "template",
                 "template": {
                     "name": self.template,
@@ -213,5 +213,8 @@ class WhatsAppNotification(Document):
         """Format number."""
         if (number.startswith("+")):
             number = number[1:len(number)]
-
+        if (number.startswith("91")):
+            pass
+        else:
+            number = f"91{number}"
         return number

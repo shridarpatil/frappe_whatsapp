@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "format:{WN}-{####}",
  "creation": "2022-10-27 22:04:58.515829",
  "doctype": "DocType",
@@ -160,7 +161,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-03 13:59:27.758318",
+ "modified": "2023-10-27 11:44:10.439378",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
