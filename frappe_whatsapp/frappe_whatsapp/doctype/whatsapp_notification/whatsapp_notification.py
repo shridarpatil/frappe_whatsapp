@@ -22,6 +22,9 @@ class WhatsAppNotification(Document):
             )
             if not any(field.fieldname == self.field_name for field in fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
+        if self.custom_attachment:
+            if not self.attach and not self.attach_from_field:
+                frappe.throw("Either <b>Attach</b> a file or add a <b>Attach from field</b> to send attachemt")
 
     def send_scheduled_message(self) -> dict:
         """Specific to API endpoint Server Scripts."""
