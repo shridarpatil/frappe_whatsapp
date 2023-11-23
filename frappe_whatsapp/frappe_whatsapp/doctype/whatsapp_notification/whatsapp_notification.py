@@ -46,7 +46,7 @@ class WhatsAppNotification(Document):
                         "components": []
                     }
                 }
-
+                self.content_type = template.get("header_type", "text").lower()
                 self.notify(data)
         # return _globals.frappe.flags
 
@@ -54,7 +54,7 @@ class WhatsAppNotification(Document):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
-
+        self.content_type = 'text'
         doc_data = doc.as_dict()
         if self.condition:
             # check if condition satisfies
@@ -142,6 +142,7 @@ class WhatsAppNotification(Document):
                         }
                     }]
                 })
+                self.content_type = template.header_type.lower()
 
             self.notify(data)
 
@@ -168,7 +169,8 @@ class WhatsAppNotification(Document):
                 "message": str(data['template']),
                 "to": data['to'],
                 "message_type": "Template",
-                "message_id": response['messages'][0]['id']
+                "message_id": response['messages'][0]['id'],
+                "content_type": self.content_type
             }).save(ignore_permissions=True)
 
             frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
