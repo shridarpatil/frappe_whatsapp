@@ -126,10 +126,20 @@ class WhatsAppNotification(Document):
 
             elif self.custom_attachment:
                 filename = self.file_name
-                if self.attach.startswith("http"):
-                    url = f'{self.attach}'
+
+                if self.attach_from_field:
+                    file_url = doc_data[self.attach_from_field]
+                    if not file_url.startswith("http"):
+                        # get share key so that private files can be sent
+                        key = doc.get_document_share_key()
+                        file_url = f'{frappe.utils.get_url()}{file_url}&key={key}'
                 else:
-                    url = f'{frappe.utils.get_url()}{self.attach}'
+                    file_url = self.attach
+
+                if file_url.startswith("http"):
+                    url = f'{file_url}'
+                else:
+                    url = f'{frappe.utils.get_url()}{file_url}'
 
             if template.header_type == 'DOCUMENT':
                 data['template']['components'].append({
@@ -142,7 +152,17 @@ class WhatsAppNotification(Document):
                         }
                     }]
                 })
-                self.content_type = template.header_type.lower()
+            elif template.header_type == 'IMAGE':
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "image",
+                        "image": {
+                            "link": url
+                        }
+                    }]
+                })
+            self.content_type = template.header_type.lower()
 
             self.notify(data)
 
