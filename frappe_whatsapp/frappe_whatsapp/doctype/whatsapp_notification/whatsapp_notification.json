@@ -18,6 +18,7 @@
   "attach_document_print",
   "custom_attachment",
   "attach",
+  "attach_from_field",
   "file_name",
   "section_break_11",
   "condition",
@@ -156,11 +157,18 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Header Type"
+  },
+  {
+   "depends_on": "eval:doc.custom_attachment",
+   "description": "Attach media from doctype field",
+   "fieldname": "attach_from_field",
+   "fieldtype": "Data",
+   "label": "Attach from field "
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-03 13:59:27.758318",
+ "modified": "2023-11-23 17:18:54.663077",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

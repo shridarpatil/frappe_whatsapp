@@ -96,6 +96,7 @@ class WhatsAppTemplates(Document):
                 headers=self._headers, data=json.dumps(data)
             )
         except Exception as e:
+            raise e
             res = frappe.flags.integration_request.json()['error']
             frappe.throw(
                 msg=res.get('error_user_msg', res.get("message")),

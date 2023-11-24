@@ -22,6 +22,9 @@ class WhatsAppNotification(Document):
             )
             if not any(field.fieldname == self.field_name for field in fields): # noqa
                 frappe.throw(f"Field name {self.field_name} does not exists")
+        if self.custom_attachment:
+            if not self.attach and not self.attach_from_field:
+                frappe.throw("Either <b>Attach</b> a file or add a <b>Attach from field</b> to send attachemt")
 
     def send_scheduled_message(self) -> dict:
         """Specific to API endpoint Server Scripts."""
@@ -46,7 +49,7 @@ class WhatsAppNotification(Document):
                         "components": []
                     }
                 }
-
+                self.content_type = template.get("header_type", "text").lower()
                 self.notify(data)
         # return _globals.frappe.flags
 
@@ -54,7 +57,7 @@ class WhatsAppNotification(Document):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
-
+        self.content_type = 'text'
         doc_data = doc.as_dict()
         if self.condition:
             # check if condition satisfies
@@ -126,10 +129,20 @@ class WhatsAppNotification(Document):
 
             elif self.custom_attachment:
                 filename = self.file_name
-                if self.attach.startswith("http"):
-                    url = f'{self.attach}'
+
+                if self.attach_from_field:
+                    file_url = doc_data[self.attach_from_field]
+                    if not file_url.startswith("http"):
+                        # get share key so that private files can be sent
+                        key = doc.get_document_share_key()
+                        file_url = f'{frappe.utils.get_url()}{file_url}&key={key}'
                 else:
-                    url = f'{frappe.utils.get_url()}{self.attach}'
+                    file_url = self.attach
+
+                if file_url.startswith("http"):
+                    url = f'{file_url}'
+                else:
+                    url = f'{frappe.utils.get_url()}{file_url}'
 
             if template.header_type == 'DOCUMENT':
                 data['template']['components'].append({
@@ -142,6 +155,17 @@ class WhatsAppNotification(Document):
                         }
                     }]
                 })
+            elif template.header_type == 'IMAGE':
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "image",
+                        "image": {
+                            "link": url
+                        }
+                    }]
+                })
+            self.content_type = template.header_type.lower()
 
             self.notify(data)
 
@@ -168,7 +192,8 @@ class WhatsAppNotification(Document):
                 "message": str(data['template']),
                 "to": data['to'],
                 "message_type": "Template",
-                "message_id": response['messages'][0]['id']
+                "message_id": response['messages'][0]['id'],
+                "content_type": self.content_type
             }).save(ignore_permissions=True)
 
             frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
