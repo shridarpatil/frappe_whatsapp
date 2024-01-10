@@ -39,7 +39,7 @@ frappe.ui.form.on('WhatsApp Notification', {
 		)
 	},
 	custom_attachment: function(frm){
-		if(frm.doc.custom_attachment==1 &&  ['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)){
+		if(frm.doc.custom_attachment == 1 &&  ['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)){
 			frm.set_df_property('file_name', 'reqd', frm.doc.custom_attachment)
 		}else{
 			frm.set_df_property('file_name', 'reqd', 0)
