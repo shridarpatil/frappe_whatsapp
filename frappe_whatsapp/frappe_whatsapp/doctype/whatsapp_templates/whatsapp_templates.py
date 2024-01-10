@@ -14,9 +14,7 @@ class WhatsAppTemplates(Document):
     def after_insert(self):
         """Set template code."""
         self.template_name = self.template_name.lower().replace(' ', '_')
-        self.language_code = frappe.db.get_value(
-            "Language", self.language
-        ).replace('-', '_')
+        self.language_code = frappe.db.get_list('Language', filters={'language_name': ['=', self.language]})[0].name.replace('-', '_')
 
         self.get_settings()
         data = {
