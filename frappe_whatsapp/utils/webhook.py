@@ -62,6 +62,15 @@ def post():
 					"message_id": message['id'],
 					"content_type":message_type
 				}).insert(ignore_permissions=True)
+			elif message_type == 'interactive':
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming",
+					"from": message['from'],
+					"message": message['interactive']['nfm_reply']['response_json'],
+					"message_id": message['id'],
+					"content_type": "flow"
+				}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				media_id = message[message_type]["id"]
 				headers = {
@@ -99,6 +108,7 @@ def post():
 							"attach" : f"/files/{file_name}",
 							"content_type" : message_type
 						}).insert(ignore_permissions=True)
+
 	else:
 		changes = None
 		try:
@@ -108,7 +118,6 @@ def post():
 		update_status(changes)
 	return
 
-
 def update_status(data):
 	"""Update status hook."""
 	if data.get("field") == "message_template_status_update":
@@ -116,7 +125,6 @@ def update_status(data):
 
 	elif data.get("field") == "messages":
 		update_message_status(data['value'])
-
 
 def update_template_status(data):
 	"""Update template status."""
@@ -126,7 +134,6 @@ def update_template_status(data):
 		WHERE id = %(message_template_id)s""",
 		data
 	)
-
 
 def update_message_status(data):
 	"""Update message status."""
