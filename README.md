@@ -61,6 +61,9 @@ WhatsApp messages are received via WhatsApp cloud API.
   * `messages` to receive message
   * add other required web fields
 
+Incoming Message for WhatsApp Flows will look like this 
+<img width="1429" alt="Screenshot 2024-03-07 at 10 56 27" src="https://github.com/chechani/frappe_whatsapp/assets/6291292/de1f9f47-bd75-4d4a-940b-38ae17d9a073">
+
 
 #### License
 
