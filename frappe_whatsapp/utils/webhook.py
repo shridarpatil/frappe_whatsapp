@@ -67,7 +67,7 @@ def post():
 					"content_type":message_type
 				}).insert(ignore_permissions=True)
 			elif message_type == 'interactive':
-				if message_type["type"] == 'nfm_reply':
+				if message['interactive']['type'] == 'nfm_reply':
 					frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
@@ -77,7 +77,7 @@ def post():
 						"message_id": message['id'],
 						"content_type": "flow"
 					}).insert(ignore_permissions=True)
-				elif message_type["type"] == 'list_reply':
+				elif message['interactive']['type'] == 'list_reply':
 					frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
@@ -87,7 +87,7 @@ def post():
 						"message_id": message['id'],
 						"content_type": "flow"
 					}).insert(ignore_permissions=True)     
-				elif message_type["type"] == 'button_reply':
+				elif message['interactive']['type'] == 'button_reply':
 					pass
 					# frappe.get_doc({
 					# 	"doctype": "WhatsApp Message",
