@@ -45,6 +45,7 @@ def post():
 	}).insert(ignore_permissions=True)
 
 	messages = []
+	contact = []
 	try:
 		messages = data["entry"][0]["changes"][0]["value"].get("messages", [])
 		contact = data["entry"][0]["changes"][0]["value"].get("contacts", [])

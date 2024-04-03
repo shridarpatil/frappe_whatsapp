@@ -106,14 +106,13 @@
   },
   {
    "fieldname": "whatsapp_profile_name",
-   "fieldtype": "Data",
-   "label": "WhatsApp Profile Name",
-   "read_only": 1
+   "fieldtype": "Read Only",
+   "label": "WhatsApp Profile Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-03 12:45:34.973189",
+ "modified": "2024-04-03 12:59:58.493004",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
