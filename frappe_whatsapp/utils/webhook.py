@@ -77,16 +77,16 @@ def post():
 						"message_id": message['id'],
 						"content_type": "flow"
 					}).insert(ignore_permissions=True)
-				elif message_type["type"] == 'list_reply':
-					frappe.get_doc({
-						"doctype": "WhatsApp Message",
-						"type": "Incoming",
-						"from": message['from'],
-						"whatsapp_profile_name": contact[0]['profile']['name'],
-						"message": message['interactive']['list_reply']['title'],
-						"message_id": message['id'],
-						"content_type": "flow"
-					}).insert(ignore_permissions=True)
+				# elif message_type["type"] == 'list_reply':
+				# 	frappe.get_doc({
+				# 		"doctype": "WhatsApp Message",
+				# 		"type": "Incoming",
+				# 		"from": message['from'],
+				# 		"whatsapp_profile_name": contact[0]['profile']['name'],
+				# 		"message": message['interactive']['list_reply']['title'],
+				# 		"message_id": message['id'],
+				# 		"content_type": "flow"
+				# 	}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				media_id = message[message_type]["id"]
 				headers = {
