@@ -11,6 +11,7 @@
   "status",
   "to",
   "from",
+  "whatsapp_profile_name",
   "column_break_5",
   "message",
   "message_type",
@@ -102,11 +103,17 @@
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
+  },
+  {
+   "fieldname": "whatsapp_profile_name",
+   "fieldtype": "Data",
+   "label": "WhatsApp Profile Name",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-29 15:44:15.541434",
+ "modified": "2024-04-03 12:45:34.973189",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
