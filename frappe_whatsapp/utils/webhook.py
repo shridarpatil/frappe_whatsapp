@@ -86,7 +86,7 @@ def post():
 						"message": message['interactive']['list_reply']['title'],
 						"message_id": message['id'],
 						"content_type": "flow"
-					}).insert(ignore_permissions=True)     
+					}).insert(ignore_permissions=True)
 				elif message['interactive']['type'] == 'button_reply':
 					frappe.get_doc({
 						"doctype": "WhatsApp Message",
