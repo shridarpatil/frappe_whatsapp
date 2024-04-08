@@ -121,10 +121,10 @@ def post():
 def update_status(data):
 	"""Update status hook."""
 	if data.get("field") == "message_template_status_update":
-		update_template_status(data['value'])
+		update_template_status(data['value'] or {})
 
 	elif data.get("field") == "messages":
-		update_message_status(data['value'])
+		update_message_status(data['value'] or {})
 
 def update_template_status(data):
 	"""Update template status."""
@@ -132,7 +132,10 @@ def update_template_status(data):
 		"""UPDATE `tabWhatsApp Templates`
 		SET status = %(event)s
 		WHERE id = %(message_template_id)s""",
-		data
+		{
+			"event" : data.get("event"),
+			"message_template_id" : str(data.get("message_template_id"))
+		}
 	)
 
 def update_message_status(data):

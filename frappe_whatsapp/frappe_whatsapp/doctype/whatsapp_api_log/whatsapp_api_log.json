@@ -1,0 +1,117 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "WA_API_LOG-.YY.-.######.",
+ "creation": "2024-04-05 10:37:39.836834",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "method",
+  "type",
+  "column_break_hatn",
+  "status",
+  "reference_doctype",
+  "reference_docname",
+  "request_section_section",
+  "url",
+  "headers",
+  "payload",
+  "response_section_section",
+  "response_status_code",
+  "response_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "method",
+   "fieldtype": "Select",
+   "label": "Method",
+   "options": "POST\nPUT\nGET"
+  },
+  {
+   "fieldname": "column_break_hatn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nSuccess\nError"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference Doctype",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_docname",
+   "fieldtype": "Data",
+   "label": "Reference Docname"
+  },
+  {
+   "fieldname": "request_section_section",
+   "fieldtype": "Section Break",
+   "label": "Request Section"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Long Text",
+   "label": "URL"
+  },
+  {
+   "fieldname": "payload",
+   "fieldtype": "HTML Editor",
+   "label": "Payload"
+  },
+  {
+   "fieldname": "response_section_section",
+   "fieldtype": "Section Break",
+   "label": "Response Section"
+  },
+  {
+   "fieldname": "response_status_code",
+   "fieldtype": "Data",
+   "label": "Response Status Code"
+  },
+  {
+   "fieldname": "response_message",
+   "fieldtype": "HTML Editor",
+   "label": "Response Message"
+  },
+  {
+   "fieldname": "headers",
+   "fieldtype": "HTML Editor",
+   "label": "Headers"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "label": "Type"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-04-08 00:23:31.297746",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp API Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

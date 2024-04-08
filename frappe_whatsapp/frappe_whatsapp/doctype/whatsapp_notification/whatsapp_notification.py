@@ -35,6 +35,11 @@ class WhatsAppNotification(Document):
             "WhatsApp Templates", self.template,
             fieldname='language_code'
         )
+        
+        template = frappe.db.get_value(
+            "WhatsApp Templates", self.template,'header_type', as_dict = 1
+        )
+
         if language_code:
             for contact in self._contact_list:
                 data = {

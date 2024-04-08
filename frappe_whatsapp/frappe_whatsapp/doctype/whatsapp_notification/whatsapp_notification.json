@@ -30,14 +30,14 @@
  ],
  "fields": [
   {
-   "depends_on": "eval:['DocType Event', 'Permission Query'].includes(doc.notification_type)",
+   "depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
    "fieldname": "reference_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Reference Document Type",
-   "options": "DocType",
-   "reqd": 1
+   "mandatory_depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
+   "options": "DocType"
   },
   {
    "depends_on": "eval:doc.notification_type == \"Scheduler Event\"",
@@ -102,7 +102,7 @@
    "fieldname": "field_name",
    "fieldtype": "Data",
    "label": "Field Name",
-   "reqd": 1
+   "mandatory_depends_on": "eval:['DocType Event'].includes(doc.notification_type)"
   },
   {
    "fieldname": "column_break_12",
@@ -168,7 +168,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-23 17:18:54.663077",
+ "modified": "2024-04-02 15:51:11.965178",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:template_name",
  "creation": "2022-10-28 13:39:09.887817",
  "doctype": "DocType",
@@ -19,7 +18,13 @@
   "sample",
   "footer",
   "id",
-  "status"
+  "status",
+  "upload_document_section_section",
+  "sample_header",
+  "size_file",
+  "file_type",
+  "session_upload_header",
+  "header_handle"
  ],
  "fields": [
   {
@@ -50,6 +55,7 @@
    "fieldname": "language_code",
    "fieldtype": "Data",
    "label": "Language Code",
+   "no_copy": 1,
    "read_only": 1
   },
   {
@@ -79,13 +85,15 @@
    "fieldname": "id",
    "fieldtype": "Data",
    "label": "ID",
+   "no_copy": 1,
    "read_only": 1
   },
   {
    "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Data",
-   "label": "Status"
+   "label": "Status",
+   "no_copy": 1
   },
   {
    "fieldname": "header_type",
@@ -104,11 +112,43 @@
    "fieldname": "sample_values",
    "fieldtype": "Text",
    "label": "Sample Values"
+  },
+  {
+   "fieldname": "upload_document_section_section",
+   "fieldtype": "Section Break",
+   "label": "Upload Document Section"
+  },
+  {
+   "description": "Supported Files : application/pdf, image/jpeg, image/jpg, image/png, dan video/mp4",
+   "fieldname": "sample_header",
+   "fieldtype": "Attach",
+   "label": "Sample Header"
+  },
+  {
+   "fieldname": "size_file",
+   "fieldtype": "Data",
+   "label": "Size File"
+  },
+  {
+   "description": "Automatically filled by system <br>\nSupported Files: application/pdf, image/jpeg, image/jpg, image/png, dan video/mp4",
+   "fieldname": "file_type",
+   "fieldtype": "Data",
+   "label": "File Type (Meta)"
+  },
+  {
+   "fieldname": "session_upload_header",
+   "fieldtype": "Long Text",
+   "label": "Session Upload Header (Meta)"
+  },
+  {
+   "fieldname": "header_handle",
+   "fieldtype": "Long Text",
+   "label": "Header Handle (Meta)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-23 17:44:04.673291",
+ "modified": "2024-04-08 10:38:02.734109",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
@@ -128,6 +168,7 @@
    "write": 1
   }
  ],
+ "search_fields": "status,template",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

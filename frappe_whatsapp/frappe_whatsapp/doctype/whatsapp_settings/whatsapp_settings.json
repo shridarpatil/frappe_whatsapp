@@ -11,7 +11,11 @@
   "version",
   "phone_id",
   "business_id",
-  "webhook_verify_token"
+  "webhook_verify_token",
+  "column_break_rlcf",
+  "application_id",
+  "internal_settings_section",
+  "site_base_url"
  ],
  "fields": [
   {
@@ -44,12 +48,33 @@
    "fieldname": "webhook_verify_token",
    "fieldtype": "Data",
    "label": "Webhook Verify Token"
+  },
+  {
+   "description": "For used in create session upload and photo",
+   "fieldname": "application_id",
+   "fieldtype": "Data",
+   "label": "Application ID"
+  },
+  {
+   "fieldname": "column_break_rlcf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "internal_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Internal Settings"
+  },
+  {
+   "description": "For a base url to send media to META. <br>",
+   "fieldname": "site_base_url",
+   "fieldtype": "Data",
+   "label": "Site Base Url"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-18 20:58:17.268533",
+ "modified": "2024-04-08 09:12:01.342289",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
