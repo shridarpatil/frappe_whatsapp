@@ -15,6 +15,8 @@ class WhatsAppMessage(Document):
             self.send_message_template()
 
     def after_insert(self):
+        # Commit karena harus ada supaya bisa di enqueue
+        frappe.db.commit()
         if self.get("using_system"):
             self.send_whatsapp_enqueue()
 

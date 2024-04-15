@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "field:template_name",
+ "autoname": "field:template_title",
  "creation": "2022-10-28 13:39:09.887817",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,13 +9,13 @@
   "template",
   "sample_values",
   "column_break_6",
+  "template_title",
   "template_name",
   "category",
   "language",
   "language_code",
   "header_type",
   "header",
-  "sample",
   "footer",
   "id",
   "status",
@@ -24,18 +24,20 @@
   "size_file",
   "file_type",
   "session_upload_header",
-  "header_handle"
+  "header_handle",
+  "amended_from"
  ],
  "fields": [
   {
+   "description": "Automatically filled from title",
    "fieldname": "template_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Template Name",
-   "reqd": 1,
    "unique": 1
   },
   {
+   "description": "<b>Note :</b> How to insert special character:<br>\n*<b>Bold</b>* <br>\n_<i>Italic</i>_ <br>\n~<s>Strikethrough</s>~ <br>\n```<tt>Monospace</tt>```<br>",
    "fieldname": "template",
    "fieldtype": "Code",
    "in_list_view": 1,
@@ -62,7 +64,8 @@
    "depends_on": "eval:doc.header_type == 'TEXT'",
    "fieldname": "header",
    "fieldtype": "Data",
-   "label": "Header"
+   "label": "Header",
+   "mandatory_depends_on": "eval:doc.header_type == 'TEXT'"
   },
   {
    "fieldname": "footer",
@@ -82,6 +85,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "id",
    "fieldtype": "Data",
    "label": "ID",
@@ -89,24 +93,19 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Data",
    "label": "Status",
-   "no_copy": 1
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "fieldname": "header_type",
    "fieldtype": "Select",
    "label": "Header Type",
    "options": "\nTEXT\nDOCUMENT\nIMAGE"
-  },
-  {
-   "depends_on": "eval:doc.header_type && doc.header_type != 'TEXT'",
-   "fieldname": "sample",
-   "fieldtype": "Data",
-   "label": "Sample",
-   "options": "URL"
   },
   {
    "fieldname": "sample_values",
@@ -122,33 +121,61 @@
    "description": "Supported Files : application/pdf, image/jpeg, image/jpg, image/png, dan video/mp4",
    "fieldname": "sample_header",
    "fieldtype": "Attach",
-   "label": "Sample Header"
+   "label": "Sample Header",
+   "mandatory_depends_on": "eval:['DOCUMENT', 'IMAGE'].includes(doc.header_type)"
   },
   {
    "fieldname": "size_file",
    "fieldtype": "Data",
-   "label": "Size File"
+   "label": "Size File",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "description": "Automatically filled by system <br>\nSupported Files: application/pdf, image/jpeg, image/jpg, image/png, dan video/mp4",
    "fieldname": "file_type",
    "fieldtype": "Data",
-   "label": "File Type (Meta)"
+   "label": "File Type (Meta)",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "fieldname": "session_upload_header",
    "fieldtype": "Long Text",
-   "label": "Session Upload Header (Meta)"
+   "label": "Session Upload Header (Meta)",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "fieldname": "header_handle",
    "fieldtype": "Long Text",
-   "label": "Header Handle (Meta)"
+   "label": "Header Handle (Meta)",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "WhatsApp Templates",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "template_title",
+   "fieldtype": "Data",
+   "label": "Template Title",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2024-04-08 10:38:02.734109",
+ "make_attachments_public": 1,
+ "modified": "2024-04-15 08:54:37.803180",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
@@ -168,8 +195,9 @@
    "write": 1
   }
  ],
- "search_fields": "status,template",
+ "search_fields": "template",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "template_title"
 }

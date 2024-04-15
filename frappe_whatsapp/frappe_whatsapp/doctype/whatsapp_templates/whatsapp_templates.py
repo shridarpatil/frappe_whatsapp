@@ -44,10 +44,13 @@ class WhatsAppTemplates(WhatsAppAPIController):
 
 
 	def autoname(self):
-		if self.get("template_name"):
-			self.template_name = self.template_name.lower().replace(' ', '_')
+		if self.get("template_title"):
+			self.template_name = self.template_title.lower().replace(' ', '_')
 
-	def after_insert(self):
+	def before_save(self):
+		self.fill_language_code()
+	
+	def before_submit(self):
 		"""Set template code."""
 		self.template_name = self.template_name.lower().replace(' ', '_')
 		self.language_code = frappe.db.get_value(
@@ -201,16 +204,21 @@ class WhatsAppTemplates(WhatsAppAPIController):
 			"format": self.header_type
 		}
 		if self.header_type == "TEXT":
+			# Untuk cek header text harus isi header
+			if not self.get("header"):
+				frappe.throw(_("Please fill field Header first"))
 			header['text'] = self.header
 
-		elif self.header_type == "DOCUMENT":
-			if not self.sample:
-				key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
-				link = get_pdf_link(self.doctype, self.name)
-				self.sample = f'{frappe.utils.get_url()}{link}&key={key}'
-			header.update({"example": {
-				"header_handle": [self.sample]
-			}})
+
+		# Punya Frappe sendiri
+		# elif self.header_type == "DOCUMENT":
+		# 	if not self.sample:
+		# 		key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
+		# 		link = get_pdf_link(self.doctype, self.name)
+		# 		self.sample = f'{frappe.utils.get_url()}{link}&key={key}'
+		# 	header.update({"example": {
+		# 		"header_handle": [self.sample]
+		# 	}})
 
 		elif self.header_type == "IMAGE":
 			if not self.sample_header:
@@ -223,6 +231,12 @@ class WhatsAppTemplates(WhatsAppAPIController):
 			}})
 
 		return header
+	
+	# ================= Validate =================
+	def validate_form_header_type(self):
+		if self.header_type == "IMAGE":
+				if not self.sample_header:
+					frappe.throw(_("Please fill with public url image first"))
 	
 	# ================= Header Image =================
 
@@ -342,6 +356,14 @@ class WhatsAppTemplates(WhatsAppAPIController):
 		# 	frappe.db.set_value('Broadcast Template', self.name, 'id_file_preview_2', res_json.get('h'))
 		# 	frappe.db.commit()
 
+	# ================= End of Hooks =================
+	def fill_language_code(self):
+		""" untuk mengisi language_code dari language"""
+		if self.get("language"):
+			self.language_code = frappe.db.get_value(
+					"Language", self.get("language")
+				).replace('-', '_')
+
 
 
 @frappe.whitelist()
@@ -381,6 +403,7 @@ def fetch():
 			doc.language_code = template['language']
 			doc.category = template['category']
 			doc.id = template['id']
+			doc.docstatus = 1
 
 			# update components
 			for component in template['components']:
@@ -441,12 +464,11 @@ def send_enqueue_data(name, data):
 			# Olah Data =============
 			doc.id = response.get('id')
 			doc.status = response.get('status')
-			frappe.msgprint(_("Test ricky"))
+			frappe.db.set_value("WhatsApp Templates", doc.name, {"id" : response.get('id'),
+														 "status": response.get('status')})
+			
 			frappe.publish_realtime("msgprint", _("Template {name} has been updated.").format(name = doc.get("name")),user=frappe.session.user)
 			
-			doc.save(ignore_permissions = True)
-			# frappe.db.set_value("WhatsApp Templates", doc.name, {"id" : response.get('id'),
-			# 											 "status": response.get('status')})
 
 	except Exception as e:
 		# res = frappe.flags.integration_request.json()['error']
