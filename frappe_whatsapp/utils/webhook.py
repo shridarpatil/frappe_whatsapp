@@ -104,7 +104,7 @@ def post():
 							"type": "Incoming",
 							"from": message['from'],
 							"message_id": message['id'],
-							"message": f"/files/{file_name}",
+							"message": message[message_type].get("caption",f"/files/{file_name}"),
 							"attach" : f"/files/{file_name}",
 							"content_type" : message_type
 						}).insert(ignore_permissions=True)
