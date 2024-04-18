@@ -105,7 +105,8 @@ def post():
 								"file_name": file_name,
 								"attached_to_doctype": "WhatsApp Message",
 								"attached_to_name": message_doc.name,
-								"content": file_data
+								"content": file_data,
+								"attached_to_field": "attach"
 							}
 						).save(ignore_permissions=True)
 
