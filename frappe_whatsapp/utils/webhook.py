@@ -3,18 +3,8 @@ import frappe
 import json
 import requests
 import time
-from frappe.utils import get_site_name
 from werkzeug.wrappers import Response
 import frappe.utils
-
-from frappe.client import attach_file
-
-
-settings = frappe.get_doc(
-			"WhatsApp Settings", "WhatsApp Settings",
-		)
-token = settings.get_password("token")
-url = f"{settings.url}/{settings.version}/"
 
 
 @frappe.whitelist(allow_guest=True)
@@ -74,6 +64,13 @@ def post():
 					"content_type": "flow"
 				}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
+				settings = frappe.get_doc(
+							"WhatsApp Settings", "WhatsApp Settings",
+						)
+				token = settings.get_password("token")
+				url = f"{settings.url}/{settings.version}/"
+
+
 				media_id = message[message_type]["id"]
 				headers = {
 					'Authorization': 'Bearer ' + token
@@ -90,31 +87,31 @@ def post():
 					media_response = requests.get(media_url, headers=headers)
 					if media_response.status_code == 200:
 
-						# site_name = get_site_name(frappe.local.request.host)
-						# bench_location = frappe.utils.get_bench_path()
-
 						file_data = media_response.content
-						# file_path = f"{bench_location}/sites/{site_name}/public/files/"
-
 						file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
-						# file_full_path = file_path + file_name
 
-						# with open(file_full_path, "wb") as file:
-						# 	file.write(file_data)
-
-						# time.sleep(1)
-
-						file = attach_file(filename=file_name, filedata=file_data)
-
-						frappe.get_doc({
+						message_doc = frappe.get_doc({
 							"doctype": "WhatsApp Message",
 							"type": "Incoming",
 							"from": message['from'],
 							"message_id": message['id'],
 							"message": message[message_type].get("caption",f"/files/{file_name}"),
-							"attach" : file.file_url,
 							"content_type" : message_type
 						}).insert(ignore_permissions=True)
+
+						file = frappe.get_doc(
+							{
+								"doctype": "File",
+								"file_name": file_name,
+								"attached_to_doctype": "WhatsApp Message",
+								"attached_to_name": message_doc.name,
+								"content": file_data
+							}
+						).save(ignore_permissions=True)
+
+
+						message_doc.attach = file.file_url
+						message_doc.save()
 
 	else:
 		changes = None
