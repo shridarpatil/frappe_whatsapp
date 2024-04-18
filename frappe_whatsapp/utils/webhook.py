@@ -13,7 +13,6 @@ settings = frappe.get_doc(
 token = settings.get_password("token")
 url = f"{settings.url}/{settings.version}/"
 bench_location = frappe.utils.get_bench_path()
-site_name = get_site_name(frappe.local.request.host)
 
 @frappe.whitelist(allow_guest=True)
 def webhook():
@@ -87,8 +86,9 @@ def post():
 
 					media_response = requests.get(media_url, headers=headers)
 					if media_response.status_code == 200:
-						file_data = media_response.content
 
+						site_name = get_site_name(frappe.local.request.host)
+						file_data = media_response.content
 						file_path = f"{bench_location}/sites/{site_name}/public/files/"
 
 						file_name = f"{frappe.generate_hash(length=10)}.{file_extension}"
