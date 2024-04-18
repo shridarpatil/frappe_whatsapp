@@ -23,7 +23,7 @@
   "section_break_dhba",
   "reference_doctype",
   "column_break_efrb",
-  "reference_docname"
+  "reference_name"
  ],
  "fields": [
   {
@@ -137,7 +137,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "reference_docname",
+   "fieldname": "reference_name",
    "fieldtype": "Dynamic Link",
    "label": "Reference name",
    "options": "reference_doctype"
@@ -145,7 +145,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-18 12:15:07.144230",
+ "modified": "2024-04-18 12:16:36.944716",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
