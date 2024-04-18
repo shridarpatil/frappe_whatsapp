@@ -12,7 +12,7 @@ settings = frappe.get_doc(
 		)
 token = settings.get_password("token")
 url = f"{settings.url}/{settings.version}/"
-bench_location = frappe.utils.get_bench_path()
+
 
 @frappe.whitelist(allow_guest=True)
 def webhook():
@@ -88,6 +88,8 @@ def post():
 					if media_response.status_code == 200:
 
 						site_name = get_site_name(frappe.local.request.host)
+						bench_location = frappe.utils.get_bench_path()
+
 						file_data = media_response.content
 						file_path = f"{bench_location}/sites/{site_name}/public/files/"
 
