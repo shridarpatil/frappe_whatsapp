@@ -104,7 +104,7 @@ def post():
 
 						# time.sleep(1)
 
-						file = attach_file(file_name=file_name, file_data=file_data)
+						file = attach_file(filename=file_name, filedata=file_data)
 
 						frappe.get_doc({
 							"doctype": "WhatsApp Message",
