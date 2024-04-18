@@ -11,13 +11,19 @@
   "status",
   "to",
   "from",
+  "use_template",
+  "template",
   "column_break_5",
   "message",
   "message_type",
   "message_id",
   "conversation_id",
   "content_type",
-  "attach"
+  "attach",
+  "section_break_dhba",
+  "reference_doctype",
+  "column_break_efrb",
+  "reference_docname"
  ],
  "fields": [
   {
@@ -102,11 +108,44 @@
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_template",
+   "fieldtype": "Check",
+   "label": "Use Template"
+  },
+  {
+   "depends_on": "eval:doc.use_template == 1",
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "label": "Template",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "fieldname": "section_break_dhba",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "column_break_efrb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference name",
+   "options": "reference_doctype"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-29 15:44:15.541434",
+ "modified": "2024-04-18 12:15:07.144230",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
