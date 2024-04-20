@@ -54,6 +54,16 @@ def post():
 					"message_id": message['id'],
 					"content_type":message_type
 				}).insert(ignore_permissions=True)
+			elif message_type == 'reaction':
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming",
+					"from": message['from'],
+					"message": message['reaction']['emoji'],
+					"reply_to_message_id": message['reaction']['message_id'],
+					"message_id": message['id'],
+					"content_type": "reaction"
+				}).insert(ignore_permissions=True)
 			elif message_type == 'interactive':
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
