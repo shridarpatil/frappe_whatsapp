@@ -27,6 +27,11 @@ class WhatsAppMessage(Document):
                     "link": link,
                     "caption": self.message
                 }
+            elif self.content_type == "reaction":
+                data["reaction"] = {
+                    "message_id": self.reply_to_message_id,
+                    "emoji": self.message
+                }
             elif self.content_type == "text":
                 data["text"] = {
                     "preview_url": True,
