@@ -13,7 +13,6 @@
   "from",
   "use_template",
   "template",
-  "reply_to_message_id",
   "column_break_5",
   "message",
   "message_type",
@@ -21,6 +20,9 @@
   "conversation_id",
   "content_type",
   "attach",
+  "section_break_iyjf",
+  "is_reply",
+  "reply_to_message_id",
   "section_break_dhba",
   "reference_doctype",
   "column_break_efrb",
@@ -147,11 +149,21 @@
    "fieldname": "reply_to_message_id",
    "fieldtype": "Data",
    "label": "Reply To Message ID"
+  },
+  {
+   "fieldname": "section_break_iyjf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_reply",
+   "fieldtype": "Check",
+   "label": "Is Reply"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-20 22:29:37.844813",
+ "modified": "2024-04-21 12:11:56.505002",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
