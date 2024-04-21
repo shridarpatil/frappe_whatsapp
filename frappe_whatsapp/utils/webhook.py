@@ -45,6 +45,8 @@ def post():
 	if messages:
 		for message in messages:
 			message_type = message['type']
+			is_reply = True if message.get('context') else False
+			reply_to_message_id = message['context']['id'] if is_reply else None
 			if message_type == 'text':
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
@@ -52,6 +54,8 @@ def post():
 					"from": message['from'],
 					"message": message['text']['body'],
 					"message_id": message['id'],
+					"reply_to_message_id": reply_to_message_id,
+					"is_reply": is_reply,
 					"content_type":message_type
 				}).insert(ignore_permissions=True)
 			elif message_type == 'reaction':
@@ -105,6 +109,8 @@ def post():
 							"type": "Incoming",
 							"from": message['from'],
 							"message_id": message['id'],
+							"reply_to_message_id": reply_to_message_id,
+							"is_reply": is_reply,
 							"message": message[message_type].get("caption",f"/files/{file_name}"),
 							"content_type" : message_type
 						}).insert(ignore_permissions=True)

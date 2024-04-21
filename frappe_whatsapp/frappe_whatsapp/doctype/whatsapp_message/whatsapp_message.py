@@ -22,6 +22,8 @@ class WhatsAppMessage(Document):
                 "to": self.format_number(self.to),
                 "type": self.content_type
             }
+            if self.is_reply and self.reply_to_message_id:
+                data["context"] = {"message_id": self.reply_to_message_id}
             if self.content_type in ['document', 'image', 'video']:
                  data[self.content_type.lower()] = {
                     "link": link,
