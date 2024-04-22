@@ -11,6 +11,7 @@
   "type",
   "status",
   "to",
+  "masked_phone_number",
   "from",
   "column_break_5",
   "message",
@@ -156,11 +157,17 @@
    "fieldtype": "Dynamic Link",
    "label": "Reference Docname",
    "options": "reference_doctype"
+  },
+  {
+   "fieldname": "masked_phone_number",
+   "fieldtype": "Data",
+   "label": "Masked Phone Number",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-08 12:19:37.290282",
+ "modified": "2024-04-18 09:52:08.149365",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
@@ -177,6 +184,33 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "WhatsApp Broadcast Message Manager",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "WhatsApp Broadcast Message User",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "WhatsApp Broadcast Message Viewer",
+   "share": 1
   }
  ],
  "quick_entry": 1,

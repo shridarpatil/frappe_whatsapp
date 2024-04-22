@@ -18,6 +18,8 @@ site_name = get_site_name(frappe.local.request.host)
 @frappe.whitelist(allow_guest=True)
 def webhook():
 	"""Meta webhook."""
+
+	masukkan_ke_file("wa_webhook", frappe.local.form_dict or None)
 	if frappe.request.method == "GET":
 		return get()
 	return post()
@@ -150,3 +152,12 @@ def update_message_status(data):
 	if conversation:
 		doc.conversation_id = conversation
 	doc.save(ignore_permissions=True)
+
+
+# ================= Helper =================
+
+""" ambil data nya pakai fungsi get_data"""
+def masukkan_ke_file(filename, data):
+	f = open("{}.txt".format(filename), "a")
+	f.write("{}\n".format(str(data)))
+	f.close()

@@ -397,8 +397,9 @@ def fetch():
 			else:
 				flags = 0
 				doc = frappe.new_doc("WhatsApp Templates")
+				doc.template_title = template['name']
 				doc.template_name = template['name']
-
+				
 			doc.status = template['status']
 			doc.language_code = template['language']
 			doc.category = template['category']
