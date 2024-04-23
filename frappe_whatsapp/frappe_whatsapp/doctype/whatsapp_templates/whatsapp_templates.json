@@ -23,7 +23,6 @@
   "section_break_lupb",
   "header_type",
   "header",
-  "header_attach",
   "sample",
   "column_break_tbvf",
   "footer"
@@ -103,7 +102,7 @@
    "options": "\nTEXT\nDOCUMENT\nIMAGE"
   },
   {
-   "depends_on": "eval:doc.header_type && doc.header_type == 'TEXT'",
+   "depends_on": "eval:doc.header_type",
    "fieldname": "sample",
    "fieldtype": "Data",
    "label": "Sample"
@@ -128,17 +127,12 @@
    "read_only": 1
   },
   {
-   "depends_on": "sample_values",
+   "depends_on": "eval: doc.sample_values || doc.sample",
    "fieldname": "for_doctype",
    "fieldtype": "Link",
    "label": "For DocType",
+   "mandatory_depends_on": "eval: doc.sample_values || doc.sample",
    "options": "DocType"
-  },
-  {
-   "depends_on": "eval: doc.header_type && doc.header_type != 'TEXT'",
-   "fieldname": "header_attach",
-   "fieldtype": "Attach",
-   "label": "Header Attach"
   },
   {
    "fieldname": "section_break_lupb",
@@ -151,7 +145,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-23 15:32:50.098960",
+ "modified": "2024-04-23 17:12:23.815755",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
