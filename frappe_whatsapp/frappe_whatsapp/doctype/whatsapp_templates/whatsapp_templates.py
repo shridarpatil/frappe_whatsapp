@@ -130,13 +130,16 @@ class WhatsAppTemplates(Document):
         header = {"type": "header", "format": self.header_type}
         if self.header_type == "TEXT":
             header["text"] = self.header
-
+            if self.sample:
+                samples = self.sample.split(", ")
+                header.update({"example": {"header_text": samples}})
         else:
+            pdf_link = ''
             if not self.sample:
                 key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
                 link = get_pdf_link(self.doctype, self.name)
-                self.sample = f"{frappe.utils.get_url()}{link}&key={key}"
-            header.update({"example": {"header_handle": [self.sample]}})
+                pdf_link = f"{frappe.utils.get_url()}{link}&key={key}"
+            header.update({"example": {"header_handle": [self.sample or pdf_link]}})
 
         return header
 
