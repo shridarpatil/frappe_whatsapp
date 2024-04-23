@@ -66,12 +66,16 @@ class WhatsAppMessage(Document):
         if template.sample_values:
             field_names = template.sample_values.split(",")
             parameters = []
+            template_parameters = []
 
             for field_name in field_names:
                 value = frappe.db.get_value(
-                    self.reference_doctype, self.reference_name, field_name
+                    self.reference_doctype, self.reference_name, field_name.strip()
                 )
                 parameters.append({"type": "text", "text": value})
+                template_parameters.append(value)
+
+            self.template_parameters = json.dumps(template_parameters)
 
             data["template"]["components"].append(
                 {
@@ -79,6 +83,25 @@ class WhatsAppMessage(Document):
                     "parameters": parameters,
                 }
             )
+
+        if template.header_type and template.sample:
+            field_names = template.sample.split(",")
+            header_parameters = []
+            template_header_parameters = []
+
+            for field_name in field_names:
+                value = frappe.db.get_value(
+                    self.reference_doctype, self.reference_name, field_name.strip()
+                )
+                header_parameters.append({"type": "text", "text": value})
+                template_header_parameters.append(value)
+
+            self.template_header_parameters = json.dumps(template_header_parameters)
+
+            data["template"]["components"].append({
+                "type": "header",
+                "parameters": header_parameters,
+            })
 
         self.notify(data)
 

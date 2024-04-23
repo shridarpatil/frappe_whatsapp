@@ -13,6 +13,8 @@
   "from",
   "use_template",
   "template",
+  "template_parameters",
+  "template_header_parameters",
   "column_break_5",
   "message",
   "message_type",
@@ -159,11 +161,23 @@
    "fieldname": "is_reply",
    "fieldtype": "Check",
    "label": "Is Reply"
+  },
+  {
+   "fieldname": "template_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Parameters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "template_header_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Header Parameters",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-21 12:11:56.505002",
+ "modified": "2024-04-23 18:25:06.491829",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
