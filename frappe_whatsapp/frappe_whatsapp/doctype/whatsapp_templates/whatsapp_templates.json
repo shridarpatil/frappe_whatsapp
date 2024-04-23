@@ -7,10 +7,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "template_name",
+  "actual_name",
+  "column_break_bthp",
+  "id",
+  "section_break_fxqh",
   "template",
   "sample_values",
+  "for_doctype",
   "column_break_6",
-  "template_name",
   "category",
   "language",
   "language_code",
@@ -18,15 +23,13 @@
   "header",
   "sample",
   "footer",
-  "id",
   "status"
  ],
  "fields": [
   {
    "fieldname": "template_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Template Name",
+   "label": "Template Label",
    "reqd": 1,
    "unique": 1
   },
@@ -85,6 +88,8 @@
    "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Status"
   },
   {
@@ -104,11 +109,32 @@
    "fieldname": "sample_values",
    "fieldtype": "Text",
    "label": "Sample Values"
+  },
+  {
+   "fieldname": "column_break_bthp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_fxqh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "actual_name",
+   "fieldtype": "Data",
+   "label": "Template Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "sample_values",
+   "fieldname": "for_doctype",
+   "fieldtype": "Link",
+   "label": "For DocType",
+   "options": "DocType"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-23 17:44:04.673291",
+ "modified": "2024-04-23 12:51:08.573730",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
