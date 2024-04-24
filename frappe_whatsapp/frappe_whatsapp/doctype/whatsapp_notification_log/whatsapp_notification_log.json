@@ -7,7 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "template",
-  "meta_data"
+  "meta_data",
+  "section_break_zidn",
+  "type",
+  "section_break_xioa",
+  "phone_recipient",
+  "status_message"
  ],
  "fields": [
   {
@@ -19,11 +24,39 @@
    "fieldname": "meta_data",
    "fieldtype": "JSON",
    "label": "Meta Data"
+  },
+  {
+   "fieldname": "section_break_zidn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "<b> Note :</b> Automatically filled when data match with the template",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nMessage\nTemplate"
+  },
+  {
+   "description": "<b> Note :</b> Automatically filled when data match with the template",
+   "fieldname": "phone_recipient",
+   "fieldtype": "Data",
+   "label": "Phone Recipient"
+  },
+  {
+   "fieldname": "section_break_xioa",
+   "fieldtype": "Section Break",
+   "label": "Type Message Detail"
+  },
+  {
+   "description": "<b> Note :</b> Automatically filled when data match with the template",
+   "fieldname": "status_message",
+   "fieldtype": "Data",
+   "label": "Status Message"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-28 12:59:40.511539",
+ "modified": "2024-04-23 15:29:04.243284",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification Log",

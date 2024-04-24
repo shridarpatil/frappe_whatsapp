@@ -465,10 +465,11 @@ def send_enqueue_data(name, data):
 			# Olah Data =============
 			doc.id = response.get('id')
 			doc.status = response.get('status')
-			frappe.db.set_value("WhatsApp Templates", doc.name, {"id" : response.get('id'),
-														 "status": response.get('status')})
 			
 			frappe.publish_realtime("msgprint", _("Template {name} has been updated.").format(name = doc.get("name")),user=frappe.session.user)
+			doc.save(ignore_permissions = True, ignore_version = True) 
+			# frappe.db.set_value("WhatsApp Templates", doc.name, {"id" : response.get('id'),
+			# 											 "status": response.get('status')})
 			
 
 	except Exception as e:

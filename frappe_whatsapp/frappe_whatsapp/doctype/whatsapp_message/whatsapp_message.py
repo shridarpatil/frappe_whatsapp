@@ -26,7 +26,7 @@ class WhatsAppMessage(Document):
 	# ================= End of Hooks =================
 	
 	def create_masked_phone_number(self):
-		if self.get("to") and not self.get("masked_phone_number"):
+		if self.get("to"):
 			self.masked_phone_number = get_masked(self.get("to"))
 
 	# ================= Function =================
@@ -84,14 +84,14 @@ class WhatsAppMessage(Document):
 		""" Send Message according template"""
 		if self.type == 'Outgoing' and self.message_type == 'Template':
 		
-			wa_template_language = frappe.get_value("WhatsApp Templates",self.get("whatsapp_template"), "language_code")
+			wa_template_language, wa_template_id = frappe.get_value("WhatsApp Templates",self.get("whatsapp_template"), ["language_code", "template_name"])
 			data = {
 					"messaging_product": "whatsapp",
 					"recipient_type": "individual",
 					"to": self.format_number(self.to),
 					"type": "template",
 					"template": {
-						"name": self.get("whatsapp_template"),
+						"name": wa_template_id,
 						"language": {
 							"code": wa_template_language
 						},
@@ -158,12 +158,10 @@ class WhatsAppMessage(Document):
 			"content-type": "application/json"
 		}
 		try:
-			frappe.log_error(message = json.dumps(data), title = ("WA: test"))
 			response = make_post_request(
 				f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
 				headers=headers, data=json.dumps(data)
 			)
-			frappe.log_error(message = str(response), title = ("WA resp: Error Title"))
 			self.message_id = response['messages'][0]['id']
 
 
@@ -175,7 +173,7 @@ class WhatsAppMessage(Document):
 				"template": "Text Message",
 				"meta_data": frappe.flags.integration_request.json()
 			}).insert(ignore_permissions=True)
-
+			frappe.log_error(message = frappe.get_traceback(), title = ("WhatsApp Message: Error When Sending Template"))
 			frappe.throw(
 				msg=error_message,
 				title=res.get("error_user_title", "Error")
