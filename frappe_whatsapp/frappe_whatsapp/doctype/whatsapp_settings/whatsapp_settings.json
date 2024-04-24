@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "enabled",
   "token",
   "url",
   "version",
@@ -44,12 +45,18 @@
    "fieldname": "webhook_verify_token",
    "fieldtype": "Data",
    "label": "Webhook Verify Token"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-18 20:58:17.268533",
+ "modified": "2024-04-24 14:27:37.053157",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
