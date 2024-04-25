@@ -46,7 +46,7 @@ class WhatsAppMessage(Document):
             except Exception as e:
                 self.status = "Failed"
                 frappe.throw(f"Failed to send message {str(e)}")
-        elif self.type == "Outgoing" and self.message_type == "Template":
+        elif self.type == "Outgoing" and self.message_type == "Template" and not self.message_id:
             self.send_template()
 
     def send_template(self):
