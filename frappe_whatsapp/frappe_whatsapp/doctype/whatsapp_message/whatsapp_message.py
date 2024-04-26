@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
+import os
 
 class WhatsAppMessage(Document):
 	"""Send whats app messages."""
@@ -126,6 +127,26 @@ class WhatsAppMessage(Document):
 					"image": {
 						"link": final_link_image
 					}
+				}
+
+				data["template"]["components"].append(
+					{
+						"type": "header",
+						"parameters" : [param_image_header]
+					}
+				)
+
+			elif self.get("content_type") == "document":
+				final_link_image = "{base_url}{attach}".format(base_url = self.get_whatsapp_base_url(), attach = self.get("attach"))
+				filename_with_path = os.path.basename(self.get("attach"))
+				filename = filename_with_path.split(".")
+				# Buat parameters dulu dari link image
+				param_image_header = {
+					"type": "document",
+					"document": {
+						"link": final_link_image,
+						"filename" : filename[0]
+					},
 				}
 
 				data["template"]["components"].append(

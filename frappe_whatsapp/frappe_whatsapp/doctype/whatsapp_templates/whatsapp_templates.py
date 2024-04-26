@@ -203,26 +203,37 @@ class WhatsAppTemplates(WhatsAppAPIController):
 			"type": "HEADER",
 			"format": self.header_type
 		}
+
 		if self.header_type == "TEXT":
 			# Untuk cek header text harus isi header
 			if not self.get("header"):
 				frappe.throw(_("Please fill field Header first"))
 			header['text'] = self.header
 
+		elif self.header_type == "DOCUMENT":
+			if not self.sample_header:
+				frappe.throw(_("Please fill Sample Header with public document first"))
+			self.validate_extension(self.get("sample_header"),"DOCUMENT")
 
-		# Punya Frappe sendiri
-		# elif self.header_type == "DOCUMENT":
-		# 	if not self.sample:
-		# 		key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
-		# 		link = get_pdf_link(self.doctype, self.name)
-		# 		self.sample = f'{frappe.utils.get_url()}{link}&key={key}'
-		# 	header.update({"example": {
-		# 		"header_handle": [self.sample]
-		# 	}})
+			session_upload_header = self.create_session_whatsapp()
+			upload_data_preview = self.send_file_preview(session_upload= session_upload_header)
+
+			header.update({"example": {
+				"header_handle": [upload_data_preview]
+			}})
+
+			# key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
+			# link = get_pdf_link(self.doctype, self.name)
+			# self.sample = f'{frappe.utils.get_url()}{link}&key={key}'
+			# header.update({"example": {
+			# 	"header_handle": [self.sample]
+			# }})
 
 		elif self.header_type == "IMAGE":
 			if not self.sample_header:
-				frappe.throw(_("Please fill with public url image first"))
+				frappe.throw(_("Please fill Sample Header with public image first"))
+			self.validate_extension(self.get("sample_header"),"IMAGE")
+
 			session_upload_header = self.create_session_whatsapp()
 			upload_data_preview = self.send_file_preview(session_upload= session_upload_header)
 
@@ -233,12 +244,23 @@ class WhatsAppTemplates(WhatsAppAPIController):
 		return header
 	
 	# ================= Validate =================
-	def validate_form_header_type(self):
-		if self.header_type == "IMAGE":
-				if not self.sample_header:
-					frappe.throw(_("Please fill with public url image first"))
+	def validate_extension(self, file_path, type):
+		if not file_path:
+			frappe.throw(_("Please fill file first"))
+			
+		extension = os.path.splitext(self.sample_header)[1]
+		if type == "IMAGE":
+			if extension not in [".png",".jpg",".jpeg"]:
+				frappe.throw(_("Sample Header must public url image first"))
+		elif type == "DOCUMENT":
+			if extension not in [".pdf"]:
+				frappe.throw(_("Sample Header must public url image first"))
+				
+				
 	
 	# ================= Header Image =================
+
+
 
 	def create_session_whatsapp(self) -> str:
 		""" untuk membuat session whatsapp untuk create upload data"""
@@ -268,7 +290,6 @@ class WhatsAppTemplates(WhatsAppAPIController):
 
 				if response.get("id"):
 					self.session_upload_header = response.get("id")
-
 					return response.get("id")
 				else:
 					return ""
@@ -460,6 +481,8 @@ def send_enqueue_data(name, data):
 			temp_error_message = response["error"].get("message") or "There are error while sending template to Meta."
 			if response["error"].get("message"):
 				frappe.publish_realtime("msgprint", _(temp_error_message),user=frappe.session.user)
+			
+			frappe.db.set_value("WhatsApp Templates", doc.get("name"), {"status": "ERROR"})
 				# frappe.throw(_(temp_error_message))
 		else:
 			# Olah Data =============
