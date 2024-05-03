@@ -56,13 +56,6 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "fieldname": "message",
-   "fieldtype": "HTML Editor",
-   "label": "Message",
-   "set_only_once": 1
-  },
-  {
-   "allow_in_quick_entry": 1,
    "depends_on": "eval:(doc.type==\"Outgoing\");",
    "description": "Mobile number with country code",
    "fieldname": "to",
@@ -71,14 +64,46 @@
    "set_only_once": 1
   },
   {
-   "fieldname": "column_break_5",
-   "fieldtype": "Column Break"
-  },
-  {
    "depends_on": "eval:(doc.type==\"Incoming\");",
    "fieldname": "from",
    "fieldtype": "Data",
    "label": "From",
+   "set_only_once": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "use_template",
+   "fieldtype": "Check",
+   "label": "Use Template"
+  },
+  {
+   "depends_on": "eval:doc.use_template == 1",
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "label": "Template",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "fieldname": "template_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Parameters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "template_header_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Header Parameters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "message",
+   "fieldtype": "HTML Editor",
+   "label": "Message",
    "set_only_once": 1
   },
   {
@@ -106,7 +131,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nlocation\ncontacts",
+   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact",
    "reqd": 1
   },
   {
@@ -117,17 +142,19 @@
    "label": "Attach"
   },
   {
-   "default": "0",
-   "fieldname": "use_template",
-   "fieldtype": "Check",
-   "label": "Use Template"
+   "fieldname": "section_break_iyjf",
+   "fieldtype": "Section Break"
   },
   {
-   "depends_on": "eval:doc.use_template == 1",
-   "fieldname": "template",
-   "fieldtype": "Link",
-   "label": "Template",
-   "options": "WhatsApp Templates"
+   "default": "0",
+   "fieldname": "is_reply",
+   "fieldtype": "Check",
+   "label": "Is Reply"
+  },
+  {
+   "fieldname": "reply_to_message_id",
+   "fieldtype": "Data",
+   "label": "Reply To Message ID"
   },
   {
    "fieldname": "section_break_dhba",
@@ -148,42 +175,11 @@
    "fieldtype": "Dynamic Link",
    "label": "Reference name",
    "options": "reference_doctype"
-  },
-  {
-   "fieldname": "reply_to_message_id",
-   "fieldtype": "Data",
-   "label": "Reply To Message ID"
-  },
-  {
-   "fieldname": "section_break_iyjf",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_reply",
-   "fieldtype": "Check",
-   "label": "Is Reply"
-  },
-  {
-   "fieldname": "template_parameters",
-   "fieldtype": "Small Text",
-   "label": "Template Parameters",
-   "read_only": 1
-  },
-  {
-   "fieldname": "template_header_parameters",
-   "fieldtype": "Small Text",
-   "label": "Template Header Parameters",
-   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
-<<<<<<< Updated upstream
- "modified": "2024-04-25 16:07:48.143626",
-=======
- "modified": "2024-04-30 18:00:06.805534",
->>>>>>> Stashed changes
+ "modified": "2024-05-03 13:22:45.081391",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

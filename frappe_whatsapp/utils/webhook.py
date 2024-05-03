@@ -135,7 +135,7 @@ def post():
 					"type": "Incoming",
 					"from": message['from'],
 					"message_id": message['id'],
-					"message": message[message_type].get("location"),
+					"message": message[message_type].get(message_type),
 					"content_type" : message_type
 				}).insert(ignore_permissions=True)
 
