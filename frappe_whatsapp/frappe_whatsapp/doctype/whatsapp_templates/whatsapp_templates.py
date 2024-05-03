@@ -19,8 +19,9 @@ class WhatsAppTemplates(Document):
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
-        self.get_session_id()
-        self.get_media_id()
+        if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
+            self.get_session_id()
+            self.get_media_id()
 
         if not self.is_new():
             self.update_template()
@@ -31,11 +32,11 @@ class WhatsAppTemplates(Document):
         self.get_settings()
         file_path = self.get_absolute_path(self.sample)
         mime = magic.Magic(mime=True)
-        mime.from_file(file_path)
+        file_type = mime.from_file(file_path)
 
         payload = {
             'file_length': os.path.getsize(file_path),
-            'file_type': 'image/png',
+            'file_type': file_type,
             'messaging_product': 'whatsapp'
         }
 
