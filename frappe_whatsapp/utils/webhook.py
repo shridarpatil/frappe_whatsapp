@@ -129,6 +129,15 @@ def post():
 
 						message_doc.attach = file.file_url
 						message_doc.save()
+			else:
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming",
+					"from": message['from'],
+					"message_id": message['id'],
+					"message": message[message_type].get("location"),
+					"content_type" : message_type
+				}).insert(ignore_permissions=True)
 
 	else:
 		changes = None

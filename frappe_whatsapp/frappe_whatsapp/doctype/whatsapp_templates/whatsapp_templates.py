@@ -2,8 +2,10 @@
 
 # Copyright (c) 2022, Shridhar Patil and contributors
 # For license information, please see license.txt
+import os
 import json
 import frappe
+import magic
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
@@ -17,8 +19,59 @@ class WhatsAppTemplates(Document):
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
+        self.get_session_id()
+        self.get_media_id()
+
         if not self.is_new():
             self.update_template()
+
+
+    def get_session_id(self):
+        """Upload media."""
+        self.get_settings()
+        file_path = self.get_absolute_path(self.sample)
+        mime = magic.Magic(mime=True)
+        mime.from_file(file_path)
+
+        payload = {
+            'file_length': os.path.getsize(file_path),
+            'file_type': 'image/png',
+            'messaging_product': 'whatsapp'
+        }
+
+        response = make_post_request(
+            f"{self._url}/{self._version}/{self._app_id}/uploads",
+            headers=self._headers,
+            data=json.loads(json.dumps(payload))
+        )
+        self._session_id = response['id']
+
+    def get_media_id(self):
+        self.get_settings()
+
+        headers = {
+                "authorization": f"OAuth {self._token}"
+            }
+        file_name = self.get_absolute_path(self.sample)
+        with open(file_name, mode='rb') as file: # b is important -> binary
+            file_content = file.read()
+
+        payload = file_content
+        response = make_post_request(
+            f"{self._url}/{self._version}/{self._session_id}",
+            headers=headers,
+            data=payload
+        )
+
+        self._media_id = response['h']
+
+    def get_absolute_path(self, file_name):
+        if(file_name.startswith('/files/')):
+            file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}'
+        if(file_name.startswith('/private/')):
+            file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}'
+        return file_path
+
 
     def after_insert(self):
         if self.template_name:
@@ -102,6 +155,7 @@ class WhatsAppTemplates(Document):
         self._url = settings.url
         self._version = settings.version
         self._business_id = settings.business_id
+        self._app_id = settings.app_id
 
         self._headers = {
             "authorization": f"Bearer {self._token}",
@@ -139,7 +193,7 @@ class WhatsAppTemplates(Document):
                 key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
                 link = get_pdf_link(self.doctype, self.name)
                 pdf_link = f"{frappe.utils.get_url()}{link}&key={key}"
-            header.update({"example": {"header_handle": [self.sample or pdf_link]}})
+            header.update({"example": {"header_handle": [self._media_id]}})
 
         return header
 

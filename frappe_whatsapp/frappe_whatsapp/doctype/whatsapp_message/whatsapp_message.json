@@ -106,7 +106,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nreaction",
+   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nlocation\ncontacts",
    "reqd": 1
   },
   {
@@ -179,7 +179,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
+<<<<<<< Updated upstream
  "modified": "2024-04-25 16:07:48.143626",
+=======
+ "modified": "2024-04-30 18:00:06.805534",
+>>>>>>> Stashed changes
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
