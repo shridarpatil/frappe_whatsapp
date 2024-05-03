@@ -6,11 +6,13 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "enabled",
   "token",
   "url",
   "version",
   "phone_id",
   "business_id",
+  "app_id",
   "webhook_verify_token"
  ],
  "fields": [
@@ -44,12 +46,23 @@
    "fieldname": "webhook_verify_token",
    "fieldtype": "Data",
    "label": "Webhook Verify Token"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "app_id",
+   "fieldtype": "Data",
+   "label": "App ID"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-06-18 20:58:17.268533",
+ "modified": "2024-05-03 12:42:25.851544",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
