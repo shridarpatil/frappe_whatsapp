@@ -118,6 +118,7 @@
   },
   {
    "depends_on": "eval:doc.message_type == \"Template\"",
+   "description": "<b> Note </b> : Separate values by new line.",
    "fieldname": "template_values",
    "fieldtype": "Small Text",
    "label": "Template Values"
@@ -149,6 +150,8 @@
   {
    "fieldname": "reference_doctype",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Reference Doctype",
    "options": "DocType"
   },
@@ -167,7 +170,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-18 09:52:08.149365",
+ "modified": "2024-05-13 16:36:37.681840",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

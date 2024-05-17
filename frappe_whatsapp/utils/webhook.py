@@ -204,11 +204,25 @@ def update_message_status(data):
 	conversation = data['statuses'][0].get('conversation', {}).get('id')
 	name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
 
-	doc = frappe.get_doc("WhatsApp Message", name)
-	doc.status = status
+
+	# Diganti karena Error: Document has been modified after you have opened it. Please refresh to get the latest document.
+	# doc = frappe.get_doc("WhatsApp Message", name)
+	# doc.status = status
+	# if conversation:
+	# 	doc.conversation_id = conversation
+	# doc.save(ignore_permissions=True, ignore_version = True)
+	
+	dict_data = {
+		"status" : status
+	}
 	if conversation:
-		doc.conversation_id = conversation
-	doc.save(ignore_permissions=True, ignore_version = True)
+		dict_data.update({
+			"conversation_id" : conversation
+		})
+	frappe.db.set_value("WhatsApp Message",name, dict_data, update_modified=True)
+
+
+
 
 
 

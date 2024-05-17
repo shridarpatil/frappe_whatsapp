@@ -161,6 +161,7 @@ class WhatsAppMessage(Document):
 				self.status = "Success"
 			except Exception as e:
 				self.status = "Failed"
+				frappe.log_error(message = frappe.get_traceback(), title = ("WhatsApp Message: Error Send Message"))
 				frappe.throw(f"Failed to send message {str(e)}")
 			
 
