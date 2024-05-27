@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:flow_name",
+ "creation": "2024-05-26 07:18:31.243153",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "flow_detail",
+  "flow_name",
+  "flow_id",
+  "flow_cta",
+  "header_text",
+  "column_break_wkmy",
+  "screen",
+  "mode",
+  "message",
+  "data_tab",
+  "json",
+  "keywords",
+  "words"
+ ],
+ "fields": [
+  {
+   "fieldname": "flow_id",
+   "fieldtype": "Data",
+   "label": "Flow ID",
+   "read_only": 1,
+   "set_only_once": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Mode",
+   "options": "DRAFT\nPUBLISHED",
+   "read_only": 1
+  },
+  {
+   "fieldname": "screen",
+   "fieldtype": "Data",
+   "label": "Screen"
+  },
+  {
+   "fieldname": "header_text",
+   "fieldtype": "Data",
+   "label": "Header Text"
+  },
+  {
+   "fieldname": "flow_cta",
+   "fieldtype": "Data",
+   "label": "Flow CTA"
+  },
+  {
+   "fieldname": "flow_detail",
+   "fieldtype": "Section Break",
+   "label": "Flow Detail"
+  },
+  {
+   "fieldname": "flow_name",
+   "fieldtype": "Data",
+   "label": "Flow Name",
+   "set_only_once": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_wkmy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "data_tab",
+   "fieldtype": "Tab Break",
+   "label": "Data"
+  },
+  {
+   "fieldname": "json",
+   "fieldtype": "JSON",
+   "label": "JSON"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message"
+  },
+  {
+   "fieldname": "keywords",
+   "fieldtype": "Tab Break",
+   "label": "Keywords"
+  },
+  {
+   "fieldname": "words",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Process Words"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-05-27 12:26:16.334001",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Flow",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
