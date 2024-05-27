@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:keyword",
+ "creation": "2024-05-26 15:21:55.051049",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "keyword",
+  "rows_tab",
+  "options_section",
+  "body_message",
+  "column_break_vtzd",
+  "options"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "label": "Title"
+  },
+  {
+   "fieldname": "keyword",
+   "fieldtype": "Data",
+   "label": "Keyword",
+   "unique": 1
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "JSON",
+   "label": "Options"
+  },
+  {
+   "fieldname": "body_message",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Body Message"
+  },
+  {
+   "fieldname": "rows_tab",
+   "fieldtype": "Tab Break",
+   "label": "Rows",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "options_section",
+   "fieldtype": "Section Break",
+   "label": "Options"
+  },
+  {
+   "fieldname": "column_break_vtzd",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-05-26 19:55:12.776942",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Option Message",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
