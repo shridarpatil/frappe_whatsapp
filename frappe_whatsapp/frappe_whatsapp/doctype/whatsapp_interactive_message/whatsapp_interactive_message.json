@@ -1,0 +1,120 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:keyword",
+ "creation": "2024-05-26 13:59:58.740562",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "keyword",
+  "header_text",
+  "body_message",
+  "footer_text",
+  "action_button",
+  "action_title",
+  "title",
+  "tab_break_qouv",
+  "options",
+  "code_to_be_executed",
+  "dynamic",
+  "column_break_ieie",
+  "update_criteria"
+ ],
+ "fields": [
+  {
+   "fieldname": "keyword",
+   "fieldtype": "Data",
+   "label": "Keyword",
+   "unique": 1
+  },
+  {
+   "fieldname": "header_text",
+   "fieldtype": "Data",
+   "label": "Header Text",
+   "length": 30
+  },
+  {
+   "fieldname": "body_message",
+   "fieldtype": "Small Text",
+   "label": "Body Message"
+  },
+  {
+   "fieldname": "footer_text",
+   "fieldtype": "Data",
+   "label": "Footer Text"
+  },
+  {
+   "fieldname": "action_button",
+   "fieldtype": "Data",
+   "label": "Action Button"
+  },
+  {
+   "fieldname": "action_title",
+   "fieldtype": "Data",
+   "label": "Action Title"
+  },
+  {
+   "fieldname": "tab_break_qouv",
+   "fieldtype": "Tab Break",
+   "label": "Rows"
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "JSON",
+   "label": "Options"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Title"
+  },
+  {
+   "default": "0",
+   "fieldname": "dynamic",
+   "fieldtype": "Check",
+   "label": "Dynamic"
+  },
+  {
+   "fieldname": "update_criteria",
+   "fieldtype": "Select",
+   "label": "Update Criteria",
+   "options": "Always Update\nDaily\nManual"
+  },
+  {
+   "fieldname": "code_to_be_executed",
+   "fieldtype": "Code",
+   "label": "Code to be Executed"
+  },
+  {
+   "fieldname": "column_break_ieie",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-05-27 10:37:30.540731",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Interactive Message",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
