@@ -26,15 +26,31 @@ def process_keywords_for_flow(self, method=None):
 		return handle_error("process_keywords_for_flow", frappe.get_traceback())
 
 def get_matching_document(message_text):
-	doc_types = ["WhatsApp Flow", "WhatsApp Interactive Message", "WhatsApp Option Message","WhatsApp Keyword Message"]
-	while True:
-		for doc_type in doc_types:
-			if frappe.db.exists(doc_type, {"name": message_text}):
-				return doc_type, frappe.get_doc(doc_type, message_text)
-		# Add a small delay to prevent overwhelming the database
-		time.sleep(2)
-		return None, None
+    """
+    Searches for a document in the Frappe database that matches the provided message_text.
+    
+    Parameters:
+    message_text (str): The text to search for in the database.
+    
+    Returns:
+    tuple: A tuple containing the document type and the document itself, or (None, None) if no match is found.
+    """
+    doc_types = ["WhatsApp Flow", "WhatsApp Interactive Message", "WhatsApp Option Message", "WhatsApp Keyword Message"]
+    
+    for doc_type in doc_types:
+        if doc_type == "WhatsApp Flow":
+            if frappe.db.exists(doc_type, {"words": message_text}):
+                return doc_type, frappe.get_doc(doc_type, {"words": message_text})
+        else:
+            if frappe.db.exists(doc_type, {"name": message_text}):
+                return doc_type, frappe.get_doc(doc_type, {"name": message_text})
+    
+    # Add a small delay to prevent overwhelming the database if necessary
+    time.sleep(2)
+    
+    return None, None
 
+@frappe.whitelist(allow_guest=True)
 def process_document(doc_type, doc, number):
 	if doc_type == "WhatsApp Flow":
 		data = json.loads(doc.json)
@@ -97,7 +113,7 @@ def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen,
 					"flow_token": flow_token,
 					"flow_id": flow_id,
 					"flow_cta": flow_cta,
-					"mode": mode,
+					"mode": mode.lower(),
 					"flow_action_payload": {
 						"screen": screen,
 						"data": data
