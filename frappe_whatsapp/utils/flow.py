@@ -178,7 +178,6 @@ def send_whatsapp_message_for_keyword(number, message):
 	response.raise_for_status()
 	return response.json()
 
-
 @frappe.whitelist()
 def send_whatsapp_video_message_for_keyword(number, message):
 	settings = get_whatsapp_settings()
@@ -230,13 +229,12 @@ def get_flows():
 				doc = frappe.new_doc("WhatsApp Flow")
 				doc.flow_name = flow["name"]
 				doc.flow_id = flow["id"]
-			doc.mode = flow["status"]      
-			doc.words = flow["name"]
+			doc.mode = flow["status"]
 			if flags:
 				doc.db_update()
 			else:
 				doc.db_insert()
-			frappe.db.commit()       
+			frappe.db.commit()
 	except Exception as e:
 		res = frappe.flags.integration_request.json()["error"]
 		error_message = res.get("error_user_msg", res.get("message"))
@@ -245,4 +243,4 @@ def get_flows():
 			title=res.get("error_user_title", "Error"),
 		)
 
-	return "Successfully fetched flows from meta"                     
+	return "Successfully fetched flows from meta"
