@@ -23,7 +23,7 @@ def process_keywords_for_flow(self, method=None):
 		else:
 			return gen_response(404, "No Keyword found")
 	except Exception as e:
-		return handle_error("voter_flow", frappe.get_traceback())
+		return handle_error("process_keywords_for_flow", frappe.get_traceback())
 
 def get_matching_document(message_text):
 	doc_types = ["WhatsApp Flow", "WhatsApp Interactive Message", "WhatsApp Option Message","WhatsApp Keyword Message"]
@@ -33,7 +33,7 @@ def get_matching_document(message_text):
 				return doc_type, frappe.get_doc(doc_type, message_text)
 		# Add a small delay to prevent overwhelming the database
 		time.sleep(2)
-	return None, None
+		return None, None
 
 def process_document(doc_type, doc, number):
 	if doc_type == "WhatsApp Flow":

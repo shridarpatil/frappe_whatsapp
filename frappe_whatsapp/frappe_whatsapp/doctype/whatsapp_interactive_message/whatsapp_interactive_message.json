@@ -14,11 +14,10 @@
   "action_title",
   "title",
   "tab_break_qouv",
+  "update_criteria",
   "options",
   "code_to_be_executed",
-  "dynamic",
-  "column_break_ieie",
-  "update_criteria"
+  "dynamic"
  ],
  "fields": [
   {
@@ -86,15 +85,11 @@
    "fieldname": "code_to_be_executed",
    "fieldtype": "Code",
    "label": "Code to be Executed"
-  },
-  {
-   "fieldname": "column_break_ieie",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-27 10:37:30.540731",
+ "modified": "2024-05-27 12:56:06.198163",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Interactive Message",
