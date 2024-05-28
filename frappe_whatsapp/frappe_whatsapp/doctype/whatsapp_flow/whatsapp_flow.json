@@ -32,8 +32,11 @@
   {
    "fieldname": "mode",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Mode",
-   "options": "DRAFT\nPUBLISHED",
+   "options": "\nDRAFT\nPUBLISHED\nDEPRECATED\nBLOCKED\nTHROTTLED",
    "read_only": 1
   },
   {
@@ -97,7 +100,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-27 12:26:16.334001",
+ "modified": "2024-05-28 10:44:33.011758",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Flow",

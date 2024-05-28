@@ -195,24 +195,28 @@ def send_whatsapp_message_for_keyword(number, message):
 	return response.json()
 
 @frappe.whitelist()
-def send_whatsapp_video_message_for_keyword(number, message):
+def send_whatsapp_video_message_for_keyword(number):
 	settings = get_whatsapp_settings()
 	token = settings.get_password("token")
 	url = f"{settings.url}/{settings.version}/{settings.phone_id}/messages"
 	headers = {
 		"authorization": f"Bearer {token}",
-		"content-type": "application/json"
+		"Content-Type": "application/json"
 	}
 
 	payload = {
 		"messaging_product": "whatsapp",
 		"to": number,
+   		"recipient_type": "individual",
 		"type": "video",
 		"video": {
 			"link": "https://youtu.be/l0SL2tHENbI?si=QxaZSvtOUfEXu-0J",
 			"caption": "Check out this video!"
 		}
 	}
+ 
+ 
+
 
 	response = requests.post(url, headers=headers, json=payload)
 	response.raise_for_status()
@@ -232,7 +236,7 @@ def get_flows():
 	try:
 		response = make_request(
 			"GET",
-			f"{url}/{version}/{business_id}/flows",
+			f"{url}/{version}/{business_id}/flows?limit=1000",
 			headers=headers,
 		)
 
