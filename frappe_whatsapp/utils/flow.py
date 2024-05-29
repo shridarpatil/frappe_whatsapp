@@ -3,6 +3,7 @@ import requests
 import json
 import time
 from frappe.integrations.utils import make_post_request, make_request
+from frappe.utils import get_site_name
 
 def gen_response(status, message, data=None):
 	if data is None:
@@ -26,35 +27,49 @@ def process_keywords_for_flow(self, method=None):
 		return handle_error("process_keywords_for_flow", frappe.get_traceback())
 
 def get_matching_document(message_text):
-    """
-    Searches for a document in the Frappe database that matches the provided message_text.
-    
-    Parameters:
-    message_text (str): The text to search for in the database.
-    
-    Returns:
-    tuple: A tuple containing the document type and the document itself, or (None, None) if no match is found.
-    """
-    doc_types = ["WhatsApp Flow", "WhatsApp Interactive Message", "WhatsApp Option Message", "WhatsApp Keyword Message"]
-    
-    for doc_type in doc_types:
-        if doc_type == "WhatsApp Flow":
-            if frappe.db.exists(doc_type, {"words": message_text}):
-                return doc_type, frappe.get_doc(doc_type, {"words": message_text})
-        else:
-            if frappe.db.exists(doc_type, {"name": message_text}):
-                return doc_type, frappe.get_doc(doc_type, {"name": message_text})
-    
-    # Add a small delay to prevent overwhelming the database if necessary
-    time.sleep(2)
-    
-    return None, None
+	"""
+	Searches for a document in the Frappe database that matches the provided message_text.
+
+	Parameters:
+	message_text (str): The text to search for in the database.
+
+	Returns:
+	tuple: A tuple containing the document type and the document itself, or (None, None) if no match is found.
+	"""
+	doc_types = ["WhatsApp Flow", "WhatsApp Interactive Message", "WhatsApp Option Message", "WhatsApp Keyword Message"]
+
+	for doc_type in doc_types:
+		if doc_type == "WhatsApp Flow":
+			if frappe.db.exists(doc_type, {"words": message_text}):
+				return doc_type, frappe.get_doc(doc_type, {"words": message_text})
+		else:
+			if frappe.db.exists(doc_type, {"name": message_text}):
+				return doc_type, frappe.get_doc(doc_type, {"name": message_text})
+
+	# Add a small delay to prevent overwhelming the database if necessary
+	time.sleep(2)
+
+	return None, None
 
 @frappe.whitelist(allow_guest=True)
 def process_document(doc_type, doc, number):
 	if doc_type == "WhatsApp Flow":
-		data = json.loads(doc.json)
-		response = send_whatsapp_flow_message(doc.flow_id, number, doc.message, doc.mode, doc.flow_cta, doc.screen, doc.header_text, doc.flow_action, data)
+		flow_id = doc.get('flow_id')
+		message = doc.get('message')
+		mode = doc.get('mode')
+		flow_cta = doc.get('flow_cta')
+		screen = doc.get('screen')
+		header_text = doc.get('header_text')
+		flow_action = doc.get('flow_action')
+		if flow_action == "navigate":
+			data = json.loads(doc.json)
+			response = send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, data)
+		elif flow_action == "data_exchange":
+			api_endpoint = doc.get('exchange_endpoint')
+			api_call = make_request("GET", api_endpoint)
+			data = api_call.get('data', [])
+			response = send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, data)
+
 	elif doc_type == "WhatsApp Interactive Message":
 		options = json.loads(doc.options)
 		response = send_whatsapp_interactive_list_message(number, doc.header_text, doc.body_message, doc.footer_text, doc.action_button, doc.action_title, options)
@@ -87,7 +102,8 @@ def get_flow_token(flow_id):
 def get_whatsapp_settings():
 	return frappe.get_doc("WhatsApp Settings", "WhatsApp Settings")
 
-def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, flow_action, data):
+@frappe.whitelist(allow_guest=True)
+def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, data):
 	settings = get_whatsapp_settings()
 	token = settings.get_password("token")
 	url = f"{settings.url}/{settings.version}/{settings.phone_id}/messages"
@@ -109,7 +125,7 @@ def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen,
 				"name": "flow",
 				"parameters": {
 					"flow_message_version": "3",
-					"flow_action": flow_action,
+					"flow_action": "navigate",
 					"flow_token": flow_token,
 					"flow_id": flow_id,
 					"flow_cta": flow_cta,
@@ -207,14 +223,14 @@ def send_whatsapp_video_message_for_keyword(number):
 	payload = {
 		"messaging_product": "whatsapp",
 		"to": number,
-   		"recipient_type": "individual",
+		"recipient_type": "individual",
 		"type": "video",
 		"video": {
 			"link": "https://youtu.be/l0SL2tHENbI?si=QxaZSvtOUfEXu-0J",
 			"caption": "Check out this video!"
 		}
 	}
- 
+
 	response = requests.post(url, headers=headers, json=payload)
 	response.raise_for_status()
 
