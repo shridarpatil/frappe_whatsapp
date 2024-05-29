@@ -54,7 +54,7 @@ def get_matching_document(message_text):
 def process_document(doc_type, doc, number):
 	if doc_type == "WhatsApp Flow":
 		data = json.loads(doc.json)
-		response = send_whatsapp_flow_message(doc.flow_id, number, doc.message, doc.mode, doc.flow_cta, doc.screen, doc.header_text, doc.flow_action data)
+		response = send_whatsapp_flow_message(doc.flow_id, number, doc.message, doc.mode, doc.flow_cta, doc.screen, doc.header_text, doc.flow_action, data)
 	elif doc_type == "WhatsApp Interactive Message":
 		options = json.loads(doc.options)
 		response = send_whatsapp_interactive_list_message(number, doc.header_text, doc.body_message, doc.footer_text, doc.action_button, doc.action_title, options)
