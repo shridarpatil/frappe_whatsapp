@@ -18,6 +18,7 @@
   "message",
   "data_tab",
   "json",
+  "exchange_endpoint",
   "keywords",
   "words"
  ],
@@ -77,6 +78,7 @@
    "label": "Data"
   },
   {
+   "depends_on": "eval:doc.flow_action == \"navigate\"",
    "fieldname": "json",
    "fieldtype": "JSON",
    "label": "JSON"
@@ -103,11 +105,17 @@
    "fieldtype": "Select",
    "label": "Flow Action",
    "options": "\ndata_exchange\nnavigate"
+  },
+  {
+   "depends_on": "eval:doc.flow_action == \"data_exchange\"",
+   "fieldname": "exchange_endpoint",
+   "fieldtype": "Data",
+   "label": "Data Exchange Endpoint"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-29 12:35:33.990105",
+ "modified": "2024-05-29 12:55:56.455844",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Flow",
