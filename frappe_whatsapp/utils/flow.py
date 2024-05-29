@@ -54,7 +54,7 @@ def get_matching_document(message_text):
 def process_document(doc_type, doc, number):
 	if doc_type == "WhatsApp Flow":
 		data = json.loads(doc.json)
-		response = send_whatsapp_flow_message(doc.flow_id, number, doc.message, doc.mode, doc.flow_cta, doc.screen, doc.header_text, data)
+		response = send_whatsapp_flow_message(doc.flow_id, number, doc.message, doc.mode, doc.flow_cta, doc.screen, doc.header_text, doc.flow_action data)
 	elif doc_type == "WhatsApp Interactive Message":
 		options = json.loads(doc.options)
 		response = send_whatsapp_interactive_list_message(number, doc.header_text, doc.body_message, doc.footer_text, doc.action_button, doc.action_title, options)
@@ -87,7 +87,7 @@ def get_flow_token(flow_id):
 def get_whatsapp_settings():
 	return frappe.get_doc("WhatsApp Settings", "WhatsApp Settings")
 
-def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, data):
+def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen, header_text, flow_action, data):
 	settings = get_whatsapp_settings()
 	token = settings.get_password("token")
 	url = f"{settings.url}/{settings.version}/{settings.phone_id}/messages"
@@ -109,7 +109,7 @@ def send_whatsapp_flow_message(flow_id, number, message, mode, flow_cta, screen,
 				"name": "flow",
 				"parameters": {
 					"flow_message_version": "3",
-					"flow_action": "navigate",
+					"flow_action": flow_action,
 					"flow_token": flow_token,
 					"flow_id": flow_id,
 					"flow_cta": flow_cta,
@@ -215,9 +215,6 @@ def send_whatsapp_video_message_for_keyword(number):
 		}
 	}
  
- 
-
-
 	response = requests.post(url, headers=headers, json=payload)
 	response.raise_for_status()
 

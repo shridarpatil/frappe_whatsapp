@@ -11,6 +11,7 @@
   "flow_id",
   "flow_cta",
   "header_text",
+  "flow_action",
   "column_break_wkmy",
   "screen",
   "mode",
@@ -96,11 +97,17 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Process Words"
+  },
+  {
+   "fieldname": "flow_action",
+   "fieldtype": "Select",
+   "label": "Flow Action",
+   "options": "\ndata_exchange\nnavigate"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-28 10:44:33.011758",
+ "modified": "2024-05-29 12:35:33.990105",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Flow",
