@@ -57,7 +57,7 @@ class WhatsAppNotification(Document):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
-        self.content_type = 'text'
+
         doc_data = doc.as_dict()
         if self.condition:
             # check if condition satisfies
@@ -185,6 +185,9 @@ class WhatsAppNotification(Document):
                 f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
+
+            if not self.get("content_type"):
+                self.content_type = 'text'
 
             frappe.get_doc({
                 "doctype": "WhatsApp Message",
