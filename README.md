@@ -44,7 +44,7 @@ Note the Template Name you enter here should not contain spaces or capitalisatio
 ![image](https://user-images.githubusercontent.com/11792643/198827355-ebf9c113-f39a-4d37-98f7-38f719fb2d1f.png)
 
 #### Create notifications
-Note the use of the "Field Name" which references the Mobile number to be sued from the DocType you are using in the notification. You may need to create a mobile_no field (correctly formatted, i.e. country code and mobile number without the "+") in the relevant DocType.
+Note the use of the "Field Name" which references the Mobile number to be sued from the DocType you are using in the notification. You may need to create a mobile_no field (correctly formatted, i.e. country code and mobile number) in the relevant DocType.
 ![whatsapp_notification](https://user-images.githubusercontent.com/11792643/198827295-f6d756a3-6289-40b3-99ea-0394efb61041.png)
 frappe_whatsapp supports all docevents as per Frappe, i.e. Before Insert, Before Validate, Before Save, After Save, Before Submit, After Submit, Before Cancel, After Cancel, Before Delete, After Delete, Before Save (Submitted Document) and, After Save (Submitted Document).
 
