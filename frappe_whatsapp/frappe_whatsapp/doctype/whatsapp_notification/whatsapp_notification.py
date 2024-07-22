@@ -1,6 +1,7 @@
 """Notification."""
 
 import json
+import re
 import frappe
 from frappe.model.document import Document
 from frappe.utils.safe_exec import get_safe_globals, safe_exec
@@ -237,9 +238,13 @@ class WhatsAppNotification(Document):
 
             job.insert()
 
-    def format_number(self, number):
-        """Format number."""
-        if (number.startswith("+")):
-            number = number[1:len(number)]
+	def format_number(number):
+		"""Format number by removing any special characters."""
+		# Remove the leading '+' if present
+		if number.startswith("+"):
+			number = number[1:]
 
-        return number
+		# Remove any special characters
+		number = re.sub(r"\D", "", number)
+
+		return number
