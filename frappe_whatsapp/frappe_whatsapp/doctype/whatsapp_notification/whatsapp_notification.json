@@ -6,6 +6,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "html_notification",
+  "section_break_fds",
   "notification_type",
   "reference_doctype",
   "field_name",
@@ -31,16 +33,18 @@
  "fields": [
   {
    "depends_on": "eval:['DocType Event', 'Permission Query'].includes(doc.notification_type)",
+   "description": "Select the existing Reference Document Type",
    "fieldname": "reference_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Reference Document Type",
-   "options": "DocType",
-   "reqd": 1
+   "mandatory_depends_on": "eval:['DocType Event', 'Permission Query'].includes(doc.notification_type)",
+   "options": "DocType"
   },
   {
    "depends_on": "eval:doc.notification_type == \"Scheduler Event\"",
+   "description": "Select how often the event should occur in relation to the document type.",
    "fieldname": "event_frequency",
    "fieldtype": "Select",
    "label": "Event Frequency",
@@ -49,6 +53,7 @@
   },
   {
    "depends_on": "eval:doc.notification_type==='DocType Event'",
+   "description": "Select the specific event related to the document type",
    "fieldname": "doctype_event",
    "fieldtype": "Select",
    "label": "DocType Event",
@@ -75,6 +80,7 @@
    "options": "<pre><code>doc.grand_total &gt; 0</code></pre>\n\n<p>Conditions should be written in simple Python. Please use properties available in the form only.</p>\n\n<p>Example: </p><pre><code>doc.status=='Enabled' </code></pre><p></p>\n\n<p> For scheduler events you can use follwing methods</p>\n<p>Allowed functions: </p><ul>\n<li>frappe.db.get_value</li>\n<li>frappe.db.get_list</li>\n<li>frappe.session</li>\n<li>frappe.utils.now_datetime</li>\n<li>frappe.utils.get_datetime</li>\n<li>frappe.utils.add_to_date</li>\n<li>frappe.utils.now</li>\n</ul>\n<p>Example: </p><pre><code>doc.creation &gt; frappe.utils.add_to_date(frappe.utils.now_datetime(\n), days=-5, as_string=True, as_datetime=True) </code></pre><p></p>\n\n<p>\n\t<b>\n\t\tFinally set the contact list to send messages. This should be set only in case of scheduled events.\n\t</b>\n<br>\ndoc._contact_list = [\"919123456789\"]\n</p> "
   },
   {
+   "description": "<fieldset>\n    <p>Select the type of notification.</p>\n  <ul>\n    <li>\n      <strong>DocType Event:</strong>Notifications triggered by specific document events.\n    </li>\n    <li>\n      <strong>Scheduler Event:</strong>  Notifications triggered by scheduled events.\n    </li>\n    \n  </ul>\n\n</fieldset>\n",
    "fieldname": "notification_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -84,6 +90,7 @@
    "reqd": 1
   },
   {
+   "description": "Select an existing template or click on \"Create New WhatsApp Template\" to create a new one.",
    "fieldname": "template",
    "fieldtype": "Link",
    "label": "Template",
@@ -94,15 +101,15 @@
    "fieldname": "condition",
    "fieldtype": "Code",
    "label": "Condition",
-   "options": "Python Expression"
+   "options": "Python"
   },
   {
    "depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
-   "description": "Mobile number field",
+   "description": "Enter the name of the field.",
    "fieldname": "field_name",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Field Name",
-   "reqd": 1
+   "mandatory_depends_on": "eval:['DocType Event'].includes(doc.notification_type)"
   },
   {
    "fieldname": "column_break_12",
@@ -164,11 +171,20 @@
    "fieldname": "attach_from_field",
    "fieldtype": "Data",
    "label": "Attach from field "
+  },
+  {
+   "fieldname": "html_notification",
+   "fieldtype": "HTML",
+   "options": "<div style=\"display: flex; align-items: center; margin-bottom: 20px;\">\n    <img src=\"https://app.bhilwarahealthcare.in/files/wanotification.webp\" style=\"margin-right: 20px; width: 125px; height: 125px;\">\n    <div>\n        <div style=\"font-size: 20px; font-weight: bold;\">Define your Response Data Once</div>\n        <div style=\"font-size: 14px;\">This section allows you to define your response data in a structured manner. Please fill in the required fields and ensure the accuracy of the information.</div>\n    </div>\n</div>\n"
+  },
+  {
+   "fieldname": "section_break_fds",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-23 17:18:54.663077",
+ "modified": "2024-07-22 14:07:31.335529",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
