@@ -6,8 +6,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "html_wamessage_field",
-  "section_break_khl",
   "template_variable",
   "field_name",
   "ref_doctype"
@@ -32,15 +30,6 @@
    "label": "Ref Doctype",
    "options": "DocType"
   },
-  {
-   "fieldname": "html_wamessage_field",
-   "fieldtype": "HTML",
-   "options": "<div style=\"display: flex; align-items: center; margin-bottom: 20px;\">\n    <img src=\"https://app.bhilwarahealthcare.in/files/whatsapp text message.webp\" style=\"margin-right: 20px; width: 125px; height: 125px;\">\n    <div>\n        <div style=\"font-size: 20px; font-weight: bold;\">Define your Response Data Once</div>\n        <div style=\"font-size: 14px;\">This section allows you to define your response data in a structured manner. Please fill in the required fields and ensure the accuracy of the information.</div>\n    </div>\n</div>\n"
-  },
-  {
-   "fieldname": "section_break_khl",
-   "fieldtype": "Section Break"
-  }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
