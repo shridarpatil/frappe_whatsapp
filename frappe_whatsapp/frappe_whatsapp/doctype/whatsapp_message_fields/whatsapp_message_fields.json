@@ -6,20 +6,35 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "field_name"
+  "template_variable",
+  "field_name",
+  "ref_doctype"
  ],
  "fields": [
   {
    "fieldname": "field_name",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Field name"
-  }
+  },
+  {
+   "fieldname": "template_variable",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Variable"
+  },
+  {
+   "description": "Select the existing Reference Document Type",
+   "fieldname": "ref_doctype",
+   "fieldtype": "Link",
+   "label": "Ref Doctype",
+   "options": "DocType"
+  },
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-10-29 15:33:48.324678",
+ "modified": "2024-07-22 14:15:46.809152",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message Fields",
