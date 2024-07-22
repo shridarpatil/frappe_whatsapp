@@ -14,6 +14,10 @@ def run_server_script_for_doc_event(doc, event):
 
     if frappe.flags.in_migrate:
         return
+    
+    if frappe.flags.in_uninstall:
+        return
+
     notification = get_notifications_map().get(
         doc.doctype, {}
     ).get(EVENT_MAP[event], None)
