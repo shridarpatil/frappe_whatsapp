@@ -68,10 +68,10 @@ class WhatsAppMessage(Document):
             parameters = []
             template_parameters = []
 
+            ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
             for field_name in field_names:
-                value = frappe.db.get_value(
-                    self.reference_doctype, self.reference_name, field_name.strip()
-                )
+                value = ref_doc.get_formatted(field_name.strip())
+
                 parameters.append({"type": "text", "text": value})
                 template_parameters.append(value)
 
