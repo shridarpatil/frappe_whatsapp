@@ -113,23 +113,20 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 #   "all": [
 #       "frappe_whatsapp.tasks.all"
 #   ],
-#   "daily": [
-#       "frappe_whatsapp.tasks.daily"
-#   ],
-#   "hourly": [
-#       "frappe_whatsapp.tasks.hourly"
-#   ],
+  "daily": [
+      "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.trigger_notifications"
+  ],
 #   "weekly": [
 #       "frappe_whatsapp.tasks.weekly"
 #   ],
 #   "monthly": [
 #       "frappe_whatsapp.tasks.monthly"
 #   ],
-# }
+}
 
 # Testing
 # -------

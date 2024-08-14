@@ -6,6 +6,7 @@ from frappe.model.document import Document
 from frappe.utils.safe_exec import get_safe_globals, safe_exec
 from frappe.integrations.utils import make_post_request
 from frappe.desk.form.utils import get_pdf_link
+from frappe.utils import add_to_date, nowdate
 
 
 class WhatsAppNotification(Document):
@@ -243,3 +244,58 @@ class WhatsAppNotification(Document):
             number = number[1:len(number)]
 
         return number
+
+
+    def get_documents_for_today(self):
+        """get list of documents that will be triggered today"""
+        docs = []
+
+        diff_days = self.days_in_advance
+        if self.doctype_event == "Days After":
+            diff_days = -diff_days
+
+        reference_date = add_to_date(nowdate(), days=diff_days)
+        reference_date_start = reference_date + " 00:00:00.000000"
+        reference_date_end = reference_date + " 23:59:59.000000"
+
+        doc_list = frappe.get_all(
+            self.reference_doctype,
+            fields="name",
+            filters=[
+                {self.date_changed: (">=", reference_date_start)},
+                {self.date_changed: ("<=", reference_date_end)},
+            ],
+        )
+
+        for d in doc_list:
+            doc = frappe.get_doc(self.reference_doctype, d.name)
+            self.send_template_message(doc)
+            # print(doc.name)
+
+
+def trigger_notifications(method="daily"):
+    if frappe.flags.in_import or frappe.flags.in_patch:
+        # don't send notifications while syncing or patching
+        return
+
+    if method == "daily":
+        doc_list = frappe.get_all(
+            "WhatsApp Notification", filters={"doctype_event": ("in", ("Days Before", "Days After")), "disabled": 0}
+        )
+        for d in doc_list:
+            alert = frappe.get_doc("WhatsApp Notification", d.name)
+
+            alert.get_documents_for_today()
+                # doc.name
+                # evaluate_alert(doc, alert, alert.event)
+                # frappe.db.commit()
+
+
+
+def template():
+    notification = frappe.get_doc("WhatsApp Notification", "WN-0001")
+    notification.disabled = 0
+    doc = frappe.get_doc("User", "Administrator")
+    doc.mobile_no = "+919741094468"
+    notification.send_template_message(doc)
+

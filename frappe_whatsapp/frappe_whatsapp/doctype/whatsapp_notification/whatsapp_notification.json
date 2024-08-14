@@ -11,6 +11,8 @@
   "field_name",
   "event_frequency",
   "doctype_event",
+  "days_in_advance",
+  "date_changed",
   "column_break_3",
   "disabled",
   "template",
@@ -52,7 +54,7 @@
    "fieldname": "doctype_event",
    "fieldtype": "Select",
    "label": "DocType Event",
-   "options": "Before Insert\nBefore Validate\nBefore Save\nAfter Insert\nAfter Save\nBefore Submit\nAfter Submit\nBefore Cancel\nAfter Cancel\nBefore Delete\nAfter Delete\nBefore Save (Submitted Document)\nAfter Save (Submitted Document)"
+   "options": "Before Insert\nBefore Validate\nBefore Save\nAfter Insert\nAfter Save\nBefore Submit\nAfter Submit\nBefore Cancel\nAfter Cancel\nBefore Delete\nAfter Delete\nBefore Save (Submitted Document)\nAfter Save (Submitted Document)\nDays After\nDays Before"
   },
   {
    "fieldname": "column_break_3",
@@ -164,11 +166,26 @@
    "fieldname": "attach_from_field",
    "fieldtype": "Data",
    "label": "Attach from field "
+  },
+  {
+   "depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'",
+   "description": "Send days before or after the reference date",
+   "fieldname": "days_in_advance",
+   "fieldtype": "Int",
+   "label": "Days Before or After",
+   "mandatory_depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'"
+  },
+  {
+   "depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'",
+   "fieldname": "date_changed",
+   "fieldtype": "Select",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-23 17:18:54.663077",
+ "modified": "2024-08-11 20:11:35.462365",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
