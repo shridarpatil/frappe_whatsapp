@@ -92,7 +92,7 @@ class WhatsAppNotification(Document):
                 for field in self.fields:
                     value = doc_data[field.field_name]
                     if isinstance(doc_data[field.field_name], (datetime.date, datetime.datetime)):
-                        value = str(type(doc_data[field.field_name]))
+                        value = str(doc_data[field.field_name])
                     parameters.append({
                         "type": "text",
                         "text": value
