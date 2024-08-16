@@ -119,8 +119,12 @@ frappe.ui.form.on('WhatsApp Notification', {
                 },
                 callback: function (response) {
                     // Handle the response as needed
-                    if (response.message) {
+                    if (response.message && response.message.length > 0) {
                         console.log(response.message);
+                        // Handle the alerts for today
+                    } else {
+                        // No alerts for today
+                        frappe.msgprint(__('No alerts for today'));
                     }
                 },
                 error: function (error) {
