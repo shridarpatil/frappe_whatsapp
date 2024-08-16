@@ -136,9 +136,9 @@ scheduler_events = {
 # Overriding Methods
 # ------------------------------
 #
-override_whitelisted_methods = {
-    "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.custom_api.call_trigger_notifications": "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications"
-}
+# override_whitelisted_methods = {
+#   "frappe.desk.doctype.event.event.get_events": "frappe_whatsapp.event.get_events"
+# }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
