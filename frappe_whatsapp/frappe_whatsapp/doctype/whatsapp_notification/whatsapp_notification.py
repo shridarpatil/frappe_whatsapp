@@ -285,6 +285,18 @@ class WhatsAppNotification(Document):
             # print(doc.name)
 
 
+@frappe.whitelist()
+def call_trigger_notifications():
+    """Trigger notifications."""
+    try:
+        # Directly call the trigger_notifications function
+        trigger_notifications()  
+    except Exception as e:
+        # Log the error but do not show any popup or alert
+        frappe.log_error(frappe.get_traceback(), "Error in call_trigger_notifications")
+        # Optionally, you could raise the exception to be handled elsewhere if needed
+        raise e
+
 def trigger_notifications(method="daily"):
     if frappe.flags.in_import or frappe.flags.in_patch:
         # don't send notifications while syncing or patching
@@ -296,13 +308,10 @@ def trigger_notifications(method="daily"):
         )
         for d in doc_list:
             alert = frappe.get_doc("WhatsApp Notification", d.name)
-
             alert.get_documents_for_today()
-                # doc.name
-                # evaluate_alert(doc, alert, alert.event)
-                # frappe.db.commit()
-
-
+            # doc.name
+            # evaluate_alert(doc, alert, alert.event)
+            # frappe.db.commit()
 
 def template():
     notification = frappe.get_doc("WhatsApp Notification", "WN-0001")
@@ -310,21 +319,3 @@ def template():
     doc = frappe.get_doc("User", "Administrator")
     doc.mobile_no = "+919741094468"
     notification.send_template_message(doc)
-
-
-
-@frappe.whitelist()
-def call_trigger_notifications():
-    """Trigger notifications."""
-    try:
-        # Assuming trigger_notifications is defined elsewhere in the file
-        if 'trigger_notifications' in globals():
-            trigger_notifications()  # Call the function
-        else:
-            frappe.throw("trigger_notifications function is not defined.")
-    except Exception as e:
-        # Log the error but do not show any popup or alert
-        frappe.log_error(frappe.get_traceback(), "Error in call_trigger_notifications")
-        # Optionally, you could raise the exception to be handled elsewhere if needed
-        raise e
-
