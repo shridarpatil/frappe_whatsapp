@@ -109,21 +109,19 @@ frappe.ui.form.on('WhatsApp Notification', {
 });
 
 
+
 frappe.ui.form.on('WhatsApp Notification', {
     refresh: function (frm) {
         frm.add_custom_button(__('Get Alerts for Today'), function () {
             frappe.call({
-                method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.custom_api.call_trigger_notifications',
+                method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications',
                 args: {
-                    method: 'daily'  // You can change this as needed
+                    method: 'daily' 
                 },
                 callback: function (response) {
-                    // Handle the response as needed
                     if (response.message && response.message.length > 0) {
                         console.log(response.message);
-                        // Handle the alerts for today
                     } else {
-                        // No alerts for today
                         frappe.msgprint(__('No alerts for today'));
                     }
                 },
@@ -135,3 +133,8 @@ frappe.ui.form.on('WhatsApp Notification', {
         });
     }
 });
+
+
+
+
+
