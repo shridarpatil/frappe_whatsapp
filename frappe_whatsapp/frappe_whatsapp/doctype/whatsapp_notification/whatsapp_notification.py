@@ -318,4 +318,4 @@ def template():
     notification.disabled = 0
     doc = frappe.get_doc("User", "Administrator")
     doc.mobile_no = "+919741094468"
-    notification.send_template_message(doc)
+
