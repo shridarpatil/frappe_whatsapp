@@ -120,13 +120,11 @@ frappe.ui.form.on('WhatsApp Notification', {
                 },
                 callback: function (response) {
                     if (response.message && response.message.length > 0) {
-                        console.log(response.message);
                     } else {
                         frappe.msgprint(__('No alerts for today'));
                     }
                 },
                 error: function (error) {
-                    console.error('Error:', error);
                     frappe.msgprint(__('Failed to trigger notifications'));
                 }
             });
