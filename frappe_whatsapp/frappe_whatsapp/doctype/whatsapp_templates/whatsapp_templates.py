@@ -13,8 +13,6 @@ from frappe.desk.form.utils import get_pdf_link
 
 class WhatsAppTemplates(Document):
     """Create whatsapp template."""
-    def autoname(self):
-        self.name = self.template_name.lower().replace(" ", "_")
 
     def validate(self):
         if not self.language_code or self.has_value_changed("language"):
