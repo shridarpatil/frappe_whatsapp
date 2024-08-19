@@ -1,5 +1,3 @@
-"""Notification."""
-
 import json
 import frappe
 from frappe.model.document import Document
@@ -21,7 +19,7 @@ class WhatsAppNotification(Document):
                 filters={"dt": self.reference_doctype},
                 fields=["fieldname"]
             )
-            if not any(field.fieldname == self.field_name for field in fields): # noqa
+            if not any(field.fieldname == self.field_name for field in fields):
                 frappe.throw(f"Field name {self.field_name} does not exists")
         if self.custom_attachment:
             if not self.attach and not self.attach_from_field:
@@ -56,7 +54,6 @@ class WhatsAppNotification(Document):
                 }
                 self.content_type = template.get("header_type", "text").lower()
                 self.notify(data)
-        # return _globals.frappe.flags
 
     def send_template_message(self, doc: Document):
         """Specific to Document Event triggered Server Scripts."""
@@ -108,8 +105,7 @@ class WhatsAppNotification(Document):
                 }]
 
             if self.attach_document_print:
-                # frappe.db.begin()
-                key = doc.get_document_share_key()  # noqa
+                key = doc.get_document_share_key()
                 frappe.db.commit()
                 print_format = "Standard"
                 doctype = frappe.get_doc("DocType", doc_data['doctype'])
@@ -141,7 +137,6 @@ class WhatsAppNotification(Document):
                 if self.attach_from_field:
                     file_url = doc_data[self.attach_from_field]
                     if not file_url.startswith("http"):
-                        # get share key so that private files can be sent
                         key = doc.get_document_share_key()
                         file_url = f'{frappe.utils.get_url()}{file_url}&key={key}'
                 else:
@@ -243,7 +238,7 @@ class WhatsAppNotification(Document):
     def after_insert(self):
         """After insert hook."""
         if self.notification_type == "Scheduler Event":
-            method = f"frappe_whatsapp.utils.trigger_whatsapp_notifications_{self.event_frequency.lower().replace(' ', '_')}" # noqa
+            method = f"frappe_whatsapp.utils.trigger_whatsapp_notifications_{self.event_frequency.lower().replace(' ', '_')}"
             job = frappe.get_doc(
                 {
                     "doctype": "Scheduled Job Type",
@@ -260,7 +255,6 @@ class WhatsAppNotification(Document):
             number = number[1:len(number)]
 
         return number
-
 
     def get_documents_for_today(self):
         """get list of documents that will be triggered today"""
@@ -286,24 +280,19 @@ class WhatsAppNotification(Document):
         for d in doc_list:
             doc = frappe.get_doc(self.reference_doctype, d.name)
             self.send_template_message(doc)
-            # print(doc.name)
 
 
 @frappe.whitelist()
 def call_trigger_notifications():
     """Trigger notifications."""
     try:
-        # Directly call the trigger_notifications function
         trigger_notifications()  
     except Exception as e:
-        # Log the error but do not show any popup or alert
         frappe.log_error(frappe.get_traceback(), "Error in call_trigger_notifications")
-        # Optionally, you could raise the exception to be handled elsewhere if needed
         raise e
 
 def trigger_notifications(method="daily"):
     if frappe.flags.in_import or frappe.flags.in_patch:
-        # don't send notifications while syncing or patching
         return
 
     if method == "daily":
@@ -313,4 +302,3 @@ def trigger_notifications(method="daily"):
         for d in doc_list:
             alert = frappe.get_doc("WhatsApp Notification", d.name)
             alert.get_documents_for_today()
-
