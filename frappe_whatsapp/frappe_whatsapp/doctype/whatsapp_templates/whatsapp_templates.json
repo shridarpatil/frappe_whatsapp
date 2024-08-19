@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:template_name",
+ "autoname": "format:{template_name}-{language_code}",
  "creation": "2022-10-28 13:39:09.887817",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -16,6 +16,7 @@
   "template",
   "sample_values",
   "for_doctype",
+  "field_names",
   "column_break_6",
   "category",
   "language",
@@ -139,15 +140,21 @@
   {
    "fieldname": "column_break_tbvf",
    "fieldtype": "Column Break"
+  },
+  {
+   "description": "Field names to replace the value in templates",
+   "fieldname": "field_names",
+   "fieldtype": "Small Text",
+   "label": "Field names"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-14 19:39:39.532098",
+ "modified": "2024-08-19 12:22:17.367586",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
