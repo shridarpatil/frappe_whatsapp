@@ -313,13 +313,4 @@ def trigger_notifications(method="daily"):
         for d in doc_list:
             alert = frappe.get_doc("WhatsApp Notification", d.name)
             alert.get_documents_for_today()
-            # doc.name
-            # evaluate_alert(doc, alert, alert.event)
-            # frappe.db.commit()
-
-def template():
-    notification = frappe.get_doc("WhatsApp Notification", "WN-0001")
-    notification.disabled = 0
-    doc = frappe.get_doc("User", "Administrator")
-    doc.mobile_no = "+919741094468"
 
