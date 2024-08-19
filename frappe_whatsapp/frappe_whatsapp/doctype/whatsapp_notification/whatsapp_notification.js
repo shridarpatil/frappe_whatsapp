@@ -43,6 +43,26 @@ frappe.notification = {
 			frm.set_df_property("date_changed", "options", get_date_change_options());
 
 		});
+	},
+	setup_alerts_button: function (frm) {
+		// body...
+		frm.add_custom_button(__('Get Alerts for Today'), function () {
+            frappe.call({
+                method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications',
+                args: {
+                    method: 'daily' 
+                },
+                callback: function (response) {
+                    if (response.message && response.message.length > 0) {
+                    } else {
+                        frappe.msgprint(__('No alerts for today'));
+                    }
+                },
+                error: function (error) {
+                    frappe.msgprint(__('Failed to trigger notifications'));
+                }
+            });
+        });
 	}
 };
 
@@ -51,6 +71,7 @@ frappe.ui.form.on('WhatsApp Notification', {
 	refresh: function(frm) {
 		frm.trigger("load_template")
 		frappe.notification.setup_fieldname_select(frm);
+		frappe.notification.setup_alerts_button(frm);
 	},
 	template: function(frm){
 		frm.trigger("load_template")
@@ -107,32 +128,3 @@ frappe.ui.form.on('WhatsApp Notification', {
 		frappe.notification.setup_fieldname_select(frm);
 	},
 });
-
-
-
-frappe.ui.form.on('WhatsApp Notification', {
-    refresh: function (frm) {
-        frm.add_custom_button(__('Get Alerts for Today'), function () {
-            frappe.call({
-                method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications',
-                args: {
-                    method: 'daily' 
-                },
-                callback: function (response) {
-                    if (response.message && response.message.length > 0) {
-                    } else {
-                        frappe.msgprint(__('No alerts for today'));
-                    }
-                },
-                error: function (error) {
-                    frappe.msgprint(__('Failed to trigger notifications'));
-                }
-            });
-        });
-    }
-});
-
-
-
-
-
