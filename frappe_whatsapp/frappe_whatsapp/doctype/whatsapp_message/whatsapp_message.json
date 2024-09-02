@@ -131,7 +131,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact",
+   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton",
    "reqd": 1
   },
   {
@@ -179,7 +179,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-03 13:22:45.081391",
+ "modified": "2024-09-02 04:45:50.937855",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
