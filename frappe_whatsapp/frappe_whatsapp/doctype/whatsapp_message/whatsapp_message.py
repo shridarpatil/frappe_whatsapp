@@ -146,6 +146,11 @@ class WhatsAppMessage(Document):
         return number
 
 
+
+def on_doctype_update():
+    frappe.db.add_index("WhatsApp Message", ["reference_doctype", "reference_name"])
+
+
 @frappe.whitelist()
 def send_template(to, reference_doctype, reference_name, template):
     try:
