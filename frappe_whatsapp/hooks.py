@@ -64,14 +64,18 @@ app_include_js = "/assets/frappe_whatsapp/js/frappe_whatsapp.js"
 # Installation
 # ------------
 
-# before_install = "frappe_whatsapp.install.before_install"
-# after_install = "frappe_whatsapp.install.after_install"
+# before_install = "frappe_whatsapp.install.before_install
+after_install = "frappe_whatsapp.setup.install.create_integrations_card"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "frappe_whatsapp.uninstall.before_uninstall"
+before_uninstall = "frappe_whatsapp.setup.uninstall.remove_integrations_card"
 # after_uninstall = "frappe_whatsapp.uninstall.after_uninstall"
+
+# Migration
+# ------------
+after_migrate = "frappe_whatsapp.setup.install.create_integrations_card"
 
 # Desk Notifications
 # ------------------
