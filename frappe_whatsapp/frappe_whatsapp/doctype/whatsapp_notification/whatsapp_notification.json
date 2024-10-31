@@ -28,13 +28,15 @@
   "condition",
   "column_break_12",
   "fields",
+  "property_section",
+  "set_property_after_alert",
+  "property_value",
   "help_section",
   "help_html",
   "header_type"
  ],
  "fields": [
   {
-   "depends_on": "eval:['DocType Event', 'Permission Query'].includes(doc.notification_type)",
    "fieldname": "reference_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -76,7 +78,7 @@
   {
    "fieldname": "help_html",
    "fieldtype": "HTML",
-   "options": "<pre><code>doc.grand_total &gt; 0</code></pre>\n\n<p>Conditions should be written in simple Python. Please use properties available in the form only.</p>\n\n<p>Example: </p><pre><code>doc.status=='Enabled' </code></pre><p></p>\n\n<p> For scheduler events you can use follwing methods</p>\n<p>Allowed functions: </p><ul>\n<li>frappe.db.get_value</li>\n<li>frappe.db.get_list</li>\n<li>frappe.session</li>\n<li>frappe.utils.now_datetime</li>\n<li>frappe.utils.get_datetime</li>\n<li>frappe.utils.add_to_date</li>\n<li>frappe.utils.now</li>\n</ul>\n<p>Example: </p><pre><code>doc.creation &gt; frappe.utils.add_to_date(frappe.utils.now_datetime(\n), days=-5, as_string=True, as_datetime=True) </code></pre><p></p>\n\n<p>\n\t<b>\n\t\tFinally set the contact list to send messages. This should be set only in case of scheduled events.\n\t</b>\n<br>\ndoc._contact_list = [\"919123456789\"]\n</p> "
+   "options": "<pre><code>doc.grand_total &gt; 0</code></pre>\n\n<p>Conditions should be written in simple Python. Please use properties available in the form only.</p>\n\n<p>Example: </p><pre><code>doc.status=='Enabled' </code></pre><p></p>\n\n<p> For scheduler events you can use follwing methods</p>\n<p>Allowed functions: </p><ul>\n<li>frappe.db.get_value</li>\n<li>frappe.db.get_list</li>\n<li>frappe.session</li>\n<li>frappe.utils.now_datetime</li>\n<li>frappe.utils.get_datetime</li>\n<li>frappe.utils.add_to_date</li>\n<li>frappe.utils.now</li>\n</ul>\n<p>Example: </p><pre><code>doc.creation &gt; frappe.utils.add_to_date(frappe.utils.now_datetime(\n), days=-5, as_string=True, as_datetime=True) </code></pre><p></p>\n\n<p>\n\t<strong>For scheduled events, use </strong>\n<br>\n1. Simple template sending, without parameters, just send a template\n</p><pre><code class=\"language-python\">\ndoc.set(\"_contact_list\", [\"919123456789\"])\n</code>\n</pre>\n\n2. Message based on doctype with parameters\n<pre><code class=\"language-python\">\nquotation_list = frappe.get_list(\"Quotation\", {\"name\": \"VEN-COT-24-29806\", \"custom_whatsapp_notify\": 0})\nfor qo in quotation_list:\n\tdata_list.append({\n\t\t\"name\": qo.name,\n\t\t\"phone_no\": \"5548996436821\",\n\t})\ndoc.set(\"_data_list\", data_list)\n</code>\n</pre>\n\n<p></p> "
   },
   {
    "fieldname": "notification_type",
@@ -101,12 +103,11 @@
    "options": "Python Expression"
   },
   {
-   "depends_on": "eval:['DocType Event'].includes(doc.notification_type)",
    "description": "Mobile number field",
    "fieldname": "field_name",
    "fieldtype": "Data",
    "label": "Field Name",
-   "reqd": 1
+   "mandatory_depends_on": "eval:['DocType Event'].includes(doc.notification_type)"
   },
   {
    "fieldname": "column_break_12",
@@ -170,6 +171,21 @@
    "label": "Attach from field "
   },
   {
+   "fieldname": "property_section",
+   "fieldtype": "Section Break",
+   "label": "Set Property After Alert"
+  },
+  {
+   "fieldname": "set_property_after_alert",
+   "fieldtype": "Select",
+   "label": "Set Property After Alert"
+  },
+  {
+   "fieldname": "property_value",
+   "fieldtype": "Data",
+   "label": "Value To Be Set"
+  },
+  {
    "depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'",
    "description": "Send days before or after the reference date",
    "fieldname": "days_in_advance",
@@ -196,7 +212,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-24 13:53:36.666204",
+ "modified": "2024-10-31 19:23:24.483369",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",

@@ -42,6 +42,9 @@ frappe.notification = {
 			// set date changed options
 			frm.set_df_property("date_changed", "options", get_date_change_options());
 
+			// set value changed options
+			frm.set_df_property("value_changed", "options", [""].concat(options));
+			frm.set_df_property("set_property_after_alert", "options", [""].concat(options));
 		});
 	},
 	setup_alerts_button: function (frm) {
