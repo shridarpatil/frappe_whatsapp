@@ -27,6 +27,14 @@ https://developers.facebook.com/docs/whatsapp/cloud-api/get-started
 
 ### Sending text message without creating template Create an entry in the WhatsApp message. On save it will trigger and whats app API to send a message ![image](https://user-images.githubusercontent.com/11792643/211518862-de2d3fbc-69c8-48e1-b000-8eebf20b75ab.png) WhatsApp messages are received via WhatsApp cloud API.![image](https://user-images.githubusercontent.com/11792643/211519625-a528abe2-ba24-46a4-bcbc-170f6b4e27fb.png) ![outgoing (1)](https://user-images.githubusercontent.com/11792643/211518647-45bfaa00-b06a-49c6-a3b3-3cf801d5ec68.gif) 
 
+### Sending a template using custom _dict() insted of a doctype.
+This can be very useful for features where it is not possible to get the values directly from the doctype.
+Just create a script and populate variable called "_data_list":
+`doc.set("_data_list", data_list)`
+
+Example:
+![image](https://github.com/user-attachments/assets/7496b081-df2b-41dc-bdcb-ed7e5f464698)
+
 ### Incomming message 
 * Setup webhook on meta 
 * Add verify token on meta and update the same on whatsapp settings 
