@@ -42,11 +42,23 @@ def post():
 	except KeyError:
 		messages = data["entry"]["changes"][0]["value"].get("messages", [])
 
+	# Extract contact information from payload
+	wa_id, wa_name = None, None
+	contacts = data["entry"][0]["changes"][0]["value"].get("contacts", [])
+	if contacts:
+			wa_id = contacts[0]["wa_id"]
+			wa_name = contacts[0]["profile"]["name"]
+
 	if messages:
 		for message in messages:
 			message_type = message['type']
 			is_reply = True if message.get('context') else False
 			reply_to_message_id = message['context']['id'] if is_reply else None
+
+			# Update Contact Doctype with WhatsApp info
+			if wa_id:
+				update_contact(wa_id, wa_name)
+	
 			if message_type == 'text':
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
@@ -158,6 +170,24 @@ def post():
 			changes = data["entry"]["changes"][0]
 		update_status(changes)
 	return
+
+def update_contact(wa_id, wa_name):
+    """Update Contact Doctype with WhatsApp info and last message time."""
+    existing_contact = frappe.db.get_value("WhatsApp Contact", {"whatsapp_phone": wa_id}, ["name"])
+
+    payload = { "last_message_time": frappe.utils.now() }
+    if wa_name:
+      payload["whatsapp_name"] = wa_name
+    if existing_contact:
+        # Update existing contact
+        frappe.db.set_value("WhatsApp Contact", existing_contact, payload)
+    else:
+        # Create new contact if not found
+        payload["phone"] = wa_id
+        payload["doctype"] = "WhatsApp Contact"
+        contact_doc = frappe.get_doc(payload)
+        contact_doc.insert(ignore_permissions=True)
+
 
 def update_status(data):
 	"""Update status hook."""

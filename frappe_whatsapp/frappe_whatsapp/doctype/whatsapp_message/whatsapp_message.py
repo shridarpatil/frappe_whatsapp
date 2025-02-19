@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 import json
 import frappe
+import re
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
@@ -43,6 +44,7 @@ class WhatsAppMessage(Document):
             try:
                 self.notify(data)
                 self.status = "Success"
+                update_contact_last_message_time(self.to)
             except Exception as e:
                 self.status = "Failed"
                 frappe.throw(f"Failed to send message {str(e)}")
@@ -104,6 +106,7 @@ class WhatsAppMessage(Document):
             })
 
         self.notify(data)
+        update_contact_last_message_time(self.to)
 
     def notify(self, data):
         """Notify."""
@@ -146,6 +149,28 @@ class WhatsAppMessage(Document):
         return number
 
 
+def update_contact_last_message_time(phone_number):
+    """Update the Contact Doctype with last message time and message content."""
+    # Remove all non-digit characters from the phone number
+    formatted_number = re.sub(r'\D', '', phone_number)
+
+    contact_name = frappe.db.get_value("WhatsApp Contact", {"phone": formatted_number}, "name")
+
+    if contact_name:
+        # Update existing contact
+        frappe.db.set_value("WhatsApp Contact", contact_name, {
+            "last_message_time": frappe.utils.now(),
+        })
+    else:
+        # Create new contact if not exists
+        new_contact = frappe.get_doc({
+            "doctype": "WhatsApp Contact",
+            # "whatsapp_name": "",
+            "is_lead": 1,
+            "phone": formatted_number,
+            "last_message_time": frappe.utils.now(),
+        })
+        new_contact.insert(ignore_permissions=True)
 
 def on_doctype_update():
     frappe.db.add_index("WhatsApp Message", ["reference_doctype", "reference_name"])
@@ -166,5 +191,6 @@ def send_template(to, reference_doctype, reference_name, template):
         })
 
         doc.save()
+        update_contact_last_message_time(to)
     except Exception as e:
         raise e
