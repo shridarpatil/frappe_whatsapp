@@ -84,8 +84,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Notification Type",
-   "options": "DocType Event\nScheduler Event",
-   "reqd": 1
+   "options": "\nDocType Event\nScheduler Event"
   },
   {
    "fieldname": "template",
@@ -196,7 +195,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-24 13:53:36.666204",
+ "modified": "2025-03-01 12:21:16.052823",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
