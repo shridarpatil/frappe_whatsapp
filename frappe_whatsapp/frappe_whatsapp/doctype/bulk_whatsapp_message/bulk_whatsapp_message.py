@@ -91,6 +91,7 @@ class BulkWhatsAppMessage(Document):
         if self.use_template:
             wa_message.template = self.template
             wa_message.message_type = 'Template'
+            wa_message.use_template = self.use_template
             # Handle template variables if needed
             if self.template_variables:
                 wa_message.template_variables = self.template_variables
