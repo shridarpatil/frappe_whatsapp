@@ -128,7 +128,7 @@ class BulkWhatsAppMessage(Document):
         total = self.recipient_count
         sent = frappe.db.count("WhatsApp Message", {
             "bulk_message_reference": self.name,
-            "status": ["like", ["sent","delivered", "Success", "read"]] 
+            "status": ["in", ["sent","delivered", "Success", "read"]]
         })
         failed = frappe.db.count("WhatsApp Message", {
             "bulk_message_reference": self.name,
