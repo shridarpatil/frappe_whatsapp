@@ -43,8 +43,7 @@
    "fieldname": "recipients",
    "fieldtype": "Table",
    "label": "Recipients",
-   "options": "WhatsApp Recipient",
-   "reqd": 1
+   "options": "WhatsApp Recipient"
   },
   {
    "fieldname": "import_section",
@@ -80,7 +79,7 @@
   },
   {
    "depends_on": "eval:doc.import_from_doctype==1",
-   "description": "JSON filters to apply when importing (optional)",
+   "description": "JSON filters to apply when importing (optional) Ex: {\"email\": \"admin@example.com\"}",
    "fieldname": "import_filters",
    "fieldtype": "Code",
    "label": "Filters",
@@ -95,13 +94,14 @@
   },
   {
    "depends_on": "eval:doc.import_from_doctype==1 && doc.doctype_to_import && doc.mobile_field",
+   "description": "Save form before importing",
    "fieldname": "import_button",
    "fieldtype": "Button",
    "label": "Import Recipients"
   },
   {
    "depends_on": "eval:doc.import_from_doctype==1",
-   "description": "JSON fields to apply when importing (optional) {\"fields\": [\"full_name\"]}",
+   "description": "JSON fields to apply when importing (optional) [\"full_name\", \"email\"]",
    "fieldname": "data_fields",
    "fieldtype": "Code",
    "label": "Data fields",
@@ -110,7 +110,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-02 10:10:33.825688",
+ "modified": "2025-03-03 12:41:13.610865",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Recipient List",

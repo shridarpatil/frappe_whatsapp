@@ -21,7 +21,7 @@ def import_recipients(list_name, doctype, mobile_field, name_field=None, filters
     """Import recipients from a DocType"""
     if filters and isinstance(filters, str):
         filters = json.loads(filters)
-    print(data_fields)
+
     if data_fields and isinstance(data_fields, str):
         data_fields = json.loads(data_fields)
         

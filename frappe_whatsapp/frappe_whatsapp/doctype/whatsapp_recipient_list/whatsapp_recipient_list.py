@@ -9,11 +9,22 @@ class WhatsAppRecipientList(Document):
 		self.validate_recipients()
 	
 	def validate_recipients(self):
-		if not self.recipients:
-			frappe.throw(_("At least one recipient is required"))
+		print(self.__dict__)
+		if not self.is_new():
+			if not self.recipients:
+				frappe.throw(_("At least one recipient is required"))
 	
 	def import_list_from_doctype(self, doctype, mobile_field, name_field=None, filters=None, limit=None, data_fields=None):
 		"""Import recipients from another DocType"""
+		self.doctype_to_import = doctype
+		self.mobile_field = mobile_field
+		self.filters = filters
+		if data_fields:
+			self.data_fields = json.dumps(data_fields)
+
+		if limit:
+			self.import_limit = limit
+
 		fields = [mobile_field]
 		if name_field:
 			fields.append(name_field)
@@ -21,10 +32,8 @@ class WhatsAppRecipientList(Document):
 			meta = frappe.get_meta(doctype)
 			# print(meta.fields)
 			for field in meta.fields:
-				print(field.fieldname)
-				if field.fieldname not in fields and field.fieldname in data_fields["fields"]:
+				if field.fieldname not in fields and field.fieldname in data_fields:
 					fields.append(field.fieldname)
-
 		# Get records from the doctype
 		records = frappe.get_all(
 			doctype,
@@ -51,7 +60,7 @@ class WhatsAppRecipientList(Document):
 
 			recipient_data = {}
 			if data_fields:
-				for field in data_fields["fields"]:
+				for field in data_fields:
 					if record.get(field):
 						# Use field name as the variable name in recipient data
 						variable_name = field.lower().replace(" ", "_")

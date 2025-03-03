@@ -31,7 +31,7 @@ class BulkWhatsAppMessage(Document):
             frappe.throw(_("At least one recipient or a recipient list is required"))
         
         # If recipient list is provided, count recipients
-        if self.recipient_list:
+        if self.recipient_type == 'Recipient List' and self.recipient_list:
             recipient_count = frappe.db.count("WhatsApp Recipient", {"parent": self.recipient_list})
             if recipient_count == 0:
                 frappe.throw(_("Selected recipient list has no recipients"))
@@ -41,12 +41,12 @@ class BulkWhatsAppMessage(Document):
             self.recipient_count = len(self.recipients)
     
     def on_submit(self):
-        self.status = "Queued"
+        self.db_set("status", "Queued")
         self.queue_messages()
     
     def queue_messages(self):
         """Queue messages for sending"""
-        if self.recipient_list:
+        if self.recipient_type == 'Recipient List' and self.recipient_list:
             # Fetch recipients from the recipient list
             recipients = frappe.get_all(
                 "WhatsApp Recipient", 
@@ -55,21 +55,28 @@ class BulkWhatsAppMessage(Document):
             )
             
             for recipient in recipients:
-                self.create_single_message(recipient)
+                frappe.enqueue_doc(
+                    self.doctype, self.name,
+                    "create_single_message",
+                    "long", 4000,
+                    recipient=recipient
+                )
         else:
             # Use recipients from the current document
             for recipient in self.recipients:
-                self.create_single_message({
-                    "mobile_number": recipient.mobile_number,
-                    "recipient_name": recipient.recipient_name,
-                    "recipient_data": recipient.recipient_data
-                })
+                frappe.enqueue_doc(
+                    self.doctype, self.name,
+                    "create_single_message",
+                    "long", 4000,
+                    recipient=recipient
+                )
     
     def create_single_message(self, recipient):
         """Create a single message in the queue"""
         # message_content = self.message_content
         
         # Replace variables in the message if any
+        self.status == "In Progress"
         if recipient.get("recipient_data"):
             try:
                 variables = json.loads(recipient.get("recipient_data", "{}"))
@@ -98,10 +105,14 @@ class BulkWhatsAppMessage(Document):
         
         # Set status to queued
         wa_message.status = "Queued"
-        wa_message.insert(ignore_permissions=True)
-        
+        try:
+            wa_message.insert(ignore_permissions=True)
+        except Exception:
+            self.db_set("status", "Partially Failed")
         # Update message count
         self.db_set("sent_count", cint(self.sent_count) + 1)
+        if self.recipient_count == self.sent_count:
+            self.db_set("status", "Completed")
 
     def retry_failed(self):
         """Retry failed messages"""
