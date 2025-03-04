@@ -54,7 +54,7 @@ app_include_js = "/assets/frappe_whatsapp/js/frappe_whatsapp.js"
 
 # Jinja
 # ----------
-
+no_csrf = True
 # add methods and filters to jinja environment
 # jinja = {
 #   "methods": "frappe_whatsapp.utils.jinja_methods",
@@ -218,3 +218,5 @@ doc_events = {
         "on_update_after_submit": "frappe_whatsapp.utils.run_server_script_for_doc_event"
     }
 }
+
+website_route_rules = [{'from_route': '/oneinbox_whatsapp/<path:app_path>', 'to_route': 'oneinbox_whatsapp'},]

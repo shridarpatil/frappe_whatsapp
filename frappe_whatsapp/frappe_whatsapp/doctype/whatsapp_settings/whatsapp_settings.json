@@ -11,9 +11,13 @@
   "url",
   "version",
   "phone_id",
+  "column_break_zpxs",
   "business_id",
   "app_id",
-  "webhook_verify_token"
+  "webhook_verify_token",
+  "lead_reference_doctype",
+  "section_break_fttl",
+  "whatsapp_lead_field_mapping"
  ],
  "fields": [
   {
@@ -57,12 +61,32 @@
    "fieldname": "app_id",
    "fieldtype": "Data",
    "label": "App ID"
+  },
+  {
+   "fieldname": "column_break_zpxs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lead_reference_doctype",
+   "fieldtype": "Link",
+   "label": "Lead Reference Doctype",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "section_break_fttl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "whatsapp_lead_field_mapping",
+   "fieldtype": "Table",
+   "label": "Whatsapp Lead Field Mapping",
+   "options": "Whatsapp Lead Field Mapping"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-03 12:42:25.851544",
+ "modified": "2025-03-03 14:03:38.165090",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",

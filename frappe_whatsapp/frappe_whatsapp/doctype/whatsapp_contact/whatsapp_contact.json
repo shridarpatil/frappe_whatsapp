@@ -8,6 +8,8 @@
   "phone",
   "last_message_time",
   "whatsapp_name",
+  "column_break_vdxa",
+  "unread_message_count",
   "is_lead",
   "discard",
   "marketing_opt_in"
@@ -48,11 +50,20 @@
    "fieldname": "marketing_opt_in",
    "fieldtype": "Check",
    "label": "Marketing Opt in"
+  },
+  {
+   "fieldname": "unread_message_count",
+   "fieldtype": "Int",
+   "label": "Unread Message Count"
+  },
+  {
+   "fieldname": "column_break_vdxa",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-19 23:53:30.138237",
+ "modified": "2025-03-04 18:35:09.605055",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Contact",
