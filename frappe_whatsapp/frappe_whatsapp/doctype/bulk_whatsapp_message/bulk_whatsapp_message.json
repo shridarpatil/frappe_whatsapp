@@ -1,0 +1,179 @@
+{
+ "actions": [],
+ "beta": 1,
+ "creation": "2023-05-10 12:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "from_number",
+  "section_recipients",
+  "recipient_type",
+  "recipients",
+  "recipient_list",
+  "recipient_count",
+  "section_message",
+  "use_template",
+  "template",
+  "template_variables",
+  "section_status",
+  "status",
+  "sent_count",
+  "scheduled_time",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_number",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "From WhatsApp Number"
+  },
+  {
+   "fieldname": "section_recipients",
+   "fieldtype": "Section Break",
+   "label": "Recipients"
+  },
+  {
+   "default": "Individual",
+   "fieldname": "recipient_type",
+   "fieldtype": "Select",
+   "label": "Recipient Type",
+   "options": "\nIndividual\nRecipient List"
+  },
+  {
+   "depends_on": "eval:doc.recipient_type=='Individual'",
+   "fieldname": "recipients",
+   "fieldtype": "Table",
+   "label": "Recipients",
+   "options": "WhatsApp Recipient"
+  },
+  {
+   "depends_on": "eval:doc.recipient_type=='Recipient List'",
+   "fieldname": "recipient_list",
+   "fieldtype": "Link",
+   "label": "Recipient List",
+   "options": "WhatsApp Recipient List"
+  },
+  {
+   "fieldname": "recipient_count",
+   "fieldtype": "Int",
+   "label": "Recipient Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_message",
+   "fieldtype": "Section Break",
+   "label": "Message"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_template",
+   "fieldtype": "Check",
+   "label": "Use Template"
+  },
+  {
+   "depends_on": "eval:doc.use_template==1",
+   "description": "Make sure that Template variables are same as Recipient data fields",
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "label": "Template",
+   "options": "WhatsApp Templates"
+  },
+  {
+   "depends_on": "eval:doc.use_template==1",
+   "fieldname": "template_variables",
+   "fieldtype": "Code",
+   "hidden": 1,
+   "label": "Template Variables",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "section_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nQueued\nIn Progress\nCompleted\nPartially Failed",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sent_count",
+   "fieldtype": "Int",
+   "label": "Sent Count",
+   "read_only": 1
+  },
+  {
+   "description": "Leave empty to send immediately after submission",
+   "fieldname": "scheduled_time",
+   "fieldtype": "Datetime",
+   "label": "Scheduled Time"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Bulk WhatsApp Message",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-03-03 11:28:42.295568",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "Bulk WhatsApp Message",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "WhatsApp Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
