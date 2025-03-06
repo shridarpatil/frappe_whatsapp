@@ -9,7 +9,6 @@ class WhatsAppRecipientList(Document):
 		self.validate_recipients()
 	
 	def validate_recipients(self):
-		print(self.__dict__)
 		if not self.is_new():
 			if not self.recipients:
 				frappe.throw(_("At least one recipient is required"))
