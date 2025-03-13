@@ -11,6 +11,7 @@
   "status",
   "to",
   "from",
+  "profile_name",
   "use_template",
   "template",
   "template_parameters",
@@ -182,11 +183,17 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "bulk_message_reference"
-  }
+  },
+  {
+    "fieldname": "profile_name",
+    "fieldtype": "Data",
+    "label": "Profile Name",
+    "read_only": 1
+   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-02 12:23:22.908305",
+ "modified": "2025-03-13 12:03:12.896651",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
