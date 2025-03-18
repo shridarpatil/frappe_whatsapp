@@ -3,10 +3,10 @@
 # See license.txt
 
 # import frappe
-from frappe.tests.utils import FrappeTestCase
+from frappe.tests import UnitTestCase
 
 
-class TestWhatsAppMessage(FrappeTestCase):
+class TestWhatsAppMessage(UnitTestCase):
     """Test whatsapp messages."""
 
     pass

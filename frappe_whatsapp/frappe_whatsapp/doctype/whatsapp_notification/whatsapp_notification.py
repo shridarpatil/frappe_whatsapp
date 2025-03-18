@@ -293,49 +293,8 @@ class WhatsAppNotification(Document):
 
     def on_trash(self):
         """On delete remove from schedule."""
-        if self.notification_type == "Scheduler Event":
-            exists_more_events = frappe.db.exists(
-                "WhatsApp Notification",
-                {
-                    "name": ["!=", self.name],
-                    "event_frequency": self.event_frequency,
-                }
-            )
-
-            if not exists_more_events:
-                # if doesnt exists more scheduler events for the "event_frequency", remove schedule jobs
-                method = self.get_event_method()
-                schedule_job = frappe.db.exists("Scheduled Job Type", {
-                    "method": method,
-                    "frequency": self.event_frequency,
-                })
-
-                if schedule_job:
-                    frappe.delete_doc("Scheduled Job Type", schedule_job)
-
         frappe.cache().delete_value("whatsapp_notification_map")
 
-
-    def get_event_method(self):
-        return f"frappe_whatsapp.utils.trigger_whatsapp_notifications_{self.event_frequency.lower().replace(' ', '_')}" # noqa
-
-    def after_insert(self):
-        """After insert hook."""
-        if self.notification_type == "Scheduler Event":
-            method = self.get_event_method()
-
-            if not frappe.db.exists("Scheduled Job Type", {
-                "method": method,
-            }):
-                job = frappe.get_doc(
-                    {
-                        "doctype": "Scheduled Job Type",
-                        "method": method,
-                        "frequency": self.event_frequency
-                    }
-                )
-
-                job.insert()
 
     def format_number(self, number):
         """Format number."""

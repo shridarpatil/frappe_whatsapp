@@ -11,6 +11,7 @@
   "status",
   "to",
   "from",
+  "profile_name",
   "use_template",
   "template",
   "template_parameters",
@@ -27,6 +28,7 @@
   "reply_to_message_id",
   "section_break_dhba",
   "reference_doctype",
+  "bulk_message_reference",
   "column_break_efrb",
   "reference_name"
  ],
@@ -131,7 +133,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "\ntext\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton",
+   "options": "text\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton",
    "reqd": 1
   },
   {
@@ -175,11 +177,23 @@
    "fieldtype": "Dynamic Link",
    "label": "Reference name",
    "options": "reference_doctype"
-  }
+  },
+  {
+   "fieldname": "bulk_message_reference",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "bulk_message_reference"
+  },
+  {
+    "fieldname": "profile_name",
+    "fieldtype": "Data",
+    "label": "Profile Name",
+    "read_only": 1
+   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-02 04:45:50.937855",
+ "modified": "2025-03-13 12:03:12.896651",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
