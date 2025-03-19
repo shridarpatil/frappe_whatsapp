@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "whatsapp_account_tab",
   "enabled",
   "token",
   "url",
@@ -13,7 +14,9 @@
   "phone_id",
   "business_id",
   "app_id",
-  "webhook_verify_token"
+  "webhook_verify_token",
+  "whatsapp_notification_tab",
+  "cron_time"
  ],
  "fields": [
   {
@@ -57,12 +60,28 @@
    "fieldname": "app_id",
    "fieldtype": "Data",
    "label": "App ID"
+  },
+  {
+   "fieldname": "whatsapp_account_tab",
+   "fieldtype": "Tab Break",
+   "label": "Whatsapp Account"
+  },
+  {
+   "depends_on": "eval:doc.token",
+   "fieldname": "whatsapp_notification_tab",
+   "fieldtype": "Tab Break",
+   "label": "Whatsapp Notification"
+  },
+  {
+   "fieldname": "cron_time",
+   "fieldtype": "Data",
+   "label": "Whatsapp Notification Time (Cron)"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-03 12:42:25.851544",
+ "modified": "2025-03-12 15:40:07.292171",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",
