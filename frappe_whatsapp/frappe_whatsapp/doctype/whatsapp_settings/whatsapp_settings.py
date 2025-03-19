@@ -1,7 +1,8 @@
 import re
 import frappe
+from frappe.model.document import Document
 
-class WhatsAppSettings(frappe.model.document.Document):
+class WhatsAppSettings(Document):
     def before_save(self):
         validate_cron_format(self.cron_time)
 
