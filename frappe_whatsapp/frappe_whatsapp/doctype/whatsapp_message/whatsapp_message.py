@@ -94,23 +94,16 @@ class WhatsAppMessage(Document):
             )
 
         if template.header_type and template.sample:
-            field_names = template.sample.split(",")
-            header_parameters = []
-            template_header_parameters = []
-
-            ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-            for field_name in field_names:
-                value = ref_doc.get_formatted(field_name.strip())
-                
-                header_parameters.append({"type": "text", "text": value})
-                template_header_parameters.append(value)
-
-            self.template_header_parameters = json.dumps(template_header_parameters)
-
-            data["template"]["components"].append({
-                "type": "header",
-                "parameters": header_parameters,
-            })
+            if template.header_type == 'IMAGE':
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "image",
+                        "image": {
+                            "link": template.sample
+                        }
+                    }]
+                })
 
         self.notify(data)
 
