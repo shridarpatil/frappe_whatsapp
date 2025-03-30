@@ -95,12 +95,16 @@ class WhatsAppMessage(Document):
 
         if template.header_type and template.sample:
             if template.header_type == 'IMAGE':
+                if template.sample.startswith("http"):
+                    url = f'{template.sample}'
+                else:
+                    url = f'{frappe.utils.get_url()}{template.sample}'
                 data['template']['components'].append({
                     "type": "header",
                     "parameters": [{
                         "type": "image",
                         "image": {
-                            "link": template.sample
+                            "link": url
                         }
                     }]
                 })
