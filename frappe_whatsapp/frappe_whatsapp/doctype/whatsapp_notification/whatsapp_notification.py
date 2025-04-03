@@ -54,6 +54,7 @@ class WhatsAppNotification(Document):
                         "components": []
                     }
                 }
+                template = frappe.get_doc("WhatsApp Templates", self.template)
                 self.content_type = template.get("header_type", "text").lower()
                 self.notify(data)
         # return _globals.frappe.flags
@@ -71,10 +72,7 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        template = frappe.db.get_value(
-            "WhatsApp Templates", self.template,
-            fieldname='*'
-        )
+        template = frappe.get_doc("WhatsApp Templates", self.template)
 
         if template:
             data = {
