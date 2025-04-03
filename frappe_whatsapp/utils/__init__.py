@@ -107,8 +107,9 @@ def trigger_whatsapp_notifications_monthly_long():
 
 def trigger_whatsapp_notifications(event):
     """Run cron."""
-    frappe.get_doc(
-        "WhatsApp Notification",
-        frappe.db.get_value("WhatsApp Notification", filters={"event_frequency": event})
-    ).send_scheduled_message()
-    pass
+    notifications = frappe.db.get_all("WhatsApp Notification", filters={"event_frequency": event}, pluck="name")
+    for n in notifications:
+        frappe.get_doc(
+            "WhatsApp Notification",
+            n
+        ).send_scheduled_message()
