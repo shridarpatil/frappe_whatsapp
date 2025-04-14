@@ -10,7 +10,9 @@ class WhatsAppSettings(Document):
         validate_cron_format(self.cron_time)
 
     def on_update(self):
-        update_cron_job(self)
+        old_doc = self.get_doc_before_save()
+        if old_doc and old_doc.cron_time != self.cron_time:
+            update_cron_job(self)
 
 
 def validate_cron_format(cron_time):
@@ -23,7 +25,11 @@ def validate_cron_format(cron_time):
 def update_cron_job(doc):
     """Create or update Scheduled Job Type and Scheduler Event when cron_time changes."""
     if not doc.cron_time:
-        frappe.msgprint("Cron time not set. Skipping job creation.")
+        frappe.msgprint(
+                    f"Cron time not set. Skipping job creation.",
+                    indicator="yellow",
+                    alert=True
+                )
         return
 
     # Validate cron before saving job
@@ -52,7 +58,11 @@ def update_cron_job(doc):
         job.cron_format = doc.cron_time
         job.scheduler_event = sch_event_name
         job.save(ignore_permissions=True)
-        frappe.msgprint("Whatsapp Notification Time Updated Successfully!")
+        frappe.msgprint(
+                    f"Whatsapp Notification Time Updated Successfully!",
+                    indicator="green",
+                    alert=True
+                )
     else:
         job = frappe.new_doc("Scheduled Job Type")
         job.method = method_value
@@ -60,4 +70,8 @@ def update_cron_job(doc):
         job.scheduler_event = sch_event_name
         job.cron_format = doc.cron_time
         job.save(ignore_permissions=True)
-        frappe.msgprint("New cron job created!")
+        frappe.msgprint(
+            f"New cron job created!",
+            indicator="green",
+            alert=True
+        )
