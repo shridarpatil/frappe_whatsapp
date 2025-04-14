@@ -9,5 +9,13 @@ frappe.ui.form.on('WhatsApp Message', {
 
 			});
 		}
-	}
+	},
+
+	use_template: function(frm) {
+        if (frm.doc.use_template) {
+            frm.set_value('message_type', 'Template');
+        } else {
+            frm.set_value('message_type', 'Manual');
+        }
+    }
 });
