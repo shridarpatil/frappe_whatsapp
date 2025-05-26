@@ -1,6 +1,4 @@
-[pre_model_sync]
-# Patches added in this section will be executed before doctypes are migrated
-
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
 frappe_whatsapp.patches.set_default_in_whatsapp_settings #1
+frappe_whatsapp.patches.migrate_to_multi_account

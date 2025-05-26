@@ -120,3 +120,16 @@ def trigger_whatsapp_notifications(event):
             "WhatsApp Notification",
             wa.name,
         ).send_scheduled_message()
+
+def get_whatsapp_account_from_phone_id(phone_id=None):
+    """map whatsapp account with message"""
+    if phone_id:
+        account_name = frappe.db.get_value('WhatsApp Account', {'phone_id': phone_id}, 'name')
+        if account_name:
+            return frappe.get_doc("WhatsApp Account", account_name)
+
+    default_account_name = frappe.db.get_value('WhatsApp Account', {'is_default_incoming': 1}, 'name')
+    if default_account_name:
+        return frappe.get_doc("WhatsApp Account", default_account_name)
+
+    return None

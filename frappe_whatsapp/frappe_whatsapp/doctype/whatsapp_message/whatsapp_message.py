@@ -2,13 +2,27 @@
 # For license information, please see license.txt
 import json
 import frappe
+from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
+from frappe_whatsapp.utils import get_whatsapp_account_from_phone_id
+
 
 class WhatsAppMessage(Document):
-    """Send whats app messages."""
+    def validate(self):
+        self.set_whatsapp_account()
 
+    def set_whatsapp_account():
+        """Set whatsapp account to default if missing"""
+        if not self.whatsapp_account and self.type == 'Outgoing':
+            default_whatsapp_account = get_whatsapp_account_from_phone_id()
+            if not default_whatsapp_account:
+                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
+            else:
+                self.whatsapp_account = default_whatsapp_account.name
+
+    """Send whats app messages."""
     def before_insert(self):
         """Send message."""
         if self.type == "Outgoing" and self.message_type != "Template":
@@ -165,11 +179,11 @@ class WhatsAppMessage(Document):
 
     def notify(self, data):
         """Notify."""
-        settings = frappe.get_doc(
-            "WhatsApp Settings",
-            "WhatsApp Settings",
+        whatsapp_account = frappe.get_doc(
+            "WhatsApp Account",
+            self.whatsapp_account,
         )
-        token = settings.get_password("token")
+        token = whatsapp_account.get_password("token")
 
         headers = {
             "authorization": f"Bearer {token}",
@@ -177,7 +191,7 @@ class WhatsAppMessage(Document):
         }
         try:
             response = make_post_request(
-                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                f"{whatsapp_account.url}/{whatsapp_account.version}/{whatsapp_account.phone_id}/messages",
                 headers=headers,
                 data=json.dumps(data),
             )
