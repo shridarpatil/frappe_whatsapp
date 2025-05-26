@@ -41,4 +41,4 @@ def update_whatsapp_templates(account):
 		fields=['name']
 	)
 	for template in whatsapp_templates:
-		frappe.set_value('WhatsApp Templates', template['name'], 'whatsapp_account', account)
+		frappe.db.set_value('WhatsApp Templates', template['name'], 'whatsapp_account', account)

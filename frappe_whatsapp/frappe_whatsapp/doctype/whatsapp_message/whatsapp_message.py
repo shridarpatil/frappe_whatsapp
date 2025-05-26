@@ -13,7 +13,7 @@ class WhatsAppMessage(Document):
     def validate(self):
         self.set_whatsapp_account()
 
-    def set_whatsapp_account():
+    def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account and self.type == 'Outgoing':
             default_whatsapp_account = get_whatsapp_account_from_phone_id()
