@@ -1,23 +1,24 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2022-10-27 17:51:09.426813",
+ "creation": "2025-05-26 17:33:44.556320",
+ "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "enabled",
-  "allow_auto_read_receipt",
+  "account_name",
+  "status",
   "token",
   "url",
   "version",
-  "phone_id",
-  "business_id",
-  "app_id",
   "webhook_verify_token",
-  "column_break_xsuw",
-  "default_incoming_account",
-  "default_outgoing_account"
+  "column_break_byyq",
+  "phone_id",
+  "app_id",
+  "business_id",
+  "is_default_incoming",
+  "is_default_outgoing"
  ],
  "fields": [
   {
@@ -39,7 +40,8 @@
   {
    "fieldname": "phone_id",
    "fieldtype": "Data",
-   "label": "Phone ID"
+   "label": "Phone ID",
+   "unique": 1
   },
   {
    "fieldname": "business_id",
@@ -47,52 +49,52 @@
    "label": "Business ID"
   },
   {
-   "fieldname": "webhook_verify_token",
-   "fieldtype": "Data",
-   "label": "Webhook Verify Token"
-  },
-  {
-   "default": "0",
-   "fieldname": "enabled",
-   "fieldtype": "Check",
-   "label": "Enabled"
-  },
-  {
    "fieldname": "app_id",
    "fieldtype": "Data",
    "label": "App ID"
   },
   {
-   "default": "1",
-   "fieldname": "allow_auto_read_receipt",
-   "fieldtype": "Check",
-   "label": "Allow Auto Read Receipt"
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Data",
+   "label": "Webhook Verify Token",
+   "unique": 1
   },
   {
-   "fieldname": "column_break_xsuw",
+   "fieldname": "column_break_byyq",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "default_incoming_account",
-   "fieldtype": "Link",
-   "label": "Default Incoming Account",
-   "options": "WhatsApp Account"
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "label": "Account Name"
   },
   {
-   "fieldname": "default_outgoing_account",
-   "fieldtype": "Link",
-   "label": "Default Outgoing Account",
-   "options": "WhatsApp Account"
+   "default": "Inactive",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nInactive"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default_incoming",
+   "fieldtype": "Check",
+   "label": "Is Default Incoming"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default_outgoing",
+   "fieldtype": "Check",
+   "label": "Is Default Outgoing"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "issingle": 1,
  "links": [],
- "modified": "2025-10-02 18:09:26.499196",
+ "modified": "2025-05-26 19:13:44.768630",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
- "name": "WhatsApp Settings",
+ "name": "WhatsApp Account",
  "owner": "Administrator",
  "permissions": [
   {
