@@ -6,7 +6,7 @@ from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
-from frappe_whatsapp.utils import get_whatsapp_account_from_phone_id
+from frappe_whatsapp.utils import get_whatsapp_account
 
 
 class WhatsAppMessage(Document):
@@ -16,7 +16,7 @@ class WhatsAppMessage(Document):
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account and self.type == 'Outgoing':
-            default_whatsapp_account = get_whatsapp_account_from_phone_id()
+            default_whatsapp_account = get_whatsapp_account(account_type='outgoing')
             if not default_whatsapp_account:
                 throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
             else:
@@ -25,6 +25,7 @@ class WhatsAppMessage(Document):
     """Send whats app messages."""
     def before_insert(self):
         """Send message."""
+        self.set_whatsapp_account()
         if self.type == "Outgoing" and self.message_type != "Template":
             if self.attach and not self.attach.startswith("http"):
                 link = frappe.utils.get_url() + "/" + self.attach
