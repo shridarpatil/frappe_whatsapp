@@ -28,7 +28,7 @@ class WhatsAppTemplates(Document):
         if not self.is_new():
             self.update_template()
 
-    def set_whatsapp_account():
+    def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account:
             default_whatsapp_account = get_whatsapp_account_from_phone_id()
