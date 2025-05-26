@@ -15,8 +15,9 @@ class WhatsAppMessage(Document):
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
-        if not self.whatsapp_account and self.type == 'Outgoing':
-            default_whatsapp_account = get_whatsapp_account(account_type='outgoing')
+        if not self.whatsapp_account:
+            account_type = 'outgoing' if self.type == 'Outgoing' else 'incoming'
+            default_whatsapp_account = get_whatsapp_account(account_type=account_type)
             if not default_whatsapp_account:
                 throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
             else:
