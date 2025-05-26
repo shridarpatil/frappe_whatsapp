@@ -6,7 +6,7 @@ import time
 from werkzeug.wrappers import Response
 import frappe.utils
 
-from frappe_whatsapp.utils import get_whatsapp_account_from_phone_id
+from frappe_whatsapp.utils import get_whatsapp_account
 
 
 @frappe.whitelist(allow_guest=True)
@@ -57,7 +57,7 @@ def post():
 		None,
 	)
 
-	whatsapp_account = get_whatsapp_account_from_phone_id(phone_id) if phone_id else None
+	whatsapp_account = get_whatsapp_account(phone_id) if phone_id else None
 	if not whatsapp_account:
 		return
 

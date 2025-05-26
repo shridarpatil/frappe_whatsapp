@@ -10,7 +10,7 @@ from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
 
-from frappe_whatsapp.utils import get_whatsapp_account_from_phone_id
+from frappe_whatsapp.utils import get_whatsapp_account
 
 class WhatsAppTemplates(Document):
     """Create whatsapp template."""
@@ -31,7 +31,7 @@ class WhatsAppTemplates(Document):
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account:
-            default_whatsapp_account = get_whatsapp_account_from_phone_id()
+            default_whatsapp_account = get_whatsapp_account()
             if not default_whatsapp_account:
                 throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
             else:
