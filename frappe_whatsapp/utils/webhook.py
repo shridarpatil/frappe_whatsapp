@@ -136,7 +136,8 @@ def post():
 							"is_reply": is_reply,
 							"message": message[message_type].get("caption",f"/files/{file_name}"),
 							"content_type" : message_type,
-							"profile_name":sender_profile_name
+							"profile_name":sender_profile_name,
+							"whatsapp_account":whatsapp_account.name
 						}).insert(ignore_permissions=True)
 
 						file = frappe.get_doc(
