@@ -11,7 +11,7 @@ setup(
     version=version,
     description="WhatsApp integration for frappe",
     author="Shridhar Patil",
-    author_email="shridhar.p@zerodha.com",
+    author_email="shrip.dev@gmail.com",
     packages=find_packages(),
     zip_safe=False,
     include_package_data=True,
