@@ -89,6 +89,8 @@ class WhatsAppMessage(Document):
         elif self.type == "Outgoing" and self.message_type == "Template" and not self.message_id:
             self.send_template()
 
+        self.create_whatsapp_profile()
+
     def send_template(self):
         """Send template."""
         template = frappe.get_doc("WhatsApp Templates", self.template)
@@ -202,7 +204,6 @@ class WhatsAppMessage(Document):
                 data['template']['components'].extend(button_parameters)
 
         self.notify(data)
-        self.create_whatsapp_profile()
 
     def notify(self, data):
         """Notify."""
