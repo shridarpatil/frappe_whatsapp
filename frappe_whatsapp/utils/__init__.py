@@ -134,3 +134,10 @@ def get_whatsapp_account(phone_id=None, account_type='incoming'):
         return frappe.get_doc("WhatsApp Account", default_account_name)
 
     return None
+
+def format_number(number):
+    """Format number."""
+    if number.startswith("+"):
+        number = number[1 : len(number)]
+
+    return number

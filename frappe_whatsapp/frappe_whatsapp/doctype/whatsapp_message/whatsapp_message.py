@@ -6,12 +6,33 @@ from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
-from frappe_whatsapp.utils import get_whatsapp_account
-
+from frappe_whatsapp.utils import get_whatsapp_account, format_number
 
 class WhatsAppMessage(Document):
     def validate(self):
         self.set_whatsapp_account()
+
+    def on_update(self):
+        self.update_profile_name()
+
+    def update_profile_name(self):
+        if self.has_value_changed("profile_name") and self.profile_name:
+            number = format_number(self.to)
+            frappe.db.set_value(
+                "WhatsApp Profiles",
+                {"number": number},
+                "profile_name",
+                self.profile_name
+            )
+
+    def create_whatsapp_profile(self):
+        if not frappe.db.exists("WhatsApp Profiles", {"number": format_number(self.to)}):
+            frappe.get_doc({
+                "doctype": "WhatsApp Profiles",
+                "profile_name": self.profile_name,
+                "number": self.to,
+                "whatsapp_account": self.whatsapp_account
+            }).insert(ignore_permissions=True)
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
@@ -35,7 +56,7 @@ class WhatsAppMessage(Document):
 
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(self.to),
+                "to": format_number(self.to),
                 "type": self.content_type,
             }
             if self.is_reply and self.reply_to_message_id:
@@ -70,7 +91,7 @@ class WhatsAppMessage(Document):
         template = frappe.get_doc("WhatsApp Templates", self.template)
         data = {
             "messaging_product": "whatsapp",
-            "to": self.format_number(self.to),
+            "to": format_number(self.to),
             "type": "template",
             "template": {
                 "name": template.actual_name or template.template_name,
@@ -84,12 +105,7 @@ class WhatsAppMessage(Document):
             parameters = []
             template_parameters = []
 
-            if self.body_param is not None:
-                params = list(json.loads(self.body_param).values())
-                for param in params:
-                    parameters.append({"type": "text", "text": param})
-                    template_parameters.append(param)
-            elif self.flags.custom_ref_doc:
+            if self.flags.custom_ref_doc:
                 custom_values = self.flags.custom_ref_doc
                 for field_name in field_names:
                     value = custom_values.get(field_name.strip())
@@ -100,10 +116,13 @@ class WhatsAppMessage(Document):
                 ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
                 for field_name in field_names:
                     value = ref_doc.get_formatted(field_name.strip())
+
                     parameters.append({"type": "text", "text": value})
                     template_parameters.append(value)
 
+
             self.template_parameters = json.dumps(template_parameters)
+
             data["template"]["components"].append(
                 {
                     "type": "body",
@@ -111,73 +130,24 @@ class WhatsAppMessage(Document):
                 }
             )
 
-        if template.header_type:
-            if self.attach:
-                if template.header_type == 'IMAGE':
-
-                    if self.attach.startswith("http"):
-                        url = f'{self.attach}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{self.attach}'
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "image",
-                            "image": {
-                                "link": url
-                            }
-                        }]
-                    })
-
-            elif template.sample:
-                if template.header_type == 'IMAGE':
-                    if template.sample.startswith("http"):
-                        url = f'{template.sample}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{template.sample}'
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "image",
-                            "image": {
-                                "link": url
-                            }
-                        }]
-                    })
-
-        if template.buttons:
-            button_parameters = []
-            for idx, btn in enumerate(template.buttons):
-                if btn.button_type == "Quick Reply":
-                    button_parameters.append({
-                        "type": "button",
-                        "sub_type": "quick_reply",
-                        "index": str(idx),
-                        "parameters": [{"type": "payload", "payload": btn.button_label}]
-                    })
-                elif btn.button_type == "Call Phone":
-                    button_parameters.append({
-                        "type": "button",
-                        "sub_type": "phone_number",
-                        "index": str(idx),
-                        "parameters": [{"type": "text", "text": btn.phone_number}]
-                    })
-                elif btn.button_type == "Visit Website":
-                    url = btn.website_url
-                    if btn.url_type == "Dynamic":
-                        ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-                        url = ref_doc.get_formatted(btn.website_url)
-                    button_parameters.append({
-                        "type": "button",
-                        "sub_type": "url",
-                        "index": str(idx),
-                        "parameters": [{"type": "text", "text": url}]
-                    })
-
-            if button_parameters:
-                data['template']['components'].extend(button_parameters)
+        if template.header_type and template.sample:
+            if template.header_type == 'IMAGE':
+                if template.sample.startswith("http"):
+                    url = f'{template.sample}'
+                else:
+                    url = f'{frappe.utils.get_url()}{template.sample}'
+                data['template']['components'].append({
+                    "type": "header",
+                    "parameters": [{
+                        "type": "image",
+                        "image": {
+                            "link": url
+                        }
+                    }]
+                })
 
         self.notify(data)
+        self.create_whatsapp_profile()
 
     def notify(self, data):
         """Notify."""
@@ -200,7 +170,7 @@ class WhatsAppMessage(Document):
             self.message_id = response["messages"][0]["id"]
 
         except Exception as e:
-            res = frappe.flags.integration_request.json().get("error", {})
+            res = frappe.flags.integration_request.json()["error"]
             error_message = res.get("Error", res.get("message"))
             frappe.get_doc(
                 {
@@ -211,49 +181,6 @@ class WhatsAppMessage(Document):
             ).insert(ignore_permissions=True)
 
             frappe.throw(msg=error_message, title=res.get("error_user_title", "Error"))
-
-    def format_number(self, number):
-        """Format number."""
-        if number.startswith("+"):
-            number = number[1 : len(number)]
-
-        return number
-
-    @frappe.whitelist()
-    def send_read_receipt(self):
-        data = {
-            "messaging_product": "whatsapp",
-            "status": "read",
-            "message_id": self.message_id
-        }
-
-        settings = frappe.get_doc(
-            "WhatsApp Settings",
-            "WhatsApp Settings",
-        )
-
-        token = settings.get_password("token")
-
-        headers = {
-            "authorization": f"Bearer {token}",
-            "content-type": "application/json",
-        }
-        try:
-            response = make_post_request(
-                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
-                headers=headers,
-                data=json.dumps(data),
-            )
-
-            if response.get("success"):
-                self.status = "marked as read"
-                self.save()
-                return response.get("success")
-
-        except Exception as e:
-            res = frappe.flags.integration_request.json().get("error", {})
-            error_message = res.get("Error", res.get("message"))
-            frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
 
 def on_doctype_update():
     frappe.db.add_index("WhatsApp Message", ["reference_doctype", "reference_name"])
