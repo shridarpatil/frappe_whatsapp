@@ -6,4 +6,8 @@ from frappe.model.document import Document
 
 
 class WhatsAppProfiles(Document):
-	pass
+    def validate(self):
+        self.set_title()
+
+    def set_title(self):
+        self.title = " - ".join(filter(None, [self.profile_name, self.number]))
