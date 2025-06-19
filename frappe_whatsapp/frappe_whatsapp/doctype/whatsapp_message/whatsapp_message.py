@@ -6,12 +6,33 @@ from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
-from frappe_whatsapp.utils import get_whatsapp_account
-
+from frappe_whatsapp.utils import get_whatsapp_account, format_number
 
 class WhatsAppMessage(Document):
     def validate(self):
         self.set_whatsapp_account()
+
+    def on_update(self):
+        self.update_profile_name()
+
+    def update_profile_name(self):
+        if self.has_value_changed("profile_name") and self.profile_name:
+            number = format_number(self.to)
+            frappe.db.set_value(
+                "WhatsApp Profiles",
+                {"number": number},
+                "profile_name",
+                self.profile_name
+            )
+
+    def create_whatsapp_profile(self):
+        if not frappe.db.exists("WhatsApp Profiles", {"number": format_number(self.to)}):
+            frappe.get_doc({
+                "doctype": "WhatsApp Profiles",
+                "profile_name": self.profile_name,
+                "number": self.to,
+                "whatsapp_account": self.whatsapp_account
+            }).insert(ignore_permissions=True)
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
@@ -35,7 +56,7 @@ class WhatsAppMessage(Document):
 
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(self.to),
+                "to": format_number(self.to),
                 "type": self.content_type,
             }
             if self.is_reply and self.reply_to_message_id:
@@ -70,7 +91,7 @@ class WhatsAppMessage(Document):
         template = frappe.get_doc("WhatsApp Templates", self.template)
         data = {
             "messaging_product": "whatsapp",
-            "to": self.format_number(self.to),
+            "to": format_number(self.to),
             "type": "template",
             "template": {
                 "name": template.actual_name or template.template_name,
@@ -178,6 +199,7 @@ class WhatsAppMessage(Document):
                 data['template']['components'].extend(button_parameters)
 
         self.notify(data)
+        self.create_whatsapp_profile()
 
     def notify(self, data):
         """Notify."""
@@ -254,6 +276,7 @@ class WhatsAppMessage(Document):
             res = frappe.flags.integration_request.json().get("error", {})
             error_message = res.get("Error", res.get("message"))
             frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
+
 
 def on_doctype_update():
     frappe.db.add_index("WhatsApp Message", ["reference_doctype", "reference_name"])
