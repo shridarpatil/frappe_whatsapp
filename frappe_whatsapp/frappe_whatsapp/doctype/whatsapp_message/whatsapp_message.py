@@ -16,7 +16,7 @@ class WhatsAppMessage(Document):
         self.update_profile_name()
 
     def update_profile_name(self):
-        from_number = format_number(self.get("from"))
+        from_number = format_number(self.get("from") or self.to)
 
         if (
             self.has_value_changed("profile_name")
