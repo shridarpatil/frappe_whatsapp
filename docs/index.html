@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frappe WhatsApp - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #25D366;
+            --primary-dark: #128C7E;
+            --secondary: #075E54;
+            --bg-dark: #0a0e27;
+            --bg-section: #111332;
+            --text-light: #e8eaed;
+            --text-muted: #a8b3cf;
+            --accent: #00ff88;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #111332 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 211, 102, 0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .hero-content {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--text-light);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: slide 3s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 4rem 2rem;
+            background: var(--bg-section);
+        }
+
+        .installation-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Configuration Section */
+        .configuration {
+            padding: 4rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step {
+            background: var(--card-bg);
+            border-left: 3px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .step h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .step ol, .step ul {
+            margin-left: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .step li {
+            margin: 0.5rem 0;
+        }
+
+        /* API Section */
+        .api-docs {
+            padding: 4rem 2rem;
+            background: var(--bg-section);
+        }
+
+        .api-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .api-endpoint {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .method.post {
+            background: #10b981;
+            color: white;
+        }
+
+        .method.get {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                📱 Frappe WhatsApp
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#api">API</a></li>
+                <li><a href="https://github.com/shridarpatil/frappe_whatsapp" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Frappe WhatsApp</h1>
+            <p>Seamlessly integrate WhatsApp messaging into your Frappe/ERPNext applications</p>
+            <div class="cta-buttons">
+                <a href="#installation" class="btn btn-primary">
+                    🚀 Get Started
+                </a>
+                <a href="https://github.com/shridarpatil/frappe_whatsapp" target="_blank" class="btn btn-secondary">
+                    ⭐ Star on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2 class="section-title">Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>WhatsApp Integration</h3>
+                <p>Send and receive WhatsApp messages directly from your Frappe applications with ease.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Template Management</h3>
+                <p>Create and manage WhatsApp message templates for consistent communication.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Two-Way Communication</h3>
+                <p>Enable bidirectional messaging for interactive customer engagement.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Message Tracking</h3>
+                <p>Track message delivery status and maintain communication history.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔌</div>
+                <h3>ERPNext Compatible</h3>
+                <p>Fully compatible with ERPNext for enterprise messaging solutions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Easy Configuration</h3>
+                <p>Simple setup process with intuitive configuration options.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="installation" class="installation">
+        <div class="installation-content">
+            <h2 class="section-title">Installation</h2>
+            
+            <h3>Prerequisites</h3>
+            <ul style="margin-left: 2rem; color: var(--text-muted);">
+                <li>Frappe Framework v13 or higher</li>
+                <li>Python 3.7+</li>
+                <li>WhatsApp Business API account</li>
+            </ul>
+
+            <h3>Step 1: Get the App</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>bench get-app https://github.com/shridarpatil/frappe_whatsapp.git</pre>
+            </div>
+
+            <h3>Step 2: Install on Site</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>bench --site your-site.com install-app frappe_whatsapp</pre>
+            </div>
+
+            <h3>Step 3: Migrate</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>bench --site your-site.com migrate</pre>
+            </div>
+
+            <h3>Step 4: Restart Bench</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>bench restart</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Configuration Section -->
+    <section id="configuration" class="configuration">
+        <h2 class="section-title">Configuration</h2>
+        
+        <div class="step">
+            <h3>1. WhatsApp Business API Setup</h3>
+            <ol>
+                <li>Create a WhatsApp Business account</li>
+                <li>Get your API credentials from Meta Business Platform</li>
+                <li>Note down your Phone Number ID and Access Token</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>2. Configure in Frappe</h3>
+            <ol>
+                <li>Navigate to WhatsApp Settings in your Frappe site</li>
+                <li>Enter your WhatsApp Business API credentials</li>
+                <li>Configure webhook URL for receiving messages</li>
+                <li>Set up message templates as needed</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>3. Webhook Configuration</h3>
+            <p>Set your webhook URL in Meta Business Platform:</p>
+            <div class="code-block">
+                <pre>https://your-site.com/api/method/frappe_whatsapp.webhook</pre>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>4. Verify Setup</h3>
+            <ol>
+                <li>Send a test message from WhatsApp Settings</li>
+                <li>Check message logs for delivery status</li>
+                <li>Test incoming message reception</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- API Documentation -->
+    <section id="api" class="api-docs">
+        <div class="api-content">
+            <h2 class="section-title">API Documentation</h2>
+            
+            <div class="api-endpoint">
+                <h3>Send Message</h3>
+                <p><span class="method post">POST</span> <span class="endpoint-url">/api/method/frappe_whatsapp.send_message</span></p>
+                <h4>Parameters:</h4>
+                <ul style="margin-left: 1.5rem; color: var(--text-muted);">
+                    <li><strong>to:</strong> Recipient phone number (with country code)</li>
+                    <li><strong>message:</strong> Message content</li>
+                    <li><strong>template:</strong> Template name (optional)</li>
+                </ul>
+            </div>
+
+            <div class="api-endpoint">
+                <h3>Get Message Status</h3>
+                <p><span class="method get">GET</span> <span class="endpoint-url">/api/method/frappe_whatsapp.get_message_status</span></p>
+                <h4>Parameters:</h4>
+                <ul style="margin-left: 1.5rem; color: var(--text-muted);">
+                    <li><strong>message_id:</strong> WhatsApp message ID</li>
+                </ul>
+            </div>
+
+            <div class="api-endpoint">
+                <h3>Webhook for Incoming Messages</h3>
+                <p><span class="method post">POST</span> <span class="endpoint-url">/api/method/frappe_whatsapp.webhook</span></p>
+                <p style="color: var(--text-muted);">Automatically handles incoming messages and status updates from WhatsApp</p>
+            </div>
+
+            <h3>Python Usage Example</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre>import frappe
+from frappe_whatsapp.api import send_whatsapp_message
+
+# Send a simple text message
+send_whatsapp_message(
+    to="+1234567890",
+    message="Hello from Frappe WhatsApp!"
+)
+
+# Send using a template
+send_whatsapp_message(
+    to="+1234567890",
+    template="order_confirmation",
+    parameters=["ORD-12345", "John Doe"]
+)</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Frappe WhatsApp. Built with ❤️ for the Frappe community</p>
+            <div class="social-links">
+                <a href="https://github.com/shridarpatil/frappe_whatsapp" target="_blank">GitHub</a>
+                <a href="https://github.com/shridarpatil/frappe_whatsapp/issues" target="_blank">Issues</a>
+                <a href="https://github.com/shridarpatil/frappe_whatsapp/blob/main/LICENSE" target="_blank">License</a>
+                <a href="https://frappe.io" target="_blank">Frappe Framework</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('pre');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect to nav
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(10, 14, 39, 0.98)';
+            } else {
+                nav.style.background = 'rgba(10, 14, 39, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>
