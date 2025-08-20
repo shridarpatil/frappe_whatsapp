@@ -101,7 +101,9 @@ class BulkWhatsAppMessage(Document):
             wa_message.use_template = self.use_template
             # Handle template variables if needed
             if self.template_variables:
-                wa_message.template_variables = self.template_variables
+                wa_message.body_param = self.template_variables
+            if self.attach:
+                wa_message.attach = self.attach
         
         # Set status to queued
         wa_message.status = "Queued"
