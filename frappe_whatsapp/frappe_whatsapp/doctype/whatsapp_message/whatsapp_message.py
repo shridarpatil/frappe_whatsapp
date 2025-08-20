@@ -98,11 +98,11 @@ class WhatsAppMessage(Document):
         if template.header_type:
             if self.attach:
                 if template.header_type == 'IMAGE':
+
                     if self.attach.startswith("http"):
                         url = f'{self.attach}'
                     else:
-                        url = f'{frappe.utils.get_url()}{template.sample}'
-                    frappe.log(url)
+                        url = f'{frappe.utils.get_url()}{self.attach}'
                     data['template']['components'].append({
                         "type": "header",
                         "parameters": [{
