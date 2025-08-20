@@ -6,7 +6,7 @@ app.get('/', (req, res) => {
   res.send('HedstApp başarıyla çalışıyor 🎉');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Sunucu ${PORT} portunda çalışıyor`);
 });
