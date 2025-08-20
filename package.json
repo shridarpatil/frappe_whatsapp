@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
+    "build": "echo \"Build script çalıştı\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
