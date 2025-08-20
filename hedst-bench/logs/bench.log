@@ -11,3 +11,32 @@
 2025-08-20 23:07:02,555 LOG setting up backups
 2025-08-20 23:07:02,575 LOG backups were set up
 2025-08-20 23:07:02,575 INFO Bench hedst-bench initialized
+2025-08-20 23:10:39,886 INFO /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp
+2025-08-20 23:10:39,891 WARNING /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp executed with exit code 1
+2025-08-20 23:10:51,540 INFO /home/codespace/.python/current/bin/bench new-site hedst.local --db-name hedstdb --db-host us-west2-001.proxy.kinsta.app --db-port 30375 --mariadb-root-username hedst --mariadb-root-password zP9+fB0=eB5_wZ0=lZ9- --mariadb-user-host-login-scope=%
+2025-08-20 23:11:00,861 INFO /home/codespace/.python/current/bin/bench --site hedst.local install-app frappe_whatsapp
+2025-08-20 23:14:47,720 INFO /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp
+2025-08-20 23:14:47,725 WARNING /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp executed with exit code 1
+2025-08-20 23:14:55,103 INFO /home/codespace/.python/current/bin/bench new-site hedst.local --db-name hedstdb --db-host us-west2-001.proxy.kinsta.app --db-port 30375 --mariadb-root-username hedst --mariadb-root-password zP9+fB0=eB5_wZ0=lZ9- --mariadb-user-host-login-scope=%
+2025-08-20 23:15:03,420 INFO /home/codespace/.python/current/bin/bench --site hedst.local install-app frappe_whatsapp
+2025-08-20 23:21:44,403 INFO /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp
+2025-08-20 23:21:44,408 WARNING /home/codespace/.python/current/bin/bench get-app frappe_whatsapp ../frappe_whatsapp executed with exit code 1
+2025-08-20 23:21:49,216 INFO /home/codespace/.python/current/bin/bench new-site hedst.local --db-name hedstdb --db-host us-west2-001.proxy.kinsta.app --db-port 30375 --mariadb-root-username hedst --mariadb-root-password zP9+fB0=eB5_wZ0=lZ9- --mariadb-user-host-login-scope=%
+2025-08-20 23:21:54,963 INFO /home/codespace/.python/current/bin/bench --site hedst.local install-app frappe_whatsapp
+2025-08-20 23:22:08,540 INFO /home/codespace/.python/current/bin/bench start
+2025-08-20 23:22:09,108 INFO /home/codespace/.python/current/bin/bench watch
+2025-08-20 23:22:09,128 INFO /home/codespace/.python/current/bin/bench worker
+2025-08-20 23:22:09,158 INFO /home/codespace/.python/current/bin/bench serve --port 8000
+2025-08-20 23:22:09,233 INFO /home/codespace/.python/current/bin/bench schedule
+2025-08-20 23:23:19,182 INFO /home/codespace/.python/current/bin/bench start
+2025-08-20 23:23:19,773 INFO /home/codespace/.python/current/bin/bench serve --port 8000
+2025-08-20 23:23:19,789 INFO /home/codespace/.python/current/bin/bench watch
+2025-08-20 23:23:19,818 INFO /home/codespace/.python/current/bin/bench worker
+2025-08-20 23:23:19,918 INFO /home/codespace/.python/current/bin/bench schedule
+2025-08-20 23:23:32,988 INFO /home/codespace/.python/current/bin/bench start
+2025-08-20 23:23:33,471 INFO /home/codespace/.python/current/bin/bench watch
+2025-08-20 23:23:33,575 INFO /home/codespace/.python/current/bin/bench schedule
+2025-08-20 23:23:33,592 INFO /home/codespace/.python/current/bin/bench serve --port 8000
+2025-08-20 23:23:33,649 INFO /home/codespace/.python/current/bin/bench worker
+2025-08-20 23:27:30,474 INFO /home/codespace/.python/current/bin/bench --site hedst.local list-apps
+2025-08-20 23:29:47,905 INFO /home/codespace/.python/current/bin/bench use hedst.local

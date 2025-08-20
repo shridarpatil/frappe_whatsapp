@@ -1,0 +1,17 @@
+2025-08-20 23:22:10,325 Worker rq:worker:d78fdb6c31d0474ca9d150a2b1a1cf40 started with PID 39214, version 1.15.1
+2025-08-20 23:22:10,327 Subscribing to channel rq:pubsub:d78fdb6c31d0474ca9d150a2b1a1cf40
+2025-08-20 23:22:10,329 *** Listening on workspaces-frappe_whatsapp-hedst-bench:short, workspaces-frappe_whatsapp-hedst-bench:default, workspaces-frappe_whatsapp-hedst-bench:long...
+2025-08-20 23:22:10,329 Cleaning registries for queue: workspaces-frappe_whatsapp-hedst-bench:short
+2025-08-20 23:22:10,331 Cleaning registries for queue: workspaces-frappe_whatsapp-hedst-bench:default
+2025-08-20 23:22:10,332 Cleaning registries for queue: workspaces-frappe_whatsapp-hedst-bench:long
+2025-08-20 23:23:18,847 Worker d78fdb6c31d0474ca9d150a2b1a1cf40 [PID 39214]: warm shut down requested
+2025-08-20 23:23:20,926 Worker rq:worker:71f70586d1ad4319a24e5dcae1c207be started with PID 40454, version 1.15.1
+2025-08-20 23:23:20,929 Subscribing to channel rq:pubsub:71f70586d1ad4319a24e5dcae1c207be
+2025-08-20 23:23:20,938 *** Listening on workspaces-frappe_whatsapp-hedst-bench:short, workspaces-frappe_whatsapp-hedst-bench:default, workspaces-frappe_whatsapp-hedst-bench:long...
+2025-08-20 23:23:21,944 Worker 71f70586d1ad4319a24e5dcae1c207be [PID 40454]: warm shut down requested
+2025-08-20 23:23:21,957 Unsubscribing from channel rq:pubsub:71f70586d1ad4319a24e5dcae1c207be
+2025-08-20 23:23:34,811 Worker rq:worker:e433b84ca4f94422ad665824947b5e82 started with PID 41218, version 1.15.1
+2025-08-20 23:23:34,814 Subscribing to channel rq:pubsub:e433b84ca4f94422ad665824947b5e82
+2025-08-20 23:23:34,825 *** Listening on workspaces-frappe_whatsapp-hedst-bench:short, workspaces-frappe_whatsapp-hedst-bench:default, workspaces-frappe_whatsapp-hedst-bench:long...
+2025-08-20 23:24:52,695 Worker e433b84ca4f94422ad665824947b5e82 [PID 41218]: warm shut down requested
+2025-08-20 23:24:52,697 Unsubscribing from channel rq:pubsub:e433b84ca4f94422ad665824947b5e82

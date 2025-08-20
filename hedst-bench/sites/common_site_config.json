@@ -1,5 +1,6 @@
 {
  "background_workers": 1,
+ "default_site": "hedst.local",
  "file_watcher_port": 6787,
  "frappe_user": "codespace",
  "gunicorn_workers": 5,

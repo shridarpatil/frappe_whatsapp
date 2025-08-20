@@ -1,0 +1,7 @@
+{
+ "db_host": "us-west2-001.proxy.kinsta.app",
+ "db_name": "hedstdb",
+ "db_password": "p1quVcDd6dOTJckw",
+ "db_port": 30375,
+ "db_type": "mariadb"
+}
