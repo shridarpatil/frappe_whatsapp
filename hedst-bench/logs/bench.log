@@ -1,0 +1,13 @@
+2025-08-20 23:05:41,420 DEBUG cd hedst-bench && python3 -m venv env
+2025-08-20 23:05:44,421 DEBUG cd hedst-bench && /workspaces/frappe_whatsapp/hedst-bench/env/bin/python -m pip install --quiet --upgrade pip
+2025-08-20 23:05:45,973 DEBUG cd hedst-bench && /workspaces/frappe_whatsapp/hedst-bench/env/bin/python -m pip install --quiet wheel
+2025-08-20 23:05:46,876 LOG Getting frappe
+2025-08-20 23:05:46,876 DEBUG cd hedst-bench/apps && git clone https://github.com/frappe/frappe --branch version-15 --depth 1 --origin upstream
+2025-08-20 23:05:51,202 LOG Installing frappe
+2025-08-20 23:05:51,203 DEBUG cd /workspaces/frappe_whatsapp/hedst-bench && /workspaces/frappe_whatsapp/hedst-bench/env/bin/python -m pip install --quiet --upgrade -e /workspaces/frappe_whatsapp/hedst-bench/apps/frappe 
+2025-08-20 23:06:23,924 DEBUG cd /workspaces/frappe_whatsapp/hedst-bench/apps/frappe && yarn install --check-files
+2025-08-20 23:06:39,339 DEBUG cd hedst-bench && bench build
+2025-08-20 23:06:39,857 INFO /home/codespace/.python/current/bin/bench build
+2025-08-20 23:07:02,555 LOG setting up backups
+2025-08-20 23:07:02,575 LOG backups were set up
+2025-08-20 23:07:02,575 INFO Bench hedst-bench initialized
