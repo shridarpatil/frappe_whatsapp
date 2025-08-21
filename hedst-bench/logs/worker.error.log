@@ -1,0 +1,838 @@
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    sock = self.retry.call_with_retry(    self.run()
+
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+      File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+        return self.main(*args, **kwargs)
+           ^^^^^^response = self._execute(conn, try_read)
+^^^^^^   ^^  ^^  ^  ^ ^ ^ ^ ^ ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+        raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    rv = self.invoke(ctx)
+ return do()
+              ^ ^ ^ ^  ^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+        lambda: command(*args, **kwargs),
+            ^return _process_result(sub_ctx.command.invoke(sub_ctx))^
+^^^^^  ^^  ^^  ^ ^^  ^^  ^^ ^ ^ ^ ^^  ^
+    File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+        if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1046, in teardown
+    self.register_death()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 832, in register_death
+    p.execute()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 2114, in execute
+    conn = self.connection_pool.get_connection("MULTI", self.shard_hint)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1457, in get_connection
+    connection.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return calendar.timegm(datetime.datetime.utcnow().utctimetuple())
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/utils.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  return datetime.datetime.utcnow()
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1799, in run
+    pubsub.get_message(ignore_subscribe_messages=True, timeout=sleep_time)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1690, in get_message
+    response = self.parse_response(block=(timeout is None), timeout=timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1542, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1536, in try_read
+    if not conn.can_read(timeout=timeout):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 861, in can_read
+    return self._parser.can_read(timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 444, in can_read
+    return self.read_from_socket(timeout=timeout, raise_on_timeout=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 455, in read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+Traceback (most recent call last):
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 699, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 700, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 1002, in _connect
+    raise err
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 990, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 114, in <module>
+    main()
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/bench_helper.py", line 20, in main
+    click.Group(commands=commands)(prog_name="bench")
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1830, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/commands/scheduler.py", line 205, in start_worker
+    start_worker(
+  File "/workspaces/frappe_whatsapp/hedst-bench/apps/frappe/frappe/utils/background_jobs.py", line 321, in start_worker
+    worker.work(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 456, in work
+    self.teardown()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 1047, in teardown
+    self.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/rq/worker.py", line 624, in unsubscribe
+    self.pubsub.unsubscribe()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1659, in unsubscribe
+    return self.execute_command("UNSUBSCRIBE", *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1479, in execute_command
+    self._execute(connection, connection.send_command, *args, **kwargs)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1518, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 49, in call_with_retry
+    fail(error)
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1520, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1507, in _disconnect_raise_connect
+    raise error
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/retry.py", line 46, in call_with_retry
+    return do()
+           ^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/client.py", line 1519, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 847, in send_command
+    self.send_packed_command(
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 817, in send_packed_command
+    self.connect()
+  File "/workspaces/frappe_whatsapp/hedst-bench/env/lib/python3.12/site-packages/redis/connection.py", line 705, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to 127.0.0.1:11000. Connection refused.
