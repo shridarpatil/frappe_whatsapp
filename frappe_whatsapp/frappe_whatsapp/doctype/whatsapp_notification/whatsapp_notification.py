@@ -243,6 +243,8 @@ class WhatsAppNotification(Document):
                 "message_type": "Template",
                 "message_id": response['messages'][0]['id'],
                 "content_type": self.content_type,
+                "use_template": 1,
+                "template": self.template
             }
 
             if doc_data:
