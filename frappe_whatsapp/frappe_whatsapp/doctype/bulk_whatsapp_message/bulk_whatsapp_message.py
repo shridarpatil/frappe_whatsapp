@@ -79,7 +79,7 @@ class BulkWhatsAppMessage(Document):
         self.status == "In Progress"
         if recipient.get("recipient_data"):
             try:
-                variables = json.loads(recipient.get("recipient_data", None))
+                variables = json.loads(recipient.get("recipient_data", "{}"))
                 # for var_name, var_value in variables.items():
                 #     message_content = message_content.replace(f"{{{{{var_name}}}}}", str(var_value))
             except Exception as e:
