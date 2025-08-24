@@ -16,6 +16,7 @@
   "section_message",
   "use_template",
   "template",
+  "variable_type",
   "template_variables",
   "attach",
   "section_status",
@@ -138,12 +139,20 @@
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
+  },
+  {
+   "default": "Common",
+   "depends_on": "eval:doc.use_template==1",
+   "fieldname": "variable_type",
+   "fieldtype": "Select",
+   "label": "Variable Type",
+   "options": "Common\nUnique"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-20 15:14:42.048003",
+ "modified": "2025-08-24 11:05:07.017547",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",

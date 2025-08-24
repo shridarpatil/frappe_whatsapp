@@ -79,7 +79,7 @@ class BulkWhatsAppMessage(Document):
         self.status == "In Progress"
         if recipient.get("recipient_data"):
             try:
-                variables = json.loads(recipient.get("recipient_data", "{}"))
+                variables = json.loads(recipient.get("recipient_data", None))
                 # for var_name, var_value in variables.items():
                 #     message_content = message_content.replace(f"{{{{{var_name}}}}}", str(var_value))
             except Exception as e:
@@ -100,7 +100,10 @@ class BulkWhatsAppMessage(Document):
             wa_message.message_type = 'Template'
             wa_message.use_template = self.use_template
             # Handle template variables if needed
-            if self.template_variables:
+
+            if recipient.get("recipient_data") and self.variable_type=='Unique':
+                wa_message.body_param = recipient.get("recipient_data")
+            elif self.template_variables and self.variable_type=='Common':
                 wa_message.body_param = self.template_variables
             if self.attach:
                 wa_message.attach = self.attach
