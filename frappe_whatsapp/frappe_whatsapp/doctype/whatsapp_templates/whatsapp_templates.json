@@ -21,6 +21,10 @@
   "category",
   "language",
   "language_code",
+  "need_button_in_template",
+  "template_buttons_json",
+  "need_dynamic_button_url_parameter",
+  "field_name_for_button_parameter",
   "section_break_lupb",
   "header_type",
   "header",
@@ -146,11 +150,39 @@
    "fieldname": "field_names",
    "fieldtype": "Small Text",
    "label": "Field names"
+  },
+  {
+   "default": "0",
+   "fieldname": "need_dynamic_button_url_parameter",
+   "fieldtype": "Check",
+   "label": "Need Dynamic Button URL Parameter"
+  },
+  {
+   "depends_on": "eval: doc.need_dynamic_button_url_parameter == 1",
+   "fieldname": "field_name_for_button_parameter",
+   "fieldtype": "Small Text",
+   "label": "Field Name For Button Parameter",
+   "mandatory_depends_on": "eval: doc.need_dynamic_button_url_parameter == 1"
+  },
+  {
+   "default": "[\n    {\n        \"type\": \"URL\",\n        \"text\": \"Visit website\",\n        \"url\": \"https://xyz.ptstdm.in/app/lead/{{1}}\",\n        \"example\": [\n            \"https://xyz.ptstdm.in/app/lead/Lead-001\"\n        ]\n    }\n]",
+   "depends_on": "eval: doc.need_button_in_template == 1",
+   "fieldname": "template_buttons_json",
+   "fieldtype": "JSON",
+   "label": "Template Buttons JSON",
+   "mandatory_depends_on": "eval: doc.need_button_in_template == 1"
+  },
+  {
+   "default": "0",
+   "fieldname": "need_button_in_template",
+   "fieldtype": "Check",
+   "label": "Need Button in Template"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 12:22:17.367586",
+ "modified": "2025-08-25 10:23:44.526215",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
@@ -170,6 +202,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
