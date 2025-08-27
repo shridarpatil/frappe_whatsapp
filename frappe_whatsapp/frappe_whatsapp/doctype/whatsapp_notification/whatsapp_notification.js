@@ -77,46 +77,14 @@ frappe.ui.form.on('WhatsApp Notification', {
 		frappe.notification.setup_alerts_button(frm);
 	},
 	template: function (frm) {
-		frm.trigger("load_template")
-
-		// first clear the fields
-		frm.set_value("button_urls", "")
-		frm.clear_table("button_url_fields")
-
-		if (frm.doc.template) {
-			frappe.db.get_value(
-				"WhatsApp Templates",
-				frm.doc.template,
-				["need_button_in_template", "template_buttons_json", "need_dynamic_button_url_parameter", "field_name_for_button_parameter"],
-				(r) => {
-					if (r && r.need_button_in_template) {
-						let button_urls = "";
-						r.template_buttons_json = JSON.parse(r.template_buttons_json)
-						r.template_buttons_json.forEach(btn => {
-							button_urls += btn.url + "\n";
-						});
-						frm.set_value('button_urls', button_urls)
-
-						if (r.need_dynamic_button_url_parameter) {
-							const fields = r.field_name_for_button_parameter.split("\n");
-							// add the fields in child table
-							fields.forEach(field => {
-								frm.add_child("button_url_fields", {
-									field_name: field
-								});
-							});
-						}
-					}
-				}
-			)
-		}
+		frm.trigger("load_template");
 	},
 
 	load_template: function (frm) {
 		frappe.db.get_value(
 			"WhatsApp Templates",
 			frm.doc.template,
-			["template", "header_type"],
+			["template", "header_type", "need_button_in_template", "template_buttons_json", "need_dynamic_button_url_parameter", "field_name_for_button_parameter"],
 			(r) => {
 				if (r && r.template) {
 					frm.set_value('header_type', r.header_type)
@@ -138,6 +106,41 @@ frappe.ui.form.on('WhatsApp Notification', {
 
 					frm.set_value("code", r.template);
 					frm.refresh_field("code")
+				}
+
+				if (r && r.need_button_in_template) {
+					let button_urls = "";
+					r.template_buttons_json = JSON.parse(r.template_buttons_json)
+
+					// Build button URLs string from template buttons
+					r.template_buttons_json.forEach(btn => {
+						button_urls += btn.url + "\n";
+						button_urls = button_urls.trim();
+					});
+
+					// Only update if value changed to keep form clean
+					if (frm.doc.button_urls !== button_urls) {
+						frm.set_value('button_urls', button_urls);
+					}
+
+					if (r.need_dynamic_button_url_parameter) {
+						// Extract potential dynamic fields from template
+						const fields = r.field_name_for_button_parameter ? r.field_name_for_button_parameter.split("\n") : [];
+						let existing_fields = (frm.doc.button_url_fields || []).map(row => row.field_name);
+
+						// Replace only if the field set is different (avoid dirty form)
+						if (JSON.stringify(existing_fields) !== JSON.stringify(fields)) {
+							frm.clear_table("button_url_fields");
+
+							// Populate child table with dynamic fields
+							fields.forEach(field => {
+								frm.add_child("button_url_fields", { field_name: field });
+							});
+						}
+					}
+
+					frm.refresh_field("button_urls");
+					frm.refresh_field("button_url_fields");
 				}
 			}
 		)
