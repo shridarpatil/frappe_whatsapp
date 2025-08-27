@@ -23,6 +23,7 @@
   "conversation_id",
   "content_type",
   "attach",
+  "template_button_parameters",
   "section_break_iyjf",
   "is_reply",
   "reply_to_message_id",
@@ -185,11 +186,17 @@
    "label": "bulk_message_reference"
   },
   {
-    "fieldname": "profile_name",
-    "fieldtype": "Data",
-    "label": "Profile Name",
-    "read_only": 1
-   }
+   "fieldname": "profile_name",
+   "fieldtype": "Data",
+   "label": "Profile Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "template_button_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Button Parameters",
+   "read_only": 1
+  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
