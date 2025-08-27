@@ -26,7 +26,15 @@ class WhatsAppTemplates(Document):
         if not self.need_button_in_template:
             self.template_buttons_json = None
 
-        if not self.is_new():
+        if not self.is_new() and (
+            self.has_value_changed("template") or 
+            self.has_value_changed("sample_values") or 
+            self.has_value_changed("template_buttons_json") or 
+            self.has_value_changed("header_type") or 
+            self.has_value_changed("header") or 
+            self.has_value_changed("footer") or
+            self.has_value_changed("sample")
+        ):
             self.update_template()
 
 

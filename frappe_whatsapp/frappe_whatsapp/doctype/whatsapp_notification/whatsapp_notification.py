@@ -144,6 +144,24 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
+            if self.button_urls and self.button_url_fields:
+                import urllib.parse
+
+                button_field_names = [field.field_name for field in self.button_url_fields]
+                button_parameters = []
+                
+                for field_name in button_field_names:
+                    value = doc.get_formatted(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+                    
+                data["template"]["components"].append({
+                    "type": "button",
+                    "sub_type": "url",
+                    "index": 0,
+                    "parameters": button_parameters
+                })
+
             if self.attach_document_print:
                 # frappe.db.begin()
                 key = doc.get_document_share_key()  # noqa
@@ -236,9 +254,15 @@ class WhatsAppNotification(Document):
                 self.content_type = 'text'
 
             parameters = None
+            button_parameters = None
+
             if data["template"]["components"]:
                 parameters = [param["text"] for param in data["template"]["components"][0]["parameters"]]
                 parameters = frappe.json.dumps(parameters, default=str)
+
+            if data["template"]["components"] and len(data["template"]["components"]) > 1:
+                button_parameters = [param["text"] for param in data["template"]["components"][1]["parameters"]]
+                button_parameters = frappe.json.dumps(button_parameters, default=str)
 
             new_doc = {
                 "doctype": "WhatsApp Message",
@@ -250,7 +274,8 @@ class WhatsAppNotification(Document):
                 "content_type": self.content_type,
                 "use_template": 1,
                 "template": self.template,
-                "template_parameters": parameters
+                "template_parameters": parameters,
+                "template_button_parameters": button_parameters
             }
 
             if doc_data:

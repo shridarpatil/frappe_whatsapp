@@ -50,51 +50,52 @@ frappe.notification = {
 	setup_alerts_button: function (frm) {
 		// body...
 		frm.add_custom_button(__('Get Alerts for Today'), function () {
-            frappe.call({
-                method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications',
-                args: {
-                    method: 'daily' 
-                },
-                callback: function (response) {
-                    if (response.message && response.message.length > 0) {
-                    } else {
-                        frappe.msgprint(__('No alerts for today'));
-                    }
-                },
-                error: function (error) {
-                    frappe.msgprint(__('Failed to trigger notifications'));
-                }
-            });
-        });
+			frappe.call({
+				method: 'frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_notification.whatsapp_notification.call_trigger_notifications',
+				args: {
+					method: 'daily'
+				},
+				callback: function (response) {
+					if (response.message && response.message.length > 0) {
+					} else {
+						frappe.msgprint(__('No alerts for today'));
+					}
+				},
+				error: function (error) {
+					frappe.msgprint(__('Failed to trigger notifications'));
+				}
+			});
+		});
 	}
 };
 
 
 frappe.ui.form.on('WhatsApp Notification', {
-	refresh: function(frm) {
+	refresh: function (frm) {
 		frm.trigger("load_template")
 		frappe.notification.setup_fieldname_select(frm);
 		frappe.notification.setup_alerts_button(frm);
 	},
-	template: function(frm){
-		frm.trigger("load_template")
+	template: function (frm) {
+		frm.trigger("load_template");
 	},
-	load_template: function(frm){
+
+	load_template: function (frm) {
 		frappe.db.get_value(
 			"WhatsApp Templates",
 			frm.doc.template,
-			["template", "header_type"],
+			["template", "header_type", "need_button_in_template", "template_buttons_json", "need_dynamic_button_url_parameter", "field_name_for_button_parameter"],
 			(r) => {
 				if (r && r.template) {
 					frm.set_value('header_type', r.header_type)
 					frm.refresh_field("header_type")
-					if (['DOCUMENT', "IMAGE"].includes(r.header_type)){
+					if (['DOCUMENT', "IMAGE"].includes(r.header_type)) {
 						frm.toggle_display("custom_attachment", true);
 						frm.toggle_display("attach_document_print", true);
-						if (!frm.doc.custom_attachment){
+						if (!frm.doc.custom_attachment) {
 							frm.set_value("attach_document_print", 1)
 						}
-					}else{
+					} else {
 						frm.toggle_display("custom_attachment", false);
 						frm.toggle_display("attach_document_print", false);
 						frm.set_value("attach_document_print", 0)
@@ -106,24 +107,59 @@ frappe.ui.form.on('WhatsApp Notification', {
 					frm.set_value("code", r.template);
 					frm.refresh_field("code")
 				}
+
+				if (r && r.need_button_in_template) {
+					let button_urls = "";
+					r.template_buttons_json = JSON.parse(r.template_buttons_json)
+
+					// Build button URLs string from template buttons
+					r.template_buttons_json.forEach(btn => {
+						button_urls += btn.url + "\n";
+						button_urls = button_urls.trim();
+					});
+
+					// Only update if value changed to keep form clean
+					if (frm.doc.button_urls !== button_urls) {
+						frm.set_value('button_urls', button_urls);
+					}
+
+					if (r.need_dynamic_button_url_parameter) {
+						// Extract potential dynamic fields from template
+						const fields = r.field_name_for_button_parameter ? r.field_name_for_button_parameter.split("\n") : [];
+						let existing_fields = (frm.doc.button_url_fields || []).map(row => row.field_name);
+
+						// Replace only if the field set is different (avoid dirty form)
+						if (JSON.stringify(existing_fields) !== JSON.stringify(fields)) {
+							frm.clear_table("button_url_fields");
+
+							// Populate child table with dynamic fields
+							fields.forEach(field => {
+								frm.add_child("button_url_fields", { field_name: field });
+							});
+						}
+					}
+
+					frm.refresh_field("button_urls");
+					frm.refresh_field("button_url_fields");
+				}
 			}
 		)
 	},
-	custom_attachment: function(frm){
-		if(frm.doc.custom_attachment == 1 &&  ['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)){
+	custom_attachment: function (frm) {
+		if (frm.doc.custom_attachment == 1 && ['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)) {
 			frm.set_df_property('file_name', 'reqd', frm.doc.custom_attachment)
-		}else{
+		} else {
 			frm.set_df_property('file_name', 'reqd', 0)
 		}
 
 		// frm.toggle_display("attach_document_print", !frm.doc.custom_attachment);
-		if(frm.doc.header_type){
+		if (frm.doc.header_type) {
 			frm.set_value("attach_document_print", !frm.doc.custom_attachment)
 		}
 	},
-	attach_document_print: function(frm){
+	attach_document_print: function (frm) {
 		// frm.toggle_display("custom_attachment", !frm.doc.attach_document_print);
-		if(['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)){
+		if (['DOCUMENT', "IMAGE"].includes(frm.doc.header_type)) {
 			frm.set_value("custom_attachment", !frm.doc.attach_document_print)
 		}
 	},
