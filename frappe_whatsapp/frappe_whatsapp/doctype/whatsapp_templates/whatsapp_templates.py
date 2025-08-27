@@ -26,8 +26,8 @@ class WhatsAppTemplates(Document):
         if not self.need_button_in_template:
             self.template_buttons_json = None
 
-        # if not self.is_new():
-        #     self.update_template()
+        if not self.is_new():
+            self.update_template()
 
 
     def get_session_id(self):
