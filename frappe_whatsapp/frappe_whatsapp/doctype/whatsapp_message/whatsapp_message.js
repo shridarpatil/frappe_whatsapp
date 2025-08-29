@@ -12,6 +12,17 @@ frappe.ui.form.on('WhatsApp Message', {
 
 		// add custom button to send read receipt
 		add_mark_as_read(frm);
+	},
+
+	use_template: function(frm){
+		// set to default
+		frm.set_value("message_type", "Manual");
+
+		if (frm.doc.use_template) {
+			frm.set_value("message_type", "Template");
+		}
+
+		frm.refresh_field("message_type");
 	}
 });
 
