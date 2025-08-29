@@ -9,5 +9,29 @@ frappe.ui.form.on('WhatsApp Message', {
 
 			});
 		}
+
+		// add custom button to send read receipt
+		add_mark_as_read(frm);
 	}
 });
+
+// custom button
+function add_mark_as_read(frm){
+	if(frm.doc.type === "Incoming" && frm.doc.status !== "marked as read" && frm.doc.message_id){
+		frm.add_custom_button(__('Mark as read'), function(){
+			send_read_receipt(frm);
+		});
+	}
+}
+
+function send_read_receipt(frm) {
+	frappe.call({
+		doc: frm.doc,
+		method: "send_read_receipt",
+		callback: function(r) {
+			if (r && r.message) {
+				frappe.msgprint(__('Marked as read'));
+			}
+		}
+	});
+}
