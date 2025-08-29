@@ -49,6 +49,8 @@ class WhatsAppMessage(Document):
                 frappe.throw(f"Failed to send message {str(e)}")
         elif self.type == "Outgoing" and self.message_type == "Template" and not self.message_id:
             self.send_template()
+        elif self.type == "Incoming" and self.message_id:
+            self.send_read_receipt()
 
     def send_template(self):
         """Send template."""
@@ -179,7 +181,38 @@ class WhatsAppMessage(Document):
 
         return number
 
+    def send_read_receipt(self):
+        data = {
+            "messaging_product": "whatsapp",
+            "status": "read",
+            "message_id": self.message_id
+        }
 
+        settings = frappe.get_doc(
+            "WhatsApp Settings",
+            "WhatsApp Settings",
+        )
+
+        token = settings.get_password("token")
+
+        headers = {
+            "authorization": f"Bearer {token}",
+            "content-type": "application/json",
+        }
+        try:
+            response = make_post_request(
+                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                headers=headers,
+                data=json.dumps(data),
+            )
+            
+            if not response.get("success"):
+                frappe.log_error("WhatsApp API Error", f"Failed to send read receipt\n{response}")
+
+        except Exception as e:
+            res = frappe.flags.integration_request.json()["error"]
+            error_message = res.get("Error", res.get("message"))
+            frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
 
 def on_doctype_update():
     frappe.db.add_index("WhatsApp Message", ["reference_doctype", "reference_name"])
