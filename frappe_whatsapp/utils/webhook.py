@@ -55,7 +55,7 @@ def post():
 	if messages:
 		for message in messages:
 			message_type = message['type']
-			is_reply = True if message.get('context') else False
+			is_reply = True if message.get('context') and 'forwarded' not in message.get('context') else False
 			reply_to_message_id = message['context']['id'] if is_reply else None
 			if message_type == 'text':
 				frappe.get_doc({
