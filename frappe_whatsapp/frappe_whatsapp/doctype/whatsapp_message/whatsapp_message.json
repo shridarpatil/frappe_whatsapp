@@ -84,6 +84,7 @@
    "fieldname": "template",
    "fieldtype": "Link",
    "label": "Template",
+   "mandatory_depends_on": "eval:doc.use_template == 1",
    "options": "WhatsApp Templates"
   },
   {
@@ -200,7 +201,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-27 14:33:19.339964",
+ "modified": "2025-08-29 10:56:15.570894",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
