@@ -235,6 +235,11 @@ class WhatsAppNotification(Document):
             if not self.get("content_type"):
                 self.content_type = 'text'
 
+            parameters = None
+            if data["template"]["components"]:
+                parameters = [param["text"] for param in data["template"]["components"][0]["parameters"]]
+                parameters = frappe.json.dumps(parameters, default=str)
+
             new_doc = {
                 "doctype": "WhatsApp Message",
                 "type": "Outgoing",
@@ -243,6 +248,9 @@ class WhatsAppNotification(Document):
                 "message_type": "Template",
                 "message_id": response['messages'][0]['id'],
                 "content_type": self.content_type,
+                "use_template": 1,
+                "template": self.template,
+                "template_parameters": parameters
             }
 
             if doc_data:
