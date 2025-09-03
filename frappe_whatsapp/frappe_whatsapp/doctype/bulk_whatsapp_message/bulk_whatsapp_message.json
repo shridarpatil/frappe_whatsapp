@@ -16,7 +16,9 @@
   "section_message",
   "use_template",
   "template",
+  "variable_type",
   "template_variables",
+  "attach",
   "section_status",
   "status",
   "sent_count",
@@ -93,7 +95,6 @@
    "depends_on": "eval:doc.use_template==1",
    "fieldname": "template_variables",
    "fieldtype": "Code",
-   "hidden": 1,
    "label": "Template Variables",
    "options": "JSON"
   },
@@ -132,12 +133,26 @@
    "options": "Bulk WhatsApp Message",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.use_template==1",
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "label": "Attach"
+  },
+  {
+   "default": "Common",
+   "depends_on": "eval:doc.use_template==1",
+   "fieldname": "variable_type",
+   "fieldtype": "Select",
+   "label": "Variable Type",
+   "options": "Common\nUnique"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-03 11:28:42.295568",
+ "modified": "2025-08-24 11:05:07.017547",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",
@@ -173,6 +188,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

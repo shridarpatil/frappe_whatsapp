@@ -23,6 +23,7 @@
   "conversation_id",
   "content_type",
   "attach",
+  "body_param",
   "section_break_iyjf",
   "is_reply",
   "reply_to_message_id",
@@ -138,7 +139,7 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "depends_on": "eval:(doc.content_type =='audio' || doc.content_type =='video' || doc.content_type =='document' || doc.content_type =='image')",
+   "depends_on": "eval:(doc.content_type =='audio' || doc.content_type =='video' || doc.content_type =='document' || doc.content_type =='image' || doc.message_type=='Template')",
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
@@ -185,15 +186,20 @@
    "label": "bulk_message_reference"
   },
   {
-    "fieldname": "profile_name",
-    "fieldtype": "Data",
-    "label": "Profile Name",
-    "read_only": 1
-   }
+   "fieldname": "profile_name",
+   "fieldtype": "Data",
+   "label": "Profile Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "body_param",
+   "fieldtype": "JSON",
+   "label": "Body Param"
+  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-13 12:03:12.896651",
+ "modified": "2025-08-20 15:13:42.233969",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
@@ -213,6 +219,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
