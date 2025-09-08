@@ -1,5 +1,7 @@
 Frappe Whatsapp
 
+![Docs](https://shridarpatil.github.io/frappe_whatsapp/)
+
 WhatsApp integration for frappe. Use directly meta API's without any 3rd party integration.
 
 [![Whatsapp Video](https://img.youtube.com/vi/nq5Kcc5e1oc/0.jpg)](https://www.youtube.com/watch?v=nq5Kcc5e1oc)
