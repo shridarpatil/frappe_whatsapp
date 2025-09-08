@@ -1,6 +1,6 @@
 Frappe Whatsapp
 
-![Docs](https://shridarpatil.github.io/frappe_whatsapp/)
+[Docs](https://shridarpatil.github.io/frappe_whatsapp/)
 
 WhatsApp integration for frappe. Use directly meta API's without any 3rd party integration.
 
