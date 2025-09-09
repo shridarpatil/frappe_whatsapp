@@ -23,6 +23,7 @@
   "conversation_id",
   "content_type",
   "attach",
+  "whatsapp_account",
   "section_break_iyjf",
   "is_reply",
   "reply_to_message_id",
@@ -185,15 +186,21 @@
    "label": "bulk_message_reference"
   },
   {
-    "fieldname": "profile_name",
-    "fieldtype": "Data",
-    "label": "Profile Name",
-    "read_only": 1
-   }
+   "fieldname": "profile_name",
+   "fieldtype": "Data",
+   "label": "Profile Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "whatsapp_account",
+   "fieldtype": "Link",
+   "label": "WhatsApp Account",
+   "options": "WhatsApp Account"
+  }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-13 12:03:12.896651",
+ "modified": "2025-05-26 19:11:27.210717",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
@@ -213,6 +220,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

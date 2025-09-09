@@ -21,6 +21,7 @@
   "category",
   "language",
   "language_code",
+  "whatsapp_account",
   "section_break_lupb",
   "header_type",
   "header",
@@ -146,11 +147,18 @@
    "fieldname": "field_names",
    "fieldtype": "Small Text",
    "label": "Field names"
+  },
+  {
+   "fieldname": "whatsapp_account",
+   "fieldtype": "Link",
+   "label": "WhatsApp Account",
+   "options": "WhatsApp Account"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 12:22:17.367586",
+ "modified": "2025-05-26 21:21:56.662609",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
@@ -170,6 +178,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

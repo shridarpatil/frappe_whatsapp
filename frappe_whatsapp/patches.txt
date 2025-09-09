@@ -1,0 +1,1 @@
+frappe_whatsapp.patches.migrate_to_multi_account

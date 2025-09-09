@@ -10,11 +10,13 @@ from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
 
+from frappe_whatsapp.utils import get_whatsapp_account
 
 class WhatsAppTemplates(Document):
     """Create whatsapp template."""
 
     def validate(self):
+        self.set_whatsapp_account()
         if not self.language_code or self.has_value_changed("language"):
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
@@ -26,6 +28,14 @@ class WhatsAppTemplates(Document):
         if not self.is_new():
             self.update_template()
 
+    def set_whatsapp_account(self):
+        """Set whatsapp account to default if missing"""
+        if not self.whatsapp_account:
+            default_whatsapp_account = get_whatsapp_account()
+            if not default_whatsapp_account:
+                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
+            else:
+                self.whatsapp_account = default_whatsapp_account.name
 
     def get_session_id(self):
         """Upload media."""
@@ -151,7 +161,7 @@ class WhatsAppTemplates(Document):
 
     def get_settings(self):
         """Get whatsapp settings."""
-        settings = frappe.get_doc("WhatsApp Settings", "WhatsApp Settings")
+        settings = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
         self._token = settings.get_password("token")
         self._url = settings.url
         self._version = settings.version
@@ -202,75 +212,77 @@ class WhatsAppTemplates(Document):
 @frappe.whitelist()
 def fetch():
     """Fetch templates from meta."""
+    """Later improve this code to pass a whatsapp account remove the js funcation so that it is called from whatsapp account doctype """
+    whatsapp_accounts = frappe.get_all('WhatsApp Account', filters={'status': 'Active'}, fields=['name', 'token', 'url', 'version', 'business_id'])
 
-    # get credentials
-    settings = frappe.get_doc("WhatsApp Settings", "WhatsApp Settings")
-    token = settings.get_password("token")
-    url = settings.url
-    version = settings.version
-    business_id = settings.business_id
+    for account in whatsapp_accounts:
+        # get credentials
+        token = frappe.get_password('WhatsApp Account', account.name, 'token')
+        url = account.url
+        version = account.version
+        business_id = account.business_id
 
-    headers = {"authorization": f"Bearer {token}", "content-type": "application/json"}
+        headers = {"authorization": f"Bearer {token}", "content-type": "application/json"}
 
-    try:
-        response = make_request(
-            "GET",
-            f"{url}/{version}/{business_id}/message_templates",
-            headers=headers,
-        )
+        try:
+            response = make_request(
+                "GET",
+                f"{url}/{version}/{business_id}/message_templates",
+                headers=headers,
+            )
 
-        for template in response["data"]:
-            # set flag to insert or update
-            flags = 1
-            if frappe.db.exists("WhatsApp Templates", {"actual_name": template["name"]}):
-                doc = frappe.get_doc("WhatsApp Templates", {"actual_name": template["name"]})
-            else:
-                flags = 0
-                doc = frappe.new_doc("WhatsApp Templates")
-                doc.template_name = template["name"]
-                doc.actual_name = template["name"]
+            for template in response["data"]:
+                # set flag to insert or update
+                flags = 1
+                if frappe.db.exists("WhatsApp Templates", {"actual_name": template["name"]}):
+                    doc = frappe.get_doc("WhatsApp Templates", {"actual_name": template["name"]})
+                else:
+                    flags = 0
+                    doc = frappe.new_doc("WhatsApp Templates")
+                    doc.template_name = template["name"]
+                    doc.actual_name = template["name"]
 
-            doc.status = template["status"]
-            doc.language_code = template["language"]
-            doc.category = template["category"]
-            doc.id = template["id"]
+                doc.status = template["status"]
+                doc.language_code = template["language"]
+                doc.category = template["category"]
+                doc.id = template["id"]
 
-            # update components
-            for component in template["components"]:
+                # update components
+                for component in template["components"]:
 
-                # update header
-                if component["type"] == "HEADER":
-                    doc.header_type = component["format"]
+                    # update header
+                    if component["type"] == "HEADER":
+                        doc.header_type = component["format"]
 
-                    # if format is text update sample text
-                    if component["format"] == "TEXT":
-                        doc.header = component["text"]
-                # Update footer text
-                elif component["type"] == "FOOTER":
-                    doc.footer = component["text"]
+                        # if format is text update sample text
+                        if component["format"] == "TEXT":
+                            doc.header = component["text"]
+                    # Update footer text
+                    elif component["type"] == "FOOTER":
+                        doc.footer = component["text"]
 
-                # update template text
-                elif component["type"] == "BODY":
-                    doc.template = component["text"]
-                    if component.get("example"):
-                        doc.sample_values = ",".join(
-                            component["example"]["body_text"][0]
-                        )
+                    # update template text
+                    elif component["type"] == "BODY":
+                        doc.template = component["text"]
+                        if component.get("example"):
+                            doc.sample_values = ",".join(
+                                component["example"]["body_text"][0]
+                            )
 
-            # if document exists update else insert
-            # used db_update and db_insert to ignore hooks
-            if flags:
-                doc.db_update()
-            else:
-                doc.db_insert()
-            frappe.db.commit()
+                # if document exists update else insert
+                # used db_update and db_insert to ignore hooks
+                if flags:
+                    doc.db_update()
+                else:
+                    doc.db_insert()
+                frappe.db.commit()
 
-    except Exception as e:
-        res = frappe.flags.integration_request.json()["error"]
-        error_message = res.get("error_user_msg", res.get("message"))
-        frappe.throw(
-            msg=error_message,
-            title=res.get("error_user_title", "Error"),
-        )
+        except Exception as e:
+            res = frappe.flags.integration_request.json()["error"]
+            error_message = res.get("error_user_msg", res.get("message"))
+            frappe.throw(
+                msg=error_message,
+                title=res.get("error_user_title", "Error"),
+            )
 
-    return "Successfully fetched templates from meta"
+        return "Successfully fetched templates from meta"
