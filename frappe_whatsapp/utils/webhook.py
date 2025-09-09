@@ -155,6 +155,20 @@ def post():
 					"content_type": message_type,
 					"profile_name":sender_profile_name
 				}).insert(ignore_permissions=True)
+			elif message_type == "unsupported":
+				# Handle unsupported messages - save for reference and debugging
+				error_details = message.get('errors', [])
+				
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming", 
+					"from": message['from'],
+					"message": json.dumps(error_details),
+					"message_id": message['id'],
+					"reply_to_message_id": reply_to_message_id,
+					"content_type": message_type,
+					"profile_name": sender_profile_name
+				}).insert(ignore_permissions=True)
 			else:
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",

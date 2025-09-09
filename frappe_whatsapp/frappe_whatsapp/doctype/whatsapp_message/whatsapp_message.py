@@ -4,6 +4,7 @@ import json
 import frappe
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
+import urllib.parse
 
 
 class WhatsAppMessage(Document):
@@ -107,7 +108,34 @@ class WhatsAppMessage(Document):
                             "link": url
                         }
                     }]
-                })
+            })
+
+        if template.need_dynamic_button_url_parameter:
+            button_field_names = template.field_name_for_button_parameter.split(",")
+            button_parameters = []
+            template_button_parameters = []
+            if self.flags.custom_ref_doc:
+                custom_values = self.flags.custom_ref_doc
+                for field_name in button_field_names:
+                    value = custom_values.get(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+                    template_button_parameters.append(value)
+            else:
+                ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
+                for field_name in button_field_names:
+                    value = ref_doc.get_formatted(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+                    template_button_parameters.append(value)
+            self.template_button_parameters = json.dumps(template_button_parameters)
+            data["template"]["components"].append({
+                "type": "button",
+                "sub_type": "url",
+                "index": 0,
+                "parameters": button_parameters
+            })
+
 
         self.notify(data)
 

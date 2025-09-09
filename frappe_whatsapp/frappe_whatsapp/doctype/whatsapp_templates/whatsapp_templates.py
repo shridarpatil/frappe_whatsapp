@@ -23,6 +23,9 @@ class WhatsAppTemplates(Document):
             self.get_session_id()
             self.get_media_id()
 
+        if not self.need_button_in_template:
+            self.template_buttons_json = None
+
         if not self.is_new():
             self.update_template()
 
@@ -101,6 +104,10 @@ class WhatsAppTemplates(Document):
         if self.footer:
             data["components"].append({"type": "FOOTER", "text": self.footer})
 
+        # add buttons
+        if self.need_button_in_template:
+            data["components"].append({"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)})
+
         try:
             response = make_post_request(
                 f"{self._url}/{self._version}/{self._business_id}/message_templates",
@@ -134,6 +141,8 @@ class WhatsAppTemplates(Document):
             data["components"].append(self.get_header())
         if self.footer:
             data["components"].append({"type": "FOOTER", "text": self.footer})
+        if self.need_button_in_template:
+            data["components"].append({"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)})
         try:
             # post template to meta for update
             make_post_request(
@@ -163,7 +172,7 @@ class WhatsAppTemplates(Document):
             "content-type": "application/json",
         }
 
-    def on_trash(self):
+    def after_delete(self):
         self.get_settings()
         url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
         try:
@@ -256,6 +265,12 @@ def fetch():
                         doc.sample_values = ",".join(
                             component["example"]["body_text"][0]
                         )
+                
+                # update template button text
+                elif component["type"] == "BUTTONS":
+                    button_json = component["buttons"]
+                    doc.need_button_in_template = 1
+                    doc.template_buttons_json = json.dumps(button_json, indent=4)
 
             # if document exists update else insert
             # used db_update and db_insert to ignore hooks
