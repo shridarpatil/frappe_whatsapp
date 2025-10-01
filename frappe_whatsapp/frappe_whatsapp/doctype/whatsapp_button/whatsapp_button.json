@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-09-03 20:37:30.105094",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "button_type",
+  "button_label",
+  "sequence",
+  "is_active",
+  "phone_number",
+  "website_url",
+  "example_url",
+  "url_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "button_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Button Type",
+   "options": "Quick Reply\nCall Phone\nVisit Website",
+   "reqd": 1
+  },
+  {
+   "fieldname": "button_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Button Label",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.button_type == \"Call Phone\"",
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "depends_on": "eval:doc.button_type == \"Visit Website\"",
+   "fieldname": "website_url",
+   "fieldtype": "Data",
+   "label": "Website URL"
+  },
+  {
+   "depends_on": "eval:doc.button_type == \"Visit Website\"",
+   "fieldname": "url_type",
+   "fieldtype": "Select",
+   "label": "URL Type",
+   "options": "Static\nDynamic"
+  },
+  {
+   "depends_on": "eval:doc.button_type == \"Visit Website\"",
+   "fieldname": "example_url",
+   "fieldtype": "Data",
+   "label": "Example URL"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-09-09 02:32:30.359644",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Button",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
