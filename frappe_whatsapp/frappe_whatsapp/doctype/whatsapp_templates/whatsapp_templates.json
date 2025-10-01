@@ -26,7 +26,9 @@
   "header",
   "sample",
   "column_break_tbvf",
-  "footer"
+  "footer",
+  "section_break_wu2vp",
+  "buttons"
  ],
  "fields": [
   {
@@ -146,11 +148,21 @@
    "fieldname": "field_names",
    "fieldtype": "Small Text",
    "label": "Field names"
+  },
+  {
+   "fieldname": "buttons",
+   "fieldtype": "Table",
+   "label": "Buttons",
+   "options": "WhatsApp Button"
+  },
+  {
+   "fieldname": "section_break_wu2vp",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 12:22:17.367586",
+ "modified": "2025-09-03 20:39:48.979892",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",
