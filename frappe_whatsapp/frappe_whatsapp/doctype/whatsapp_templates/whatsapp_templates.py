@@ -198,7 +198,6 @@ class WhatsAppTemplates(Document):
 
         return header
 
-
 @frappe.whitelist()
 def fetch():
     """Fetch templates from meta."""
@@ -253,9 +252,11 @@ def fetch():
                 elif component["type"] == "BODY":
                     doc.template = component["text"]
                     if component.get("example"):
-                        doc.sample_values = ",".join(
-                            component["example"]["body_text"][0]
-                        )
+			# Check if 'body_text' exists before trying to access it
+                        if component["example"].get("body_text"):
+	                        doc.sample_values = ",".join(
+        	                    component["example"]["body_text"][0]
+                	        )
 
             # if document exists update else insert
             # used db_update and db_insert to ignore hooks
@@ -264,13 +265,21 @@ def fetch():
             else:
                 doc.db_insert()
             frappe.db.commit()
+        return "Successfully fetched templates from meta"
 
     except Exception as e:
-        res = frappe.flags.integration_request.json()["error"]
-        error_message = res.get("error_user_msg", res.get("message"))
-        frappe.throw(
-            msg=error_message,
-            title=res.get("error_user_title", "Error"),
-        )
-
-    return "Successfully fetched templates from meta"
+        # Check if frappe.flags.integration_request is set and has a .json() method
+        if hasattr(frappe.flags.integration_request, 'json'):
+            try:
+                res = frappe.flags.integration_request.json()["error"]
+                error_message = res.get("error_user_msg", res.get("message"))
+                frappe.throw(
+                    msg=error_message,
+                    title=res.get("error_user_title", "Error"),
+                )
+            except (json.JSONDecodeError, KeyError):
+                # Handle cases where the response is not valid JSON or lacks the 'error' key
+                frappe.throw(f"An unexpected error occurred while fetching templates: {e}")
+        else:
+            # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
+            frappe.throw(f"An unexpected server error occurred: {e}")
