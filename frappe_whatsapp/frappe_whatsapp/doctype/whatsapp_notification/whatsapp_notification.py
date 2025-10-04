@@ -260,7 +260,7 @@ class WhatsAppNotification(Document):
                 parameters = [param["text"] for param in data["template"]["components"][0]["parameters"]]
                 parameters = frappe.json.dumps(parameters, default=str)
 
-            if data["template"]["components"] and len(data["template"]["components"]) > 1:
+            if data["template"]["components"] and any(component["type"] == "button" for component in data["template"]["components"]):
                 button_parameters = [param["text"] for param in data["template"]["components"][1]["parameters"]]
                 button_parameters = frappe.json.dumps(button_parameters, default=str)
 
