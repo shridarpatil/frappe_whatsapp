@@ -100,8 +100,13 @@ class BulkWhatsAppMessage(Document):
             wa_message.message_type = 'Template'
             wa_message.use_template = self.use_template
             # Handle template variables if needed
-            if self.template_variables:
-                wa_message.template_variables = self.template_variables
+
+            if recipient.get("recipient_data") and self.variable_type=='Unique':
+                wa_message.body_param = recipient.get("recipient_data")
+            elif self.template_variables and self.variable_type=='Common':
+                wa_message.body_param = self.template_variables
+            if self.attach:
+                wa_message.attach = self.attach
         
         # Set status to queued
         wa_message.status = "Queued"

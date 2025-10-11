@@ -24,6 +24,7 @@
   "content_type",
   "attach",
   "template_button_parameters",
+  "body_param",
   "section_break_iyjf",
   "is_reply",
   "reply_to_message_id",
@@ -140,7 +141,7 @@
   },
   {
    "allow_in_quick_entry": 1,
-   "depends_on": "eval:(doc.content_type =='audio' || doc.content_type =='video' || doc.content_type =='document' || doc.content_type =='image')",
+   "depends_on": "eval:(doc.content_type =='audio' || doc.content_type =='video' || doc.content_type =='document' || doc.content_type =='image' || doc.message_type=='Template')",
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
@@ -197,6 +198,11 @@
    "fieldtype": "Small Text",
    "label": "Template Button Parameters",
    "read_only": 1
+  },
+  {
+   "fieldname": "body_param",
+   "fieldtype": "JSON",
+   "label": "Body Param"
   }
  ],
  "index_web_pages_for_search": 1,
