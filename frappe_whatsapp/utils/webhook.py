@@ -2,7 +2,7 @@
 import frappe
 import json
 import requests
-import time
+from frappe.utils.password import get_decrypted_password
 from werkzeug.wrappers import Response
 import frappe.utils
 
@@ -18,9 +18,7 @@ def webhook():
 def get():
 	"""Get."""
 	hub_challenge = frappe.form_dict.get("hub.challenge")
-	webhook_verify_token = frappe.db.get_single_value(
-		"WhatsApp Settings", "webhook_verify_token"
-	)
+	webhook_verify_token = get_decrypted_password("WhatsApp Settings", "WhatsApp Settings", "webhook_verify_token")
 
 	if frappe.form_dict.get("hub.verify_token") != webhook_verify_token:
 		frappe.throw("Verify token does not match")
