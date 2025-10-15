@@ -87,6 +87,8 @@ def post():
 					"from": message['from'],
 					"message": message['interactive']['nfm_reply']['response_json'],
 					"message_id": message['id'],
+					"reply_to_message_id": reply_to_message_id,
+					"is_reply": is_reply,
 					"content_type": "flow",
 					"profile_name":sender_profile_name
 				}).insert(ignore_permissions=True)
