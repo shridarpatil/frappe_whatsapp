@@ -98,10 +98,7 @@ class WhatsAppNotification(Document):
             ):
                 return
 
-        template = default_template or frappe.db.get_value(
-            "WhatsApp Templates", self.template,
-            fieldname='*'
-        )
+        template = default_template or frappe.get_doc("WhatsApp Templates", self.template)
 
         if template:
             if self.field_name:
@@ -211,6 +208,20 @@ class WhatsAppNotification(Document):
                     }]
                 })
             self.content_type = template.header_type.lower()
+
+            if template.buttons:
+                button_fields = self.button_fields.split(",") if self.button_fields else []
+                for idx, btn in enumerate(template.buttons):
+                    if btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
+                        if button_fields:
+                            data['template']['components'].append({
+                                "type": "button",
+                                "sub_type": "url",
+                                "index": str(idx),
+                                "parameters": [
+                                    {"type": "text", "text": doc.get(button_fields.pop(0))}
+                                ]
+                            })
 
             self.notify(data, doc_data)
 

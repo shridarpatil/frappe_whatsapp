@@ -28,6 +28,7 @@
   "condition",
   "column_break_12",
   "fields",
+  "button_fields",
   "property_section",
   "set_property_after_alert",
   "property_value",
@@ -208,11 +209,17 @@
    "label": "Notification Name",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "description": "fields to replace button variables, separated by comma",
+   "fieldname": "button_fields",
+   "fieldtype": "Data",
+   "label": "Button Fields"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-03 11:30:47.397819",
+ "modified": "2025-09-18 02:11:52.149544",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
