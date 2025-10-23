@@ -101,6 +101,27 @@ class WhatsAppTemplates(Document):
         if self.footer:
             data["components"].append({"type": "FOOTER", "text": self.footer})
 
+        # add buttons
+        if self.buttons:
+            button_block = {"type": "BUTTONS", "buttons": []}
+            for btn in self.buttons:
+                b = {"type": btn.button_type, "text": btn.button_label}
+
+                if btn.button_type == "Visit Website":
+                    b["type"] = "URL"
+                    b["url"] = btn.website_url
+                    if btn.url_type == "Dynamic" and btn.example_url:
+                        b["example"] = btn.example_url.split(",")
+                elif btn.button_type == "Call Phone":
+                    b["type"] = "PHONE_NUMBER"
+                    b["phone_number"] = btn.phone_number
+                elif btn.button_type == "Quick Reply":
+                    b["type"] = "QUICK_REPLY"
+
+                button_block["buttons"].append(b)
+
+            data["components"].append(button_block)
+
         try:
             response = make_post_request(
                 f"{self._url}/{self._version}/{self._business_id}/message_templates",
@@ -134,6 +155,26 @@ class WhatsAppTemplates(Document):
             data["components"].append(self.get_header())
         if self.footer:
             data["components"].append({"type": "FOOTER", "text": self.footer})
+        if self.buttons:
+            button_block = {"type": "BUTTONS", "buttons": []}
+            for btn in self.buttons:
+                b = {"type": btn.button_type, "text": btn.button_label}
+
+                if btn.button_type == "Visit Website":
+                    b["type"] = "URL"
+                    b["url"] = btn.website_url
+                    if btn.url_type == "Dynamic" and btn.example_url:
+                        b["example"] = btn.example_url.split(",")
+                elif btn.button_type == "Call Phone":
+                    b["type"] = "PHONE_NUMBER"
+                    b["phone_number"] = btn.phone_number
+                elif btn.button_type == "Quick Reply":
+                    b["type"] = "QUICK_REPLY"
+
+                button_block["buttons"].append(b)
+
+            data["components"].append(button_block)
+            
         try:
             # post template to meta for update
             make_post_request(
@@ -252,19 +293,44 @@ def fetch():
                 elif component["type"] == "BODY":
                     doc.template = component["text"]
                     if component.get("example"):
-			# Check if 'body_text' exists before trying to access it
+			            # Check if 'body_text' exists before trying to access it
                         if component["example"].get("body_text"):
-	                        doc.sample_values = ",".join(
+                            doc.sample_values = ",".join(
         	                    component["example"]["body_text"][0]
                 	        )
+  
+                # Update buttons
+                elif component["type"] == "BUTTONS":
+                    doc.set("buttons", [])
+                    frappe.db.delete("WhatsApp Button", {"parent": doc.name, "parenttype": "WhatsApp Templates"})
+                    typeMap = {
+                        "URL": "Visit Website",
+                        "PHONE_NUMBER": "Call Phone",
+                        "QUICK_REPLY": "Quick Reply"
+                    }
 
-            # if document exists update else insert
-            # used db_update and db_insert to ignore hooks
-            if flags:
-                doc.db_update()
-            else:
-                doc.db_insert()
-            frappe.db.commit()
+                    for i, button in enumerate(component.get("buttons", []), start=1):
+                        btn = {}
+                        btn["button_type"] = typeMap[button["type"]]
+                        btn["button_label"] = button.get("text")
+                        btn["sequence"] = i
+
+                        if button["type"] == "URL":
+                            btn["website_url"] = button.get("url")
+                            if "{{" in btn["website_url"]:
+                                btn["url_type"] = "Dynamic"
+                            else:
+                                btn["url_type"] = "Static"
+                                
+                            if button.get("example"):
+                                btn["example_url"] = ",".join(button["example"])
+                        elif button["type"] == "PHONE_NUMBER":
+                            btn["phone_number"] = button.get("phone_number")
+                        
+                        doc.append("buttons", btn)
+            
+            upsert_doc_without_hooks(doc, "WhatsApp Button", "buttons")
+
         return "Successfully fetched templates from meta"
 
     except Exception as e:
@@ -283,3 +349,17 @@ def fetch():
         else:
             # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
             frappe.throw(f"An unexpected server error occurred: {e}")
+
+def upsert_doc_without_hooks(doc, child_dt, child_field):
+    """Insert or update a parent document and its children without hooks."""
+    if frappe.db.exists(doc.doctype, doc.name):
+        doc.db_update()
+        frappe.db.delete(child_dt, {"parent": doc.name, "parenttype": doc.doctype})
+    else:
+        doc.db_insert()
+    for d in doc.get(child_field):
+        d.parent = doc.name
+        d.parenttype = doc.doctype
+        d.parentfield = child_field
+        d.db_insert()
+    frappe.db.commit()
