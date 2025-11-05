@@ -1,19 +1,17 @@
+"""This script is used to package `kreo_whats2` Frappe application.
+
+It uses setuptools to define package metadata and find all necessary
+packages and data files for distribution. This allows app to be installed,
+upgraded, and uninstalled using standard Python packaging tools.
+"""
 from setuptools import setup, find_packages
 
-with open("requirements.txt") as f:
-    install_requires = f.read().strip().split("\n")
-
-# get version from __version__ variable in frappe_whatsapp/__init__.py
-from frappe_whatsapp import __version__ as version
-
 setup(
-    name="frappe_whatsapp",
-    version=version,
-    description="WhatsApp integration for frappe",
-    author="Shridhar Patil",
-    author_email="shrip.dev@gmail.com",
+    name="kreo_whats2",
+    version="1.0.0",
+    description="WhatsApp integration for Kreo project.",
+    author="Kreo",
     packages=find_packages(),
-    zip_safe=False,
     include_package_data=True,
-    install_requires=install_requires
+    zip_safe=False,
 )
