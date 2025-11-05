@@ -1,0 +1,313 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "Prompt",
+ "creation": "2025-10-27 17:13:00.000000",
+ "description": "Configuración de WhatsApp Business API para integración con KREO",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb0",
+  "api_credentials_section",
+  "webhook_configuration_section",
+  "rate_limiting_section",
+  "template_configuration_section",
+  "monitoring_section",
+  "sb1",
+  "enabled",
+  "sb2",
+  "test_mode",
+  "sb3",
+  "logging_section"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb0",
+   "fieldtype": "Section Break",
+   "label": "Configuración Principal"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Habilitar WhatsApp"
+  },
+  {
+   "fieldname": "api_credentials_section",
+   "fieldtype": "Section Break",
+   "label": "Credenciales Meta Business API"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "reqd": 1,
+   "description": "Token de acceso permanente de Meta Business API"
+  },
+  {
+   "fieldname": "phone_number_id",
+   "fieldtype": "Data",
+   "label": "Phone Number ID",
+   "reqd": 1,
+   "description": "ID del número de teléfono verificado en Meta Business"
+  },
+  {
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Data",
+   "label": "Webhook Verify Token",
+   "reqd": 1,
+   "description": "Token de verificación para webhook de WhatsApp"
+  },
+  {
+   "fieldname": "app_id",
+   "fieldtype": "Data",
+   "label": "App ID",
+   "reqd": 1,
+   "description": "ID de la aplicación en Meta Developers"
+  },
+  {
+   "fieldname": "app_secret",
+   "fieldtype": "Password",
+   "label": "App Secret",
+   "reqd": 1,
+   "description": "Secreto de la aplicación en Meta Developers"
+  },
+  {
+   "fieldname": "webhook_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Webhooks"
+  },
+  {
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL",
+   "default": "https://kreo.localhost/api/method/kreo_whats2.webhook",
+   "description": "URL del webhook para recibir mensajes de WhatsApp"
+  },
+  {
+   "fieldname": "ngrok_enabled",
+   "fieldtype": "Check",
+   "label": "Usar Ngrok para Desarrollo",
+   "default": "1",
+   "description": "Habilitar túnel Ngrok para desarrollo local"
+  },
+  {
+   "fieldname": "ngrok_authtoken",
+   "fieldtype": "Password",
+   "label": "Ngrok Authtoken",
+   "description": "Token de autenticación de Ngrok para desarrollo local"
+  },
+  {
+   "fieldname": "ngrok_subdomain",
+   "fieldtype": "Data",
+   "label": "Subdominio Ngrok",
+   "description": "Subdominio personalizado para el túnel Ngrok"
+  },
+  {
+   "fieldname": "auto_register_webhook",
+   "fieldtype": "Check",
+   "label": "Registrar Webhook Automáticamente",
+   "default": "1",
+   "description": "Registrar webhook automáticamente cuando se inicie Ngrok"
+  },
+  {
+   "fieldname": "ngrok_url",
+   "fieldtype": "Data",
+   "label": "Ngrok URL",
+   "description": "URL pública de Ngrok para desarrollo local"
+  },
+  {
+   "fieldname": "webhook_registered",
+   "fieldtype": "Check",
+   "label": "Webhook Registrado",
+   "read_only": 1,
+   "description": "Indica si el webhook está registrado con Meta API"
+  },
+  {
+   "fieldname": "webhook_registration_date",
+   "fieldtype": "Datetime",
+   "label": "Fecha de Registro del Webhook",
+   "read_only": 1,
+   "description": "Fecha y hora cuando se registró el webhook"
+  },
+  {
+   "fieldname": "rate_limiting_section",
+   "fieldtype": "Section Break",
+   "label": "Control de Tasa (Rate Limiting)"
+  },
+  {
+   "default": "10",
+   "fieldname": "rate_limit_per_second",
+   "fieldtype": "Int",
+   "label": "Límite de Mensajes por Segundo",
+   "description": "Máximo de mensajes por segundo (recomendado: 10)"
+  },
+  {
+   "default": "100",
+   "fieldname": "concurrent_messages_limit",
+   "fieldtype": "Int",
+   "label": "Límite de Mensajes Concurrentes",
+   "description": "Máximo de mensajes simultáneos (recomendado: 100)"
+  },
+  {
+   "default": "1000",
+   "fieldname": "queue_size_limit",
+   "fieldtype": "Int",
+   "label": "Tamaño Máximo de Cola",
+   "description": "Máximo de mensajes en cola (recomendado: 1000)"
+  },
+  {
+   "fieldname": "template_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Plantillas"
+  },
+  {
+   "fieldname": "factura_emitida_template",
+   "fieldtype": "Text",
+   "label": "Plantilla Factura Emitida",
+   "description": "Plantilla para notificación de facturas emitidas",
+   "options": "Factura #{invoice_number}\n\nMonto: {amount} {currency}\n\nVence: {due_date}\n\nVer detalles: {invoice_url}"
+  },
+  {
+   "fieldname": "recordatorio_pago_template",
+   "fieldtype": "Text",
+   "label": "Plantilla Recordatorio de Pago",
+   "description": "Plantilla para recordatorios de pago",
+   "options": "Recordatorio de pago\n\nFactura: #{invoice_number}\n\nMonto pendiente: {amount} {currency}\n\nFecha de vencimiento: {due_date}\n\nPagar ahora: {payment_url}"
+  },
+  {
+   "fieldname": "bienvenida_lead_template",
+   "fieldtype": "Text",
+   "label": "Plantilla Bienvenida Lead",
+   "description": "Plantilla para mensaje de bienvenida a nuevos leads",
+   "options": "¡Bienvenido a KREO!\n\nGracias por tu interés en {product_name}.\n\nTe atenderá pronto: {contact_name}\n\nTeléfono: {phone}"
+  },
+  {
+   "fieldname": "monitoring_section",
+   "fieldtype": "Section Break",
+   "label": "Monitoreo y Logging"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_detailed_logging",
+   "fieldtype": "Check",
+   "label": "Habilitar Logging Detallado"
+  },
+  {
+   "default": "INFO",
+   "fieldname": "log_level",
+   "fieldtype": "Select",
+   "label": "Nivel de Log",
+   "options": "DEBUG\nINFO\nWARNING\nERROR\nCRITICAL"
+  },
+  {
+   "default": "30",
+   "fieldname": "health_check_interval",
+   "fieldtype": "Int",
+   "label": "Intervalo Health Check (segundos)",
+   "description": "Intervalo en segundos para verificaciones de salud del servicio"
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "test_mode",
+   "fieldtype": "Check",
+   "label": "Modo de Prueba"
+  },
+  {
+   "fieldname": "sb2",
+   "fieldtype": "Section Break",
+   "label": "Configuración Avanzada"
+  },
+  {
+   "default": "3600",
+   "fieldname": "message_timeout",
+   "fieldtype": "Int",
+   "label": "Timeout de Mensaje (segundos)",
+   "description": "Tiempo máximo de espera para respuesta de mensaje"
+  },
+  {
+   "default": "3",
+   "fieldname": "max_retry_attempts",
+   "fieldtype": "Int",
+   "label": "Máximo de Intentos de Reintento",
+   "description": "Número máximo de intentos de envío fallido"
+  },
+  {
+   "fieldname": "sb3",
+   "fieldtype": "Section Break",
+   "label": "Integración con Redis"
+  },
+  {
+   "default": "redis://redis-queue:6379/1",
+   "fieldname": "redis_queue_url",
+   "fieldtype": "Data",
+   "label": "Redis Queue URL",
+   "description": "URL de Redis para procesamiento de cola de mensajes"
+  },
+  {
+   "default": "kreo_whatsapp_queue",
+   "fieldname": "redis_queue_name",
+   "fieldtype": "Data",
+   "label": "Nombre de Cola Redis",
+   "description": "Nombre de la cola en Redis para mensajes WhatsApp"
+  },
+  {
+   "fieldname": "logging_section",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Logging"
+  },
+  {
+   "default": "logs/whatsapp",
+   "fieldname": "log_file_path",
+   "fieldtype": "Data",
+   "label": "Ruta de Archivos de Log",
+   "description": "Ruta donde se guardarán los logs de WhatsApp"
+  }
+ ],
+ "icon": "fa fa-whatsapp",
+ "idx": 1,
+ "issingle": 1,
+ "module": "KREO WhatsApp",
+ "name": "WhatsApp Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 0,
+   "print": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "write": 0
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 0,
+   "print": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "write": 0
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

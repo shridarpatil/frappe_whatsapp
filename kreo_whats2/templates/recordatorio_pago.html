@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio de Pago - {{ customer_name }}</title>
+    <style>
+        /* Estilos inline para compatibilidad con WhatsApp */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .alert-box h2 {
+            margin: 0 0 10px 0;
+            color: #856404;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .alert-box p {
+            margin: 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        .invoice-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff6b6b;
+        }
+        .invoice-info h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff6b6b;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        .due-date {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .due-date strong {
+            color: #721c24;
+        }
+        .days-overdue {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .days-overdue span {
+            font-weight: 600;
+            color: #0c5460;
+        }
+        .actions {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 5px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border: 1px solid #ff6b6b;
+        }
+        .btn-secondary {
+            background-color: #128C7E;
+            color: white;
+            border: 1px solid #128C7E;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+            border: 1px solid #ffc107;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .btn {
+                display: block;
+                margin: 10px auto;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <div class="header">
+            <h1>⚠️ Recordatorio de Pago</h1>
+            <p>Estimado/a {{ customer_name }}</p>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Alerta de vencimiento -->
+            <div class="alert-box">
+                <h2>Factura por Vencer</h2>
+                <p>Esta factura ha superado su fecha de vencimiento. Por favor realice el pago lo antes posible para evitar cargos adicionales.</p>
+            </div>
+
+            <!-- Información de la factura -->
+            <div class="invoice-info">
+                <h3>Detalles de la factura vencida</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Número de Factura</div>
+                        <div class="info-value">{{ invoice_number }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Monto Pendiente</div>
+                        <div class="info-value">{{ currency }} {{ amount }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Fecha de Vencimiento</div>
+                        <div class="info-value">{{ due_date }}</div>
+                    </div>
+                    {% if days_overdue %}
+                    <div class="info-item">
+                        <div class="info-label">Días de Retraso</div>
+                        <div class="info-value">{{ days_overdue }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Monto total -->
+            <div class="amount">
+                {{ currency }} {{ amount }}
+            </div>
+
+            <!-- Fecha de vencimiento -->
+            {% if due_date %}
+            <div class="due-date">
+                <strong>Fecha de Vencimiento: {{ due_date }}</strong>
+            </div>
+            {% endif %}
+
+            <!-- Días de retraso -->
+            {% if days_overdue and days_overdue > 0 %}
+            <div class="days-overdue">
+                <span>⚠️ Factura vencida hace {{ days_overdue }} día{{ days_overdue > 1 and "s" or "" }}</span>
+            </div>
+            {% endif %}
+
+            <!-- Botones de acción -->
+            <div class="actions">
+                {% if payment_url %}
+                <a href="{{ payment_url }}" class="btn btn-primary">Realizar Pago</a>
+                {% endif %}
+                {% if invoice_url %}
+                <a href="{{ invoice_url }}" class="btn btn-secondary">Ver Factura</a>
+                {% endif %}
+                {% if reschedule_url %}
+                <a href="{{ reschedule_url }}" class="btn btn-warning">Reprogramar Pago</a>
+                {% endif %}
+            </div>
+
+            <!-- Mensaje personalizado -->
+            {% if custom_message %}
+            <div style="background-color: #e7f3ff; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: center;">
+                <p style="margin: 0; color: #0c5460; font-size: 14px;">{{ custom_message }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Información de penalización -->
+            {% if penalty_info %}
+            <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: center;">
+                <p style="margin: 0; color: #721c24; font-size: 12px;">{{ penalty_info }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            <p>Gracias por su atención</p>
+            <p>Para soporte: {{ support_email or "soporte@kreo.com.co" }}</p>
+            <p style="font-size: 10px; color: #adb5bd; margin-top: 10px;">
+                Este es un mensaje automático generado por nuestro sistema CRM.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

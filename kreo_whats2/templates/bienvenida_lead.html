@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenida - {{ lead_name }}</title>
+    <style>
+        /* Estilos inline para compatibilidad con WhatsApp */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #4ecdc4, #2ab7ca);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .welcome-box {
+            background-color: #e8f5e8;
+            border: 2px solid #a3d9a3;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .welcome-box h2 {
+            margin: 0 0 10px 0;
+            color: #2d5016;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .welcome-box p {
+            margin: 0;
+            color: #2d5016;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .company-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4ecdc4;
+        }
+        .company-info h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .service-item {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        .service-icon {
+            font-size: 18px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .service-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .contact-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .contact-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+        .actions {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 5px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #4ecdc4;
+            color: white;
+            border: 1px solid #4ecdc4;
+        }
+        .btn-secondary {
+            background-color: #2ab7ca;
+            color: white;
+            border: 1px solid #2ab7ca;
+        }
+        .testimonials {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .testimonial {
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border-left: 3px solid #4ecdc4;
+        }
+        .testimonial-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin: 0;
+        }
+        .testimonial-author {
+            font-size: 10px;
+            color: #2c3e50;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .btn {
+                display: block;
+                margin: 10px auto;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <div class="header">
+            <h1>🎉 Bienvenido/a</h1>
+            <p>Estimado/a {{ lead_name }}</p>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Mensaje de bienvenida -->
+            <div class="welcome-box">
+                <h2>¡Gracias por contactarnos!</h2>
+                <p>Estamos encantados de que haya mostrado interés en nuestros servicios. En {{ company_name or "KREO" }} nos esforzamos por ofrecer soluciones de alta calidad y un servicio al cliente excepcional.</p>
+            </div>
+
+            <!-- Información de la empresa -->
+            <div class="company-info">
+                <h3>¿Por qué elegirnos?</h3>
+                <div class="services-grid">
+                    <div class="service-item">
+                        <span class="service-icon">⭐</span>
+                        <div class="service-name">Calidad Garantizada</div>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-icon">⚡</span>
+                        <div class="service-name">Entrega Rápida</div>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-icon">🔒</span>
+                        <div class="service-name">Seguridad Total</div>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-icon">📞</span>
+                        <div class="service-name">Soporte 24/7</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="contact-info">
+                <p><strong>¿Tiene preguntas?</strong> Nuestro equipo está listo para ayudarle.</p>
+                <p>📧 {{ support_email or "soporte@kreo.com.co" }}</p>
+                <p>📞 {{ support_phone or "+57 123 456 7890" }}</p>
+            </div>
+
+            <!-- Testimonios -->
+            {% if testimonials %}
+            <div class="testimonials">
+                <h4 style="margin-top: 0; color: #2c3e50; font-size: 14px;">Lo que dicen nuestros clientes:</h4>
+                {% for testimonial in testimonials %}
+                <div class="testimonial">
+                    <p class="testimonial-text">"{{ testimonial.text }}"</p>
+                    <p class="testimonial-author">- {{ testimonial.author }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Botones de acción -->
+            <div class="actions">
+                {% if catalog_url %}
+                <a href="{{ catalog_url }}" class="btn btn-primary">Ver Catálogo</a>
+                {% endif %}
+                {% if contact_url %}
+                <a href="{{ contact_url }}" class="btn btn-secondary">Contactar Asesor</a>
+                {% endif %}
+                {% if whatsapp_url %}
+                <a href="{{ whatsapp_url }}" class="btn btn-primary">Chatear por WhatsApp</a>
+                {% endif %}
+            </div>
+
+            <!-- Mensaje personalizado -->
+            {% if custom_message %}
+            <div style="background-color: #e7f3ff; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: center;">
+                <p style="margin: 0; color: #0c5460; font-size: 14px;">{{ custom_message }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Oferta especial -->
+            {% if special_offer %}
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: center;">
+                <p style="margin: 0; color: #856404; font-size: 12px; font-weight: 600;">{{ special_offer }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            <p>Gracias por considerar a {{ company_name or "KREO" }}</p>
+            <p>Transformamos ideas en soluciones reales</p>
+            <p style="font-size: 10px; color: #adb5bd; margin-top: 10px;">
+                Este es un mensaje automático generado por nuestro sistema CRM.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

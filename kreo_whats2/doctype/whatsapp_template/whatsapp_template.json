@@ -1,0 +1,252 @@
+{
+  "name": "WhatsApp Template",
+  "module": "KREO WhatsApp",
+  "custom": 1,
+  "istable": 1,
+  "editable": 1,
+  "track_changes": 1,
+  "track_views": 0,
+  "track_views_in_last": 0,
+  "allow_import": 0,
+  "allow_rename": 1,
+  "allow_copy": 1,
+  "allow_print": 1,
+  "allow_email": 1,
+  "allow_share": 1,
+  "in_create": 0,
+  "show_name_in_global_search": 0,
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "submit": 0,
+      "cancel": 0,
+      "amend": 0,
+      "print": 1,
+      "email": 1,
+      "report": 1,
+      "export": 1,
+      "import": 0,
+      "set_user_permissions": 0
+    },
+    {
+      "role": "WhatsApp Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "submit": 0,
+      "cancel": 0,
+      "amend": 0,
+      "print": 1,
+      "email": 1,
+      "report": 1,
+      "export": 1,
+      "import": 0,
+      "set_user_permissions": 0
+    }
+  ],
+  "fields": [
+    {
+      "fieldname": "template_name",
+      "fieldtype": "Data",
+      "label": "Nombre de la Plantilla",
+      "reqd": 1,
+      "unique": 1,
+      "description": "Nombre único de la plantilla (usado en código). Ej: factura_emitida, recordatorio_pago, bienvenida_lead"
+    },
+    {
+      "fieldname": "template_type",
+      "fieldtype": "Select",
+      "label": "Tipo de Plantilla",
+      "reqd": 1,
+      "options": "Factura\nRecordatorio\nBienvenida\nGeneral\nPromoción\nSoporte",
+      "description": "Categoría de la plantilla para organización y filtrado"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Estado de Aprobación",
+      "reqd": 1,
+      "options": "En Revisión\nAprobado\nRechazado\nPendiente de Envío",
+      "default": "En Revisión",
+      "description": "Estado actual de la plantilla según políticas de Meta"
+    },
+    {
+      "fieldname": "language",
+      "fieldtype": "Select",
+      "label": "Idioma",
+      "reqd": 1,
+      "options": "es\nen\nfr\npt\nit\nde",
+      "default": "es",
+      "description": "Código de idioma para la plantilla"
+    },
+    {
+      "fieldname": "category",
+      "fieldtype": "Select",
+      "label": "Categoría de Meta",
+      "reqd": 1,
+      "options": "MARKETING\nUTILITY\nAUTHENTICATION",
+      "default": "UTILITY",
+      "description": "Categoría requerida por Meta Business API"
+    },
+    {
+      "fieldname": "content_html",
+      "fieldtype": "Code",
+      "label": "Contenido HTML",
+      "reqd": 1,
+      "options": "html",
+      "description": "Código HTML de la plantilla con variables Jinja2. Usa {{variable}} para datos dinámicos"
+    },
+    {
+      "fieldname": "content_preview",
+      "fieldtype": "Text Editor",
+      "label": "Vista Previa del Contenido",
+      "read_only": 1,
+      "description": "Vista previa del contenido renderizado (solo lectura)"
+    },
+    {
+      "fieldname": "variables",
+      "fieldtype": "Table",
+      "label": "Variables Disponibles",
+      "options": "WhatsApp Template Variable",
+      "description": "Lista de variables dinámicas disponibles en esta plantilla"
+    },
+    {
+      "fieldname": "required_variables",
+      "fieldtype": "Small Text",
+      "label": "Variables Requeridas",
+      "read_only": 1,
+      "description": "Variables que deben estar presentes para el correcto funcionamiento (solo lectura)"
+    },
+    {
+      "fieldname": "buttons",
+      "fieldtype": "Table",
+      "label": "Botones de Acción",
+      "options": "WhatsApp Template Button",
+      "description": "Botones interactivos para la plantilla"
+    },
+    {
+      "fieldname": "media_support",
+      "fieldtype": "Check",
+      "label": "Soporte para Multimedia",
+      "default": 0,
+      "description": "Permite adjuntar imágenes, PDFs u otros archivos"
+    },
+    {
+      "fieldname": "test_data",
+      "fieldtype": "Code",
+      "label": "Datos de Prueba",
+      "options": "json",
+      "description": "Datos JSON de ejemplo para probar la plantilla"
+    },
+    {
+      "fieldname": "meta_template_id",
+      "fieldtype": "Data",
+      "label": "ID de Plantilla en Meta",
+      "description": "ID asignado por Meta Business API después de la aprobación"
+    },
+    {
+      "fieldname": "approval_date",
+      "fieldtype": "Date",
+      "label": "Fecha de Aprobación",
+      "description": "Fecha en que Meta aprobó la plantilla"
+    },
+    {
+      "fieldname": "rejection_reason",
+      "fieldtype": "Text",
+      "label": "Motivo de Rechazo",
+      "description": "Razón por la que Meta rechazó la plantilla"
+    },
+    {
+      "fieldname": "usage_count",
+      "fieldtype": "Int",
+      "label": "Veces Usada",
+      "read_only": 1,
+      "default": 0,
+      "description": "Número de veces que se ha usado esta plantilla"
+    },
+    {
+      "fieldname": "last_used",
+      "fieldtype": "Datetime",
+      "label": "Último Uso",
+      "read_only": 1,
+      "description": "Fecha y hora del último uso de la plantilla"
+    },
+    {
+      "fieldname": "created_by",
+      "fieldtype": "Link",
+      "label": "Creado Por",
+      "options": "User",
+      "read_only": 1,
+      "description": "Usuario que creó la plantilla"
+    },
+    {
+      "fieldname": "modified_by",
+      "fieldtype": "Link",
+      "label": "Modificado Por",
+      "options": "User",
+      "read_only": 1,
+      "description": "Usuario que modificó la plantilla por última vez"
+    }
+  ],
+  "actions": [
+    {
+      "label": "Probar Plantilla",
+      "action": "test_template",
+      "btnsize": "btn-sm",
+      "style": "btn-primary"
+    },
+    {
+      "label": "Renderizar Vista Previa",
+      "action": "render_preview",
+      "btnsize": "btn-sm",
+      "style": "btn-secondary"
+    },
+    {
+      "label": "Limpiar Cache",
+      "action": "clear_cache",
+      "btnsize": "btn-sm",
+      "style": "btn-warning"
+    }
+  ],
+  "links": [],
+  "states": [
+    {
+      "title": "En Revisión",
+      "color": "Orange",
+      "field": "status"
+    },
+    {
+      "title": "Aprobado",
+      "color": "Green",
+      "field": "status"
+    },
+    {
+      "title": "Rechazado",
+      "color": "Red",
+      "field": "status"
+    },
+    {
+      "title": "Pendiente de Envío",
+      "color": "Blue",
+      "field": "status"
+    }
+  ],
+  "autoname": "field:template_name",
+  "title_field": "template_name",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "search_fields": "template_name,template_type,status",
+  "beta": 0,
+  "hide_toolbar": 0,
+  "is_tree": 0,
+  "show_in_menu": 1,
+  "menu_index": 1,
+  "icon": "whatsapp",
+  "color": "success",
+  "description": "Gestión de plantillas HTML para WhatsApp Business API"
+}

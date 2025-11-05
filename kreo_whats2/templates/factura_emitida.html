@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Emitida - {{ customer_name }}</title>
+    <style>
+        /* Estilos inline para compatibilidad con WhatsApp */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .invoice-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #25D366;
+        }
+        .invoice-info h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-item {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #25D366;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        .due-date {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .due-date strong {
+            color: #856404;
+        }
+        .actions {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 5px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #25D366;
+            color: white;
+            border: 1px solid #25D366;
+        }
+        .btn-secondary {
+            background-color: #128C7E;
+            color: white;
+            border: 1px solid #128C7E;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .btn {
+                display: block;
+                margin: 10px auto;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <div class="header">
+            <h1>📄 Factura Emitida</h1>
+            <p>Estimado/a {{ customer_name }}</p>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Información de la factura -->
+            <div class="invoice-info">
+                <h2>Detalles de su factura</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Número de Factura</div>
+                        <div class="info-value">{{ invoice_number }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Fecha de Emisión</div>
+                        <div class="info-value">{{ issue_date }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Cliente</div>
+                        <div class="info-value">{{ customer_name }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Correo Electrónico</div>
+                        <div class="info-value">{{ customer_email }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monto total -->
+            <div class="amount">
+                {{ currency }} {{ amount }}
+            </div>
+
+            <!-- Fecha de vencimiento -->
+            {% if due_date %}
+            <div class="due-date">
+                <strong>Fecha de Vencimiento: {{ due_date }}</strong>
+            </div>
+            {% endif %}
+
+            <!-- Botones de acción -->
+            <div class="actions">
+                {% if invoice_url %}
+                <a href="{{ invoice_url }}" class="btn btn-primary">Ver Factura</a>
+                {% endif %}
+                {% if payment_url %}
+                <a href="{{ payment_url }}" class="btn btn-secondary">Realizar Pago</a>
+                {% endif %}
+            </div>
+
+            <!-- Mensaje personalizado -->
+            {% if custom_message %}
+            <div style="background-color: #e7f3ff; border-radius: 6px; padding: 15px; margin: 15px 0; text-align: center;">
+                <p style="margin: 0; color: #0c5460; font-size: 14px;">{{ custom_message }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            <p>Gracias por confiar en {{ company_name or "KREO" }}</p>
+            <p>Para soporte: {{ support_email or "soporte@kreo.com.co" }}</p>
+            <p style="font-size: 10px; color: #adb5bd; margin-top: 10px;">
+                Este es un mensaje automático generado por nuestro sistema CRM.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,6 +1,28 @@
+# Sistema operativo
 .DS_Store
+
+# Python
 *.pyc
 *.egg-info
 *.swp
+
+# Editor
 tags
+
+# Dependencias
 node_modules
+
+# Archivos de secretos y configuración sensible
+*.env*
+*.secrets*
+secrets.*
+*.token*
+
+# Configuración de ngrok
+ngrok.yml
+ngrok*.yml
+
+# Certificados y llaves de seguridad
+*.crt
+*.key
+*.pem

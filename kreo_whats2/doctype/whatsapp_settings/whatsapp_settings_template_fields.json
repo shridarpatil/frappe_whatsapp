@@ -1,0 +1,84 @@
+[
+  {
+    "fieldname": "use_template_system",
+    "fieldtype": "Check",
+    "label": "Usar Sistema de Plantillas",
+    "default": 1,
+    "description": "Habilitar el nuevo sistema de plantillas HTML con Jinja2 en lugar del sistema legacy"
+  },
+  {
+    "fieldname": "template_system_section",
+    "fieldtype": "Section Break",
+    "label": "Configuración del Sistema de Plantillas",
+    "depends_on": "use_template_system"
+  },
+  {
+    "fieldname": "template_cache_enabled",
+    "fieldtype": "Check",
+    "label": "Habilitar Cache de Plantillas",
+    "default": 1,
+    "description": "Almacenar plantillas renderizadas en Redis para mejor performance"
+  },
+  {
+    "fieldname": "template_cache_ttl",
+    "fieldtype": "Int",
+    "label": "Tiempo de Vida del Cache (segundos)",
+    "default": 3600,
+    "description": "Tiempo que las plantillas permanecen en cache antes de regenerarse"
+  },
+  {
+    "fieldname": "template_validation_enabled",
+    "fieldtype": "Check",
+    "label": "Validación Estricta de Plantillas",
+    "default": 1,
+    "description": "Validar contenido y variables de plantillas antes de enviar"
+  },
+  {
+    "fieldname": "template_security_enabled",
+    "fieldtype": "Check",
+    "label": "Seguridad XSS de Plantillas",
+    "default": 1,
+    "description": "Sanitizar HTML para prevenir ataques XSS"
+  },
+  {
+    "fieldname": "template_performance_tracking",
+    "fieldtype": "Check",
+    "label": "Seguimiento de Performance",
+    "default": 1,
+    "description": "Registrar métricas de rendimiento de renderizado de plantillas"
+  },
+  {
+    "fieldname": "template_column_break",
+    "fieldtype": "Column Break",
+    "label": ""
+  },
+  {
+    "fieldname": "max_template_size",
+    "fieldtype": "Int",
+    "label": "Tamaño Máximo de Plantilla (KB)",
+    "default": 50,
+    "description": "Tamaño máximo permitido para archivos HTML de plantillas"
+  },
+  {
+    "fieldname": "max_template_variables",
+    "fieldtype": "Int",
+    "label": "Máximo de Variables por Plantilla",
+    "default": 50,
+    "description": "Número máximo de variables de Jinja2 permitidas por plantilla"
+  },
+  {
+    "fieldname": "template_rate_limit",
+    "fieldtype": "Int",
+    "label": "Límite de Renderizado por Minuto",
+    "default": 100,
+    "description": "Número máximo de plantillas que se pueden renderizar por minuto"
+  },
+  {
+    "fieldname": "template_error_handling",
+    "fieldtype": "Select",
+    "label": "Manejo de Errores de Plantillas",
+    "options": "Fallback a Legacy\nLanzar Error\nRegistrar y Continuar",
+    "default": "Fallback a Legacy",
+    "description": "Qué hacer cuando falla el renderizado de una plantilla"
+  }
+]

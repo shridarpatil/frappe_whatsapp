@@ -1,0 +1,330 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "Prompt",
+ "creation": "2025-10-27 17:15:00.000000",
+ "description": "Registro de mensajes enviados/recibidos vía WhatsApp",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb0",
+  "message_details_section",
+  "content_section",
+  "metadata_section",
+  "status_section",
+  "sb1",
+  "sender_info",
+  "recipient_info",
+  "template_info",
+  "sb2",
+  "delivery_section",
+  "error_section",
+  "sb3",
+  "tracking_section"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb0",
+   "fieldtype": "Section Break",
+   "label": "Información del Mensaje"
+  },
+  {
+   "fieldname": "message_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Mensaje",
+   "options": "Outgoing\nIncoming",
+   "default": "Outgoing",
+   "reqd": 1
+  },
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "label": "Dirección",
+   "options": "Outbound\nInbound",
+   "default": "Outbound",
+   "reqd": 1
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Contenido del Mensaje"
+  },
+  {
+   "fieldname": "message_content",
+   "fieldtype": "Text",
+   "label": "Contenido del Mensaje",
+   "reqd": 1,
+   "description": "Contenido completo del mensaje enviado/recibido"
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "label": "Nombre de Plantilla",
+   "description": "Nombre de la plantilla utilizada (si aplica)"
+  },
+  {
+   "fieldname": "template_data",
+   "fieldtype": "JSON",
+   "label": "Datos de Plantilla",
+   "description": "Variables utilizadas en la plantilla (formato JSON)"
+  },
+  {
+   "fieldname": "metadata_section",
+   "fieldtype": "Section Break",
+   "label": "Metadatos del Mensaje"
+  },
+  {
+   "fieldname": "wa_message_id",
+   "fieldtype": "Data",
+   "label": "ID Mensaje WhatsApp",
+   "description": "ID único del mensaje en WhatsApp Business API",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Estado del Mensaje"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Estado",
+   "options": "Pending\nSent\nDelivered\nRead\nFailed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "delivery_status",
+   "fieldtype": "Data",
+   "label": "Estado de Entrega",
+   "description": "Estado detallado de entrega según WhatsApp API"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Text",
+   "label": "Mensaje de Error",
+   "description": "Mensaje de error si el envío falló"
+  },
+  {
+   "fieldname": "retry_count",
+   "fieldtype": "Int",
+   "label": "Intentos de Reintento",
+   "default": "0",
+   "description": "Número de veces que se intentó reenviar el mensaje"
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sender_info",
+   "fieldtype": "Section Break",
+   "label": "Información del Remitente"
+  },
+  {
+   "fieldname": "sender",
+   "fieldtype": "Link",
+   "label": "Remitente",
+   "options": "User",
+   "description": "Usuario que envió el mensaje"
+  },
+  {
+   "fieldname": "sender_phone",
+   "fieldtype": "Data",
+   "label": "Teléfono Remitente",
+   "description": "Número de teléfono del remitente"
+  },
+  {
+   "fieldname": "recipient_info",
+   "fieldtype": "Section Break",
+   "label": "Información del Destinatario"
+  },
+  {
+   "fieldname": "recipient",
+   "fieldtype": "Link",
+   "label": "Destinatario",
+   "options": "Contact\nLead\nCustomer",
+   "description": "Contacto que recibió el mensaje"
+  },
+  {
+   "fieldname": "recipient_phone",
+   "fieldtype": "Data",
+   "label": "Teléfono Destinatario",
+   "description": "Número de teléfono del destinatario"
+  },
+  {
+   "fieldname": "template_info",
+   "fieldtype": "Section Break",
+   "label": "Información de Plantilla"
+  },
+  {
+   "fieldname": "template_used",
+   "fieldtype": "Check",
+   "label": "Usó Plantilla",
+   "default": "0",
+   "description": "Indica si se utilizó una plantilla predefinida"
+  },
+  {
+   "fieldname": "sb2",
+   "fieldtype": "Section Break",
+   "label": "Información de Entrega y Errores"
+  },
+  {
+   "fieldname": "delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Detalles de Entrega"
+  },
+  {
+   "fieldname": "sent_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Fecha y Hora de Envío",
+   "description": "Fecha y hora cuando se envió el mensaje"
+  },
+  {
+   "fieldname": "delivered_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Fecha y Hora de Entrega",
+   "description": "Fecha y hora cuando se entregó el mensaje"
+  },
+  {
+   "fieldname": "read_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Fecha y Hora de Lectura",
+   "description": "Fecha y hora cuando se leyó el mensaje"
+  },
+  {
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Información de Errores"
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Código de Error",
+   "description": "Código de error devuelto por WhatsApp API"
+  },
+  {
+   "fieldname": "error_details",
+   "fieldtype": "JSON",
+   "label": "Detalles de Error",
+   "description": "Información detallada del error (formato JSON)"
+  },
+  {
+   "fieldname": "sb3",
+   "fieldtype": "Section Break",
+   "label": "Seguimiento y Analytics"
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Información de Seguimiento"
+  },
+  {
+   "fieldname": "campaign_name",
+   "fieldtype": "Data",
+   "label": "Nombre de Campaña",
+   "description": "Nombre de la campaña asociada al mensaje"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Fuente del Mensaje",
+   "description": "Fuente o sistema que originó el mensaje"
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "label": "Costo del Mensaje",
+   "description": "Costo asociado al envío del mensaje"
+  },
+  {
+   "fieldname": "tags",
+   "fieldtype": "Table",
+   "label": "Etiquetas",
+   "options": "WhatsApp Tag"
+  },
+  {
+   "fieldname": "sb4",
+   "fieldtype": "Section Break",
+   "label": "Configuración del Sistema"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_retry",
+   "fieldtype": "Check",
+   "label": "Reintento Automático",
+   "description": "Reintentar envío automáticamente si falla"
+  },
+  {
+   "default": "300",
+   "fieldname": "retry_interval",
+   "fieldtype": "Int",
+   "label": "Intervalo de Reintento (segundos)",
+   "description": "Tiempo en segundos entre reintentos"
+  },
+  {
+   "fieldname": "sb5",
+   "fieldtype": "Section Break",
+   "label": "Integración Externa"
+  },
+  {
+   "fieldname": "external_reference",
+   "fieldtype": "Data",
+   "label": "Referencia Externa",
+   "description": "ID de documento externo relacionado con este mensaje"
+  },
+  {
+   "fieldname": "external_reference_type",
+   "fieldtype": "Data",
+   "label": "Tipo de Referencia Externa",
+   "options": "Sales Invoice\nLead\nCustomer\nSupport Ticket\nProject",
+   "description": "Tipo de documento externo relacionado"
+  }
+ ],
+ "icon": "fa fa-comment",
+ "idx": 1,
+ "issingle": 0,
+ "istable": 0,
+ "module": "KREO WhatsApp",
+ "name": "WhatsApp Message",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 0,
+   "print": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "write": 0
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}
