@@ -6,7 +6,7 @@ from frappe import _
 
 # Importar logging avanzado con manejo de errores robusto
 try:
-    from kreo_whats2.kreo_whats2.utils.logging_manager import (
+    from kreo_whats2.utils.logging_manager import (
         logging_manager, log_event, log_error,
         log_performance, log_whatsapp_event, handle_whatsapp_errors,
         log_security_event, get_logger, log_whatsapp_message
@@ -19,7 +19,7 @@ except ImportError as e:
 
 # Importar decoradores de logging con manejo de fallback
 if ADVANCED_LOGGING_AVAILABLE:
-    from kreo_whats2.kreo_whats2.utils.logging_manager import (
+    from kreo_whats2.utils.logging_manager import (
         log_whatsapp_event, handle_whatsapp_errors
     )
 else:
@@ -35,6 +35,15 @@ else:
         return decorator
 
 # Hooks de automatización para WhatsApp
+app_title = "KREO WhatsApp Integration"
+app_publisher = "KREO Colombia"
+app_description = "Integración avanzada de WhatsApp para KREO Colombia con logging estructurado"
+app_icon = "octicon octicon-comment-discussion"
+app_color = "green"
+app_email = "dev@kreo.one"
+app_license = "MIT"
+app_version = "1.0.7"
+
 app_name = "kreo_whats2"
 
 # Hooks de documentos con logging avanzado integrado con Frappe
@@ -87,34 +96,26 @@ scheduler_events = {
     ]
 }
 
-# Hooks de API con logging avanzado
-api_whitelist = [
-    "kreo_whats2.kreo_whats2.api.whatsapp_api.send_template_message",
-    "kreo_whats2.kreo_whats2.api.whatsapp_api.send_custom_message",
-    "kreo_whats2.kreo_whats2.api.whatsapp_api.get_message_status",
-    "kreo_whats2.kreo_whats2.api.webhook_handler.webhook",
-    "kreo_whats2.kreo_whats2.api.webhook_handler.verify_webhook",
-    "kreo_whats2.kreo_whats2.api.queue_processor.process_queue",
-    "kreo_whats2.kreo_whats2.api.queue_processor.get_queue_status",
-    "kreo_whats2.kreo_whats2.api.queue_processor.clear_queue",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_settings.whatsapp_settings.test_connection",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_settings.whatsapp_settings.get_rate_limit_status",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_settings.whatsapp_settings.health_check",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_message.whatsapp_message.send_message",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_message.whatsapp_message.process_webhook",
-    "kreo_whats2.kreo_whats2.doctype.whatsapp_message.whatsapp_message.update_delivery_status"
-]
+# Hooks de API con logging avanzado - COMENTADO hasta que existan los módulos
+# api_whitelist = [
+#     "kreo_whats2.api.whatsapp_api.send_template_message",
+#     "kreo_whats2.api.whatsapp_api.send_custom_message",
+#     "kreo_whats2.api.whatsapp_api.get_message_status",
+#     "kreo_whats2.api.webhook_handler.webhook",
+#     "kreo_whats2.api.webhook_handler.verify_webhook",
+# ]
 
-# Hooks de permisos con logging
-permission_query_conditions = [
-    "kreo_whats2.kreo_whats2.utils.permissions.has_whatsapp_access"
-]
+# Hooks de permisos con logging - COMENTADO hasta que exista el módulo
+# permission_query_conditions = {
+#     "WhatsApp Message": "kreo_whats2.utils.permissions.has_whatsapp_access"
+# }
 
 # Hooks de configuración con logging
-override_doctype_class = {
-    "WhatsApp Settings": "kreo_whats2.kreo_whats2.overrides.whatsapp_settings_override",
-    "WhatsApp Message": "kreo_whats2.kreo_whats2.overrides.whatsapp_message_override"
-}
+# override_doctype_class debe ser un diccionario de clases, no de strings
+# override_doctype_class = {
+#     "WhatsApp Settings": "kreo_whats2.overrides.whatsapp_settings_override.WhatsAppSettingsOverride",
+#     "WhatsApp Message": "kreo_whats2.overrides.whatsapp_message_override.WhatsAppMessageOverride"
+# }
 
 # Hooks de UI con logging
 doctype_js = {
@@ -122,26 +123,13 @@ doctype_js = {
     "WhatsApp Message": "public/js/whatsapp_message.js"
 }
 
-# Hooks de eventos de Frappe con logging avanzado
-before_request = "kreo_whats2.kreo_whats2.hooks.before_request"
-on_session_creation = "kreo_whats2.kreo_whats2.hooks.on_session_creation"
-on_logout = "kreo_whats2.kreo_whats2.hooks.on_logout"
+# Hooks de eventos de Frappe con logging avanzado - COMENTADO hasta que las funciones estén listas
+# before_request = "kreo_whats2.hooks.before_request"
+# on_session_creation = "kreo_whats2.hooks.on_session_creation"
+# on_logout = "kreo_whats2.hooks.on_logout"
 
-# Hooks de plantillas con logging avanzado
-template_customization = {
-    "factura_emitida_template": {
-        "template_name": "factura_emitida_template",
-        "source": "apps/kreo_whats2/kreo_whats2/templates/factura_emitida.html"
-    },
-    "recordatorio_pago_template": {
-        "template_name": "recordatorio_pago_template",
-        "source": "apps/kreo_whats2/kreo_whats2/templates/recordatorio_pago.html"
-    },
-    "bienvenida_lead_template": {
-        "template_name": "bienvenida_lead_template",
-        "source": "apps/kreo_whats2/kreo_whats2/templates/bienvenida_lead.html"
-    }
-}
+# NOTA: template_customization NO es un hook válido de Frappe - ELIMINADO
+# Las plantillas deben registrarse de otra manera
 
 # Configuración de automatización de logging para eventos críticos
 CRITICAL_EVENTS_CONFIG = {
