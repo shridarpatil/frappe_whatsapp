@@ -1,0 +1,239 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:notification_name",
+ "creation": "2022-10-27 22:04:58.515829",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "notification_name",
+  "notification_type",
+  "reference_doctype",
+  "field_name",
+  "event_frequency",
+  "doctype_event",
+  "days_in_advance",
+  "date_changed",
+  "column_break_3",
+  "disabled",
+  "template",
+  "code",
+  "attach_document_print",
+  "custom_attachment",
+  "attach",
+  "attach_from_field",
+  "file_name",
+  "section_break_11",
+  "condition",
+  "column_break_12",
+  "fields",
+  "property_section",
+  "set_property_after_alert",
+  "property_value",
+  "help_section",
+  "help_html",
+  "header_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Reference Document Type",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.notification_type == \"Scheduler Event\"",
+   "fieldname": "event_frequency",
+   "fieldtype": "Select",
+   "label": "Event Frequency",
+   "mandatory_depends_on": "eval:doc.script_type == \"Scheduler Event\"",
+   "options": "All\nHourly\nDaily\nWeekly\nMonthly\nYearly\nHourly Long\nDaily Long\nWeekly Long\nMonthly Long"
+  },
+  {
+   "depends_on": "eval:doc.notification_type==='DocType Event'",
+   "fieldname": "doctype_event",
+   "fieldtype": "Select",
+   "label": "DocType Event",
+   "options": "Before Insert\nBefore Validate\nBefore Save\nAfter Insert\nAfter Save\nBefore Submit\nAfter Submit\nBefore Cancel\nAfter Cancel\nBefore Delete\nAfter Delete\nBefore Save (Submitted Document)\nAfter Save (Submitted Document)\nDays After\nDays Before"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "help_section",
+   "fieldtype": "Section Break",
+   "label": "Help"
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<pre><code>doc.grand_total &gt; 0</code></pre>\n\n<p>Conditions should be written in simple Python. Please use properties available in the form only.</p>\n\n<p>Example: </p><pre><code>doc.status=='Enabled' </code></pre><p></p>\n\n<p> For scheduler events you can use follwing methods</p>\n<p>Allowed functions: </p><ul>\n<li>frappe.db.get_value</li>\n<li>frappe.db.get_list</li>\n<li>frappe.session</li>\n<li>frappe.utils.now_datetime</li>\n<li>frappe.utils.get_datetime</li>\n<li>frappe.utils.add_to_date</li>\n<li>frappe.utils.now</li>\n</ul>\n<p>Example: </p><pre><code>doc.creation &gt; frappe.utils.add_to_date(frappe.utils.now_datetime(\n), days=-5, as_string=True, as_datetime=True) </code></pre><p></p>\n\n<p>\n\t<strong>For scheduled events, use </strong>\n<br>\n1. Simple template sending, without parameters, just send a template\n</p><pre><code class=\"language-python\">\ndoc.set(\"_contact_list\", [\"919123456789\"])\n</code>\n</pre>\n\n2. Message based on doctype with parameters\n<pre><code class=\"language-python\">\nquotation_list = frappe.get_list(\"Quotation\", {\"name\": \"VEN-COT-24-29806\", \"custom_whatsapp_notify\": 0})\nfor qo in quotation_list:\n\tdata_list.append({\n\t\t\"name\": qo.name,\n\t\t\"phone_no\": \"5548996436821\",\n\t})\ndoc.set(\"_data_list\", data_list)\n</code>\n</pre>\n\n<p></p> "
+  },
+  {
+   "fieldname": "notification_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Notification Type",
+   "options": "DocType Event\nScheduler Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "label": "Template",
+   "options": "WhatsApp Templates",
+   "reqd": 1
+  },
+  {
+   "fieldname": "condition",
+   "fieldtype": "Code",
+   "label": "Condition",
+   "options": "Python Expression"
+  },
+  {
+   "description": "Mobile number field",
+   "fieldname": "field_name",
+   "fieldtype": "Data",
+   "label": "Field Name",
+   "mandatory_depends_on": "eval:['DocType Event'].includes(doc.notification_type)"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Enter fields in the right sequence as per the template parameters.",
+   "fieldname": "fields",
+   "fieldtype": "Table",
+   "label": "Fields",
+   "options": "WhatsApp Message Fields"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Code",
+   "options": "HTML",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "WhatsApp Template requires a document. ",
+   "fieldname": "attach_document_print",
+   "fieldtype": "Check",
+   "label": " Attach Document Print"
+  },
+  {
+   "default": "0",
+   "description": "WhatsApp Template requires document",
+   "fieldname": "custom_attachment",
+   "fieldtype": "Check",
+   "label": "Custom attachment"
+  },
+  {
+   "depends_on": "eval:doc.custom_attachment",
+   "description": "Upload the file as public. Whatsapp cannot access the private file.",
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "label": "Attach"
+  },
+  {
+   "depends_on": "eval:doc.custom_attachment",
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "label": "File name"
+  },
+  {
+   "fieldname": "header_type",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Header Type"
+  },
+  {
+   "depends_on": "eval:doc.custom_attachment",
+   "description": "Attach media from doctype field",
+   "fieldname": "attach_from_field",
+   "fieldtype": "Data",
+   "label": "Attach from field "
+  },
+  {
+   "fieldname": "property_section",
+   "fieldtype": "Section Break",
+   "label": "Set Property After Alert"
+  },
+  {
+   "fieldname": "set_property_after_alert",
+   "fieldtype": "Select",
+   "label": "Set Property After Alert"
+  },
+  {
+   "fieldname": "property_value",
+   "fieldtype": "Data",
+   "label": "Value To Be Set"
+  },
+  {
+   "depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'",
+   "description": "Send days before or after the reference date",
+   "fieldname": "days_in_advance",
+   "fieldtype": "Int",
+   "label": "Days Before or After",
+   "mandatory_depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'"
+  },
+  {
+   "depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'",
+   "fieldname": "date_changed",
+   "fieldtype": "Select",
+   "label": "Reference Date",
+   "mandatory_depends_on": "eval:doc.doctype_event==='Days Before' || doc.doctype_event==='Days After'"
+  },
+  {
+   "fieldname": "notification_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Notification Name",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-03-03 11:30:47.397819",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Notification",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Script Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -4,15 +4,15 @@ include *.json
 include *.md
 include *.py
 include *.txt
-recursive-include frappe_whatsapp *.css
-recursive-include frappe_whatsapp *.csv
-recursive-include frappe_whatsapp *.html
-recursive-include frappe_whatsapp *.ico
-recursive-include frappe_whatsapp *.js
-recursive-include frappe_whatsapp *.json
-recursive-include frappe_whatsapp *.md
-recursive-include frappe_whatsapp *.png
-recursive-include frappe_whatsapp *.py
-recursive-include frappe_whatsapp *.svg
-recursive-include frappe_whatsapp *.txt
-recursive-exclude frappe_whatsapp *.pyc
+recursive-include kreo_whats2 *.css
+recursive-include kreo_whats2 *.csv
+recursive-include kreo_whats2 *.html
+recursive-include kreo_whats2 *.ico
+recursive-include kreo_whats2 *.js
+recursive-include kreo_whats2 *.json
+recursive-include kreo_whats2 *.md
+recursive-include kreo_whats2 *.png
+recursive-include kreo_whats2 *.py
+recursive-include kreo_whats2 *.svg
+recursive-include kreo_whats2 *.txt
+recursive-exclude kreo_whats2 *.pyc

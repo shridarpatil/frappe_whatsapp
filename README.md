@@ -1,8 +1,9 @@
-Frappe Whatsapp
+# KREO WhatsApp Business API Integration (kreo_whats2)
 
-[Docs](https://shridarpatil.github.io/frappe_whatsapp/)
+WhatsApp Business API integration for Frappe/ERPNext with KREO enhancements. Direct Meta API integration without 3rd party dependencies.
 
-WhatsApp integration for frappe. Use directly meta API's without any 3rd party integration.
+**Original Project:** [frappe_whatsapp](https://github.com/shridarpatil/frappe_whatsapp) by Shridhar Patil
+**KREO Enhancements:** Advanced logging, monitoring, performance optimization, and Colombian market features
 
 [![Whatsapp Video](https://img.youtube.com/vi/nq5Kcc5e1oc/0.jpg)](https://www.youtube.com/watch?v=nq5Kcc5e1oc)
 
@@ -18,10 +19,10 @@ Note: If your not using live credential follow the [step no 2](https://developer
 ### Chat app You can also install
 [whatsapp\_chat](https://frappecloud.com/marketplace/apps/whatsapp_chat) along with this app to send and receive message like a messenger Installation Steps
 
-### Step 1) One time to get app 
-`bench get-app https://github.com/shridarpatil/frappe_whatsapp` 
-### Step 2) to install app on any instance/site
-`bench --site [sitename] install-app frappe_whatsapp` 
+### Step 1) Get the app
+`bench get-app https://github.com/kreo-colombia/kreo_whats2`
+### Step 2) Install on site
+`bench --site [sitename] install-app kreo_whats2`
 
 ### Send whatsapp notification from frappe app based on docevents. 
 ### Get your whats app credentials 
@@ -46,7 +47,7 @@ Example:
 * Setup webhook on meta 
 * Add verify token on meta and update the same on whatsapp settings 
 * Add webhook url on meta
-`<domain >/api/method/frappe_whatsapp.utils.webhook.webhook` 
+`<domain>/api/method/kreo_whats2.api.webhook_handler.webhook`
 * Add apropriate webhook fields 
 * `messages` to receive message 
 * add other required web fields 

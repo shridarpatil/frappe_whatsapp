@@ -1,9 +1,10 @@
 [project]
-name = "frappe_whatsapp"
+name = "kreo_whats2"
 authors = [
-    { name = "Shridhar Patil", email = "shrip.dev@gmail.com"}
+    { name = "Shridhar Patil", email = "shrip.dev@gmail.com"},
+    { name = "KREO Colombia", email = "dev@kreo.one"}
 ]
-description = "WhatsApp integration for frappe. Use directly meta API's without any 3rd party integration."
+description = "WhatsApp Business API integration for Frappe/ERPNext with KREO enhancements - Direct Meta API integration without 3rd party dependencies."
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
