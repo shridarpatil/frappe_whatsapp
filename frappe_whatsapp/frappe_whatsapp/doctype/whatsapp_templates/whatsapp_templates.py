@@ -111,7 +111,7 @@ class WhatsAppTemplates(Document):
             self.status = response["status"]
             self.db_update()
         except Exception as e:
-            res = frappe.flags.integration_request.json()["error"]
+            res = frappe.flags.integration_request.json().get("error", {})
             error_message = res.get("error_user_msg", res.get("message"))
             frappe.throw(
                 msg=error_message,
@@ -169,7 +169,7 @@ class WhatsAppTemplates(Document):
         try:
             make_request("DELETE", url, headers=self._headers)
         except Exception:
-            res = frappe.flags.integration_request.json()["error"]
+            res = frappe.flags.integration_request.json().get("error", {})
             if res.get("error_user_title") == "Message Template Not Found":
                 frappe.msgprint(
                     "Deleted locally", res.get("error_user_title", "Error"), alert=True
@@ -271,7 +271,7 @@ def fetch():
         # Check if frappe.flags.integration_request is set and has a .json() method
         if hasattr(frappe.flags.integration_request, 'json'):
             try:
-                res = frappe.flags.integration_request.json()["error"]
+                res = frappe.flags.integration_request.json().get("error", {})
                 error_message = res.get("error_user_msg", res.get("message"))
                 frappe.throw(
                     msg=error_message,

@@ -152,7 +152,7 @@ class WhatsAppMessage(Document):
             self.message_id = response["messages"][0]["id"]
 
         except Exception as e:
-            res = frappe.flags.integration_request.json()["error"]
+            res = frappe.flags.integration_request.json().get("error", {})
             error_message = res.get("Error", res.get("message"))
             frappe.get_doc(
                 {
@@ -203,7 +203,7 @@ class WhatsAppMessage(Document):
                 return response.get("success")
 
         except Exception as e:
-            res = frappe.flags.integration_request.json()["error"]
+            res = frappe.flags.integration_request.json().get("error", {})
             error_message = res.get("Error", res.get("message"))
             frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
 
