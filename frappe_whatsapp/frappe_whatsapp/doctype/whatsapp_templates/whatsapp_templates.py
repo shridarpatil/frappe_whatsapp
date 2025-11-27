@@ -2,13 +2,14 @@
 
 # Copyright (c) 2022, Shridhar Patil and contributors
 # For license information, please see license.txt
-import os
 import json
+import os
+
 import frappe
 import magic
-from frappe.model.document import Document
-from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
+from frappe.integrations.utils import make_post_request, make_request
+from frappe.model.document import Document
 
 
 class WhatsAppTemplates(Document):
@@ -27,16 +28,15 @@ class WhatsAppTemplates(Document):
             self.template_buttons_json = None
 
         if not self.is_new() and (
-            self.has_value_changed("template") or 
-            self.has_value_changed("sample_values") or 
-            self.has_value_changed("template_buttons_json") or 
-            self.has_value_changed("header_type") or 
-            self.has_value_changed("header") or 
-            self.has_value_changed("footer") or
-            self.has_value_changed("sample")
+            self.has_value_changed("template")
+            or self.has_value_changed("sample_values")
+            or self.has_value_changed("template_buttons_json")
+            or self.has_value_changed("header_type")
+            or self.has_value_changed("header")
+            or self.has_value_changed("footer")
+            or self.has_value_changed("sample")
         ):
             self.update_template()
-
 
     def get_session_id(self):
         """Upload media."""
@@ -46,44 +46,41 @@ class WhatsAppTemplates(Document):
         file_type = mime.from_file(file_path)
 
         payload = {
-            'file_length': os.path.getsize(file_path),
-            'file_type': file_type,
-            'messaging_product': 'whatsapp'
+            "file_length": os.path.getsize(file_path),
+            "file_type": file_type,
+            "messaging_product": "whatsapp",
         }
 
         response = make_post_request(
             f"{self._url}/{self._version}/{self._app_id}/uploads",
             headers=self._headers,
-            data=json.loads(json.dumps(payload))
+            data=json.loads(json.dumps(payload)),
         )
-        self._session_id = response['id']
+        self._session_id = response["id"]
 
     def get_media_id(self):
         self.get_settings()
 
-        headers = {
-                "authorization": f"OAuth {self._token}"
-            }
+        headers = {"authorization": f"OAuth {self._token}"}
         file_name = self.get_absolute_path(self.sample)
-        with open(file_name, mode='rb') as file: # b is important -> binary
+        with open(file_name, mode="rb") as file:  # b is important -> binary
             file_content = file.read()
 
         payload = file_content
         response = make_post_request(
             f"{self._url}/{self._version}/{self._session_id}",
             headers=headers,
-            data=payload
+            data=payload,
         )
 
-        self._media_id = response['h']
+        self._media_id = response["h"]
 
     def get_absolute_path(self, file_name):
-        if(file_name.startswith('/files/')):
-            file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}'
-        if(file_name.startswith('/private/')):
-            file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}'
+        if file_name.startswith("/files/"):
+            file_path = f"{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}"
+        if file_name.startswith("/private/"):
+            file_path = f"{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}"
         return file_path
-
 
     def after_insert(self):
         if self.template_name:
@@ -114,7 +111,9 @@ class WhatsAppTemplates(Document):
 
         # add buttons
         if self.need_button_in_template:
-            data["components"].append({"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)})
+            data["components"].append(
+                {"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)}
+            )
 
         try:
             response = make_post_request(
@@ -125,7 +124,7 @@ class WhatsAppTemplates(Document):
             self.id = response["id"]
             self.status = response["status"]
             self.db_update()
-        except Exception as e:
+        except Exception:
             res = frappe.flags.integration_request.json()["error"]
             error_message = res.get("error_user_msg", res.get("message"))
             frappe.throw(
@@ -150,7 +149,9 @@ class WhatsAppTemplates(Document):
         if self.footer:
             data["components"].append({"type": "FOOTER", "text": self.footer})
         if self.need_button_in_template:
-            data["components"].append({"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)})
+            data["components"].append(
+                {"type": "BUTTONS", "buttons": json.loads(self.template_buttons_json)}
+            )
         try:
             # post template to meta for update
             make_post_request(
@@ -187,7 +188,7 @@ class WhatsAppTemplates(Document):
             make_request("DELETE", url, headers=self._headers)
         except Exception:
             res = frappe.flags.integration_request.json()["error"]
-            if res.get("error_user_title") == "Message Template Not Found":
+            if res.get("error_user_title", "").lower() == "message template not found":
                 frappe.msgprint(
                     "Deleted locally", res.get("error_user_title", "Error"), alert=True
                 )
@@ -206,7 +207,7 @@ class WhatsAppTemplates(Document):
                 samples = self.sample.split(", ")
                 header.update({"example": {"header_text": samples}})
         else:
-            pdf_link = ''
+            pdf_link = ""
             if not self.sample:
                 key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
                 link = get_pdf_link(self.doctype, self.name)
@@ -214,6 +215,7 @@ class WhatsAppTemplates(Document):
             header.update({"example": {"header_handle": [self._media_id]}})
 
         return header
+
 
 @frappe.whitelist()
 def fetch():
@@ -238,8 +240,12 @@ def fetch():
         for template in response["data"]:
             # set flag to insert or update
             flags = 1
-            if frappe.db.exists("WhatsApp Templates", {"actual_name": template["name"]}):
-                doc = frappe.get_doc("WhatsApp Templates", {"actual_name": template["name"]})
+            if frappe.db.exists(
+                "WhatsApp Templates", {"actual_name": template["name"]}
+            ):
+                doc = frappe.get_doc(
+                    "WhatsApp Templates", {"actual_name": template["name"]}
+                )
             else:
                 flags = 0
                 doc = frappe.new_doc("WhatsApp Templates")
@@ -253,7 +259,6 @@ def fetch():
 
             # update components
             for component in template["components"]:
-
                 # update header
                 if component["type"] == "HEADER":
                     doc.header_type = component["format"]
@@ -272,7 +277,7 @@ def fetch():
                         doc.sample_values = ",".join(
                             component["example"]["body_text"][0]
                         )
-                
+
                 # update template button text
                 elif component["type"] == "BUTTONS":
                     button_json = component["buttons"]
@@ -290,7 +295,7 @@ def fetch():
 
     except Exception as e:
         # Check if frappe.flags.integration_request is set and has a .json() method
-        if hasattr(frappe.flags.integration_request, 'json'):
+        if hasattr(frappe.flags.integration_request, "json"):
             try:
                 res = frappe.flags.integration_request.json()["error"]
                 error_message = res.get("error_user_msg", res.get("message"))
@@ -300,7 +305,9 @@ def fetch():
                 )
             except (json.JSONDecodeError, KeyError):
                 # Handle cases where the response is not valid JSON or lacks the 'error' key
-                frappe.throw(f"An unexpected error occurred while fetching templates: {e}")
+                frappe.throw(
+                    f"An unexpected error occurred while fetching templates: {e}"
+                )
         else:
             # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
             frappe.throw(f"An unexpected server error occurred: {e}")
