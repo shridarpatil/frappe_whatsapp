@@ -93,6 +93,8 @@ class BulkWhatsAppMessage(Document):
         # wa_message.message = message_content
         wa_message.flags.custom_ref_doc = json.loads(recipient.get("recipient_data", "{}"))
         wa_message.bulk_message_reference = self.name
+        if self.whatsapp_account:
+            wa_message.whatsapp_account = self.whatsapp_account
         
         # If template is being used
         if self.use_template:

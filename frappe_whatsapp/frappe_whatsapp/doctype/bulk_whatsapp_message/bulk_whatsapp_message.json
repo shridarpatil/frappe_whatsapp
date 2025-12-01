@@ -10,20 +10,24 @@
   "from_number",
   "section_recipients",
   "recipient_type",
-  "recipients",
   "recipient_list",
   "recipient_count",
+  "column_break_xvnh",
+  "recipients",
   "section_message",
   "use_template",
   "template",
   "variable_type",
-  "template_variables",
   "attach",
+  "whatsapp_account",
+  "column_break_hztf",
+  "template_variables",
   "section_status",
   "status",
-  "sent_count",
   "scheduled_time",
-  "amended_from"
+  "column_break_hwbk",
+  "amended_from",
+  "sent_count"
  ],
  "fields": [
   {
@@ -147,12 +151,30 @@
    "fieldtype": "Select",
    "label": "Variable Type",
    "options": "Common\nUnique"
+  },
+  {
+   "fieldname": "whatsapp_account",
+   "fieldtype": "Link",
+   "label": "Whatsapp Account",
+   "options": "WhatsApp Account"
+  },
+  {
+   "fieldname": "column_break_xvnh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hztf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hwbk",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-24 11:05:07.017547",
+ "modified": "2025-12-01 18:45:42.313769",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",
