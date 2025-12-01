@@ -10,6 +10,8 @@ from frappe.integrations.utils import make_post_request
 from frappe.desk.form.utils import get_pdf_link
 from frappe.utils import add_to_date, nowdate, datetime
 
+from frappe_whatsapp.utils import get_whatsapp_account
+
 
 class WhatsAppNotification(Document):
     """Notification."""
@@ -82,7 +84,7 @@ class WhatsAppNotification(Document):
                 }
             }
             self.content_type = template.get("header_type", "text").lower()
-            self.notify(data)
+            self.notify(data, template_account=template.get("whatsapp_account"))
 
 
     def send_template_message(self, doc: Document, phone_no=None, default_template=None, ignore_condition=False):
@@ -223,14 +225,21 @@ class WhatsAppNotification(Document):
                                 ]
                             })
 
-            self.notify(data, doc_data)
 
-    def notify(self, data, doc_data=None):
+            self.notify(data, doc_data, template_account=template.whatsapp_account)
+
+    def notify(self, data, doc_data=None, template_account=None):
         """Notify."""
-        settings = frappe.get_doc(
-            "WhatsApp Settings", "WhatsApp Settings",
-        )
-        token = settings.get_password("token")
+        # Use template's whatsapp account if available, otherwise use default outgoing account
+        if template_account:
+            whatsapp_account = frappe.get_doc("WhatsApp Account", template_account)
+        else:
+            whatsapp_account = get_whatsapp_account(account_type='outgoing')
+
+        if not whatsapp_account:
+            frappe.throw(_("Please set a default outgoing WhatsApp Account"))
+
+        token = whatsapp_account.get_password("token")
 
         headers = {
             "authorization": f"Bearer {token}",
@@ -239,7 +248,7 @@ class WhatsAppNotification(Document):
         try:
             success = False
             response = make_post_request(
-                f"{settings.url}/{settings.version}/{settings.phone_id}/messages",
+                f"{whatsapp_account.url}/{whatsapp_account.version}/{whatsapp_account.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
 
@@ -261,7 +270,8 @@ class WhatsAppNotification(Document):
                 "content_type": self.content_type,
                 "use_template": 1,
                 "template": self.template,
-                "template_parameters": parameters
+                "template_parameters": parameters,
+                "whatsapp_account": whatsapp_account.name,
             }
 
             if doc_data:

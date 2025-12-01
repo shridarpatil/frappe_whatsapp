@@ -6,71 +6,33 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "enabled",
-  "allow_auto_read_receipt",
-  "token",
-  "url",
-  "version",
-  "phone_id",
-  "business_id",
-  "app_id",
-  "webhook_verify_token"
+  "default_incoming_account",
+  "column_break_xsuw",
+  "default_outgoing_account"
  ],
  "fields": [
   {
-   "fieldname": "token",
-   "fieldtype": "Password",
-   "label": "Token",
-   "length": 250
+   "fieldname": "default_incoming_account",
+   "fieldtype": "Link",
+   "label": "Default Incoming Account",
+   "options": "WhatsApp Account"
   },
   {
-   "fieldname": "url",
-   "fieldtype": "Data",
-   "label": "URL"
+   "fieldname": "default_outgoing_account",
+   "fieldtype": "Link",
+   "label": "Default Outgoing Account",
+   "options": "WhatsApp Account"
   },
   {
-   "fieldname": "version",
-   "fieldtype": "Data",
-   "label": "Version"
-  },
-  {
-   "fieldname": "phone_id",
-   "fieldtype": "Data",
-   "label": "Phone ID"
-  },
-  {
-   "fieldname": "business_id",
-   "fieldtype": "Data",
-   "label": "Business ID"
-  },
-  {
-   "fieldname": "webhook_verify_token",
-   "fieldtype": "Data",
-   "label": "Webhook Verify Token"
-  },
-  {
-   "default": "0",
-   "fieldname": "enabled",
-   "fieldtype": "Check",
-   "label": "Enabled"
-  },
-  {
-   "fieldname": "app_id",
-   "fieldtype": "Data",
-   "label": "App ID"
-  },
-  {
-   "default": "1",
-   "fieldname": "allow_auto_read_receipt",
-   "fieldtype": "Check",
-   "label": "Allow Auto Read Receipt"
+   "fieldname": "column_break_skjo",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-10-02 18:09:26.499196",
+ "modified": "2025-12-01 13:22:14.262545",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Settings",

@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('WhatsApp Message', {
 	onload: function(frm) {
-		frappe.db.get_single_value('WhatsApp Settings', 'allow_auto_read_receipt').then(value => {
+		frappe.db.get_value('WhatsApp Account', frm.doc.whatsapp_account, 'allow_auto_read_receipt').then(value => {
 			if (value && frm.doc.type === "Incoming" && frm.doc.status !== "marked as read" && frm.doc.message_id) {
 				send_read_receipt(frm);
 			}
