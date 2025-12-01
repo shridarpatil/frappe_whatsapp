@@ -344,24 +344,24 @@ def fetch():
 
                 upsert_doc_without_hooks(doc, "WhatsApp Button", "buttons")
 
-        return "Successfully fetched templates from meta"
+            return "Successfully fetched templates from meta"
 
-    except Exception as e:
-        # Check if frappe.flags.integration_request is set and has a .json() method
-        if hasattr(frappe.flags.integration_request, 'json'):
-            try:
-                res = frappe.flags.integration_request.json().get("error", {})
-                error_message = res.get("error_user_msg", res.get("message"))
-                frappe.throw(
-                    msg=error_message,
-                    title=res.get("error_user_title", "Error"),
-                )
-            except (json.JSONDecodeError, KeyError):
-                # Handle cases where the response is not valid JSON or lacks the 'error' key
-                frappe.throw(f"An unexpected error occurred while fetching templates: {e}")
-        else:
-            # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
-            frappe.throw(f"An unexpected server error occurred: {e}")
+        except Exception as e:
+            # Check if frappe.flags.integration_request is set and has a .json() method
+            if hasattr(frappe.flags.integration_request, 'json'):
+                try:
+                    res = frappe.flags.integration_request.json().get("error", {})
+                    error_message = res.get("error_user_msg", res.get("message"))
+                    frappe.throw(
+                        msg=error_message,
+                        title=res.get("error_user_title", "Error"),
+                    )
+                except (json.JSONDecodeError, KeyError):
+                    # Handle cases where the response is not valid JSON or lacks the 'error' key
+                    frappe.throw(f"An unexpected error occurred while fetching templates: {e}")
+            else:
+                # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
+                frappe.throw(f"An unexpected server error occurred: {e}")
 
 def upsert_doc_without_hooks(doc, child_dt, child_field):
     """Insert or update a parent document and its children without hooks."""

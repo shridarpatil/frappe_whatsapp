@@ -257,8 +257,8 @@ class WhatsAppMessage(Document):
         }
 
         settings = frappe.get_doc(
-            "WhatsApp Settings",
-            "WhatsApp Settings",
+            "WhatsApp Account",
+            self.whatsapp_account,
         )
 
         token = settings.get_password("token")

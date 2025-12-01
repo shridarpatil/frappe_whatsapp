@@ -19,7 +19,8 @@
   "app_id",
   "business_id",
   "is_default_incoming",
-  "is_default_outgoing"
+  "is_default_outgoing",
+  "allow_auto_read_receipt"
  ],
  "fields": [
   {
@@ -93,12 +94,18 @@
    "fieldname": "is_default_outgoing",
    "fieldtype": "Check",
    "label": "Is Default Outgoing"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_auto_read_receipt",
+   "fieldtype": "Check",
+   "label": "Allow auto read receipt"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-01 15:34:01.452567",
+ "modified": "2025-12-01 18:30:21.339317",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Account",

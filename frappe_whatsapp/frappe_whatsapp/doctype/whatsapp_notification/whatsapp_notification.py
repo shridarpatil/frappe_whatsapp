@@ -270,7 +270,7 @@ class WhatsAppNotification(Document):
                 "content_type": self.content_type,
                 "use_template": 1,
                 "template": self.template,
-                "template_parameters": parameters
+                "template_parameters": parameters,
                 "whatsapp_account": whatsapp_account.name,
             }
 
