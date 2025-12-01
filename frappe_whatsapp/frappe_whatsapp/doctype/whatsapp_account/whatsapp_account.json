@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:account_name",
  "creation": "2025-05-26 17:33:44.556320",
  "default_view": "List",
  "doctype": "DocType",
@@ -66,7 +67,8 @@
   {
    "fieldname": "account_name",
    "fieldtype": "Data",
-   "label": "Account Name"
+   "label": "Account Name",
+   "unique": 1
   },
   {
    "default": "Inactive",
@@ -91,10 +93,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-01 13:08:16.884098",
+ "modified": "2025-12-01 15:31:05.016862",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Account",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
