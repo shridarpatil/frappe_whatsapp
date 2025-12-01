@@ -257,7 +257,7 @@ def fetch():
 
     for account in whatsapp_accounts:
         # get credentials
-        token = frappe.get_password('WhatsApp Account', account.name, 'token')
+        token = frappe.get_doc("WhatsApp Account", account.name).get_password("token")
         url = account.url
         version = account.version
         business_id = account.business_id
@@ -286,6 +286,7 @@ def fetch():
                 doc.language_code = template["language"]
                 doc.category = template["category"]
                 doc.id = template["id"]
+                doc.whatsapp_account = account.name
 
                 # update components
                 for component in template["components"]:
