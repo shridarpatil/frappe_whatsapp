@@ -506,8 +506,9 @@
                 <ul>
                     <li><a href="#installation">Installation</a></li>
                     <li><a href="#configuration">Configuration</a></li>
+                    <li><a href="#notifications">Notifications</a></li>
+                    <li><a href="#bulk-messaging">Bulk Messaging</a></li>
                     <li><a href="#api">API</a></li>
-                    <li><a href="#examples">Examples</a></li>
                     <li>
                         <a href="https://github.com/shridarpatil/frappe_whatsapp" class="github-link">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -559,6 +560,27 @@
                 </div>
                 <div class="feature">
                     <h3>
+                        <span class="feature-icon">🔔</span>
+                        WhatsApp Notifications
+                    </h3>
+                    <p>Automated WhatsApp messages triggered by DocType events, scheduler events, or date-based conditions.</p>
+                </div>
+                <div class="feature">
+                    <h3>
+                        <span class="feature-icon">📤</span>
+                        Bulk Messaging
+                    </h3>
+                    <p>Send campaigns to recipient lists with variable substitution, progress tracking, and retry support.</p>
+                </div>
+                <div class="feature">
+                    <h3>
+                        <span class="feature-icon">🏢</span>
+                        Multi-Account Support
+                    </h3>
+                    <p>Manage multiple WhatsApp Business accounts with flexible routing for different use cases.</p>
+                </div>
+                <div class="feature">
+                    <h3>
                         <span class="feature-icon">🔄</span>
                         Webhook Support
                     </h3>
@@ -577,13 +599,6 @@
                         ERPNext Integration
                     </h3>
                     <p>Native integration with ERPNext doctypes for automated notifications and alerts.</p>
-                </div>
-                <div class="feature">
-                    <h3>
-                        <span class="feature-icon">⚡</span>
-                        Queue Support
-                    </h3>
-                    <p>Asynchronous message processing with background job support for high-volume messaging.</p>
                 </div>
             </div>
         </section>
@@ -637,13 +652,13 @@
             <h3>WhatsApp Business API Setup</h3>
             <ol>
                 <li>Create a WhatsApp Business account at <a href="https://business.facebook.com">Meta Business</a></li>
-                <li>Set up a WhatsApp Business API application</li>
-                <li>Obtain your Phone Number ID and Access Token from the Meta dashboard</li>
+                <li>Set up a WhatsApp Business API application in the <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started">Meta Developer Portal</a></li>
+                <li>Obtain your Phone Number ID, Business Account ID, and Access Token from the Meta dashboard</li>
                 <li>Configure webhook URL in the Meta Business platform</li>
             </ol>
 
-            <h3>Frappe Configuration</h3>
-            <p>Navigate to <strong>WhatsApp Settings</strong> in your Frappe site and configure the following:</p>
+            <h3>WhatsApp Account Setup</h3>
+            <p>Navigate to <strong>WhatsApp Account</strong> in your Frappe site and create a new account with the following settings:</p>
 
             <table>
                 <thead>
@@ -655,13 +670,28 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>Phone Number ID</code></td>
+                        <td><code>Account Name</code></td>
+                        <td>A friendly name for this WhatsApp account</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><code>Token</code></td>
+                        <td>Meta API access token (permanent token recommended)</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><code>Phone ID</code></td>
                         <td>Your WhatsApp Business phone number ID</td>
                         <td>Yes</td>
                     </tr>
                     <tr>
-                        <td><code>Access Token</code></td>
-                        <td>Meta API access token</td>
+                        <td><code>Business ID</code></td>
+                        <td>Your WhatsApp Business Account ID</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><code>App ID</code></td>
+                        <td>Your Meta App ID (for media uploads)</td>
                         <td>Yes</td>
                     </tr>
                     <tr>
@@ -670,21 +700,394 @@
                         <td>Yes</td>
                     </tr>
                     <tr>
-                        <td><code>API Version</code></td>
-                        <td>WhatsApp Business API version (default: v17.0)</td>
+                        <td><code>URL</code></td>
+                        <td>Meta API base URL (default: https://graph.facebook.com)</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td><code>Version</code></td>
+                        <td>API version (default: v17.0)</td>
                         <td>No</td>
                     </tr>
                 </tbody>
             </table>
 
+            <h3>Multi-Account Support</h3>
+            <p>You can configure multiple WhatsApp accounts for different purposes:</p>
+            <ul>
+                <li><strong>Is Default Outgoing:</strong> Use this account as the default for sending messages</li>
+                <li><strong>Is Default Incoming:</strong> Use this account as the default for receiving messages</li>
+                <li><strong>Allow Auto Read Receipt:</strong> Automatically send read receipts for incoming messages</li>
+            </ul>
+            <div class="info-box">
+                <p><strong>Note:</strong> Only one account can be set as default for each type (incoming/outgoing).</p>
+            </div>
+
             <h3>Webhook Configuration</h3>
             <p>Set up your webhook URL in the Meta Business platform:</p>
             <div class="code-block">
-                <pre><code>https://your-site.com/api/method/frappe_whatsapp.webhook</code></pre>
+                <pre><code>https://your-site.com/api/method/frappe_whatsapp.utils.webhook.webhook</code></pre>
             </div>
+            <p>Subscribe to the following webhook fields:</p>
+            <ul>
+                <li><code>messages</code> - To receive incoming messages</li>
+                <li><code>message_template_status_update</code> - For template approval status updates</li>
+            </ul>
 
             <div class="warning-box">
                 <p><strong>Important:</strong> Ensure your site is accessible over HTTPS. WhatsApp requires SSL for webhook endpoints.</p>
+            </div>
+        </section>
+
+        <!-- WhatsApp Notifications Section -->
+        <section id="notifications" class="content-section">
+            <h2>WhatsApp Notifications</h2>
+            <p>WhatsApp Notifications allow you to automatically send WhatsApp messages based on events in your Frappe/ERPNext system. This is similar to Email Alerts but for WhatsApp.</p>
+
+            <h3>Creating a Notification</h3>
+            <p>Navigate to <strong>WhatsApp Notification</strong> and create a new notification with the following settings:</p>
+
+            <h4>Basic Settings</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Notification Type</code></td>
+                        <td>Choose between "DocType Event" or "Scheduler Event"</td>
+                    </tr>
+                    <tr>
+                        <td><code>Reference DocType</code></td>
+                        <td>The DocType that triggers this notification (e.g., Sales Order, Lead)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Template</code></td>
+                        <td>The WhatsApp template to send</td>
+                    </tr>
+                    <tr>
+                        <td><code>Field Name</code></td>
+                        <td>The field containing the recipient's phone number</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Supported DocType Events</h4>
+            <ul>
+                <li><strong>Before/After Insert</strong> - When a new document is created</li>
+                <li><strong>Before/After Save</strong> - When a document is saved</li>
+                <li><strong>Before/After Submit</strong> - When a document is submitted</li>
+                <li><strong>Before/After Cancel</strong> - When a document is cancelled</li>
+                <li><strong>Before Delete</strong> - When a document is deleted</li>
+                <li><strong>Days Before/After</strong> - Based on a date field (e.g., 3 days before delivery date)</li>
+            </ul>
+
+            <h4>Scheduler Events</h4>
+            <p>For scheduled notifications, choose from these frequencies:</p>
+            <ul>
+                <li>All (every minute)</li>
+                <li>Hourly / Hourly Long</li>
+                <li>Daily / Daily Long</li>
+                <li>Weekly / Weekly Long</li>
+                <li>Monthly / Monthly Long</li>
+                <li>Yearly</li>
+            </ul>
+
+            <h3>Template Parameters</h3>
+            <p>Map template placeholders to DocType fields using the Fields table:</p>
+            <div class="code-block">
+                <pre><code>Template: "Hello {{1}}, your order {{2}} is ready for delivery on {{3}}."
+
+Field Mapping:
+- Parameter 1 → customer_name
+- Parameter 2 → name (document name/ID)
+- Parameter 3 → delivery_date</code></pre>
+            </div>
+
+            <h3>Conditions</h3>
+            <p>Add Python conditions to control when notifications are sent:</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code># Only send if order total is above 10000
+doc.grand_total > 10000
+
+# Only send for specific customer group
+doc.customer_group == "Retail"
+
+# Only send if not already notified
+not doc.whatsapp_notified</code></pre>
+            </div>
+
+            <h3>Attachments</h3>
+            <p>You can attach files to your WhatsApp notifications:</p>
+            <ul>
+                <li><strong>Attach Document Print</strong> - Attach the document as a PDF</li>
+                <li><strong>Custom Attachment</strong> - Attach a specific file or use a field containing a file URL</li>
+            </ul>
+
+            <h3>Post-Send Actions</h3>
+            <p>Update a field after the notification is sent (useful for tracking):</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Set Property After Alert</code></td>
+                        <td>The field to update (e.g., "whatsapp_notified")</td>
+                    </tr>
+                    <tr>
+                        <td><code>Property Value</code></td>
+                        <td>The value to set (e.g., "1" for checkbox)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Interactive Buttons</h3>
+            <p>Map DocType fields to dynamic button URLs in your templates:</p>
+            <div class="code-block">
+                <pre><code>Button URL Template: https://yoursite.com/orders/{{1}}
+Button Field Mapping: name (document ID)</code></pre>
+            </div>
+
+            <h3>Custom Data List</h3>
+            <p>For advanced use cases, you can send templates using custom data instead of DocType fields by setting <code>_data_list</code>:</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code># In your condition or server script
+doc.set("_data_list", [
+    {
+        "phone": "+1234567890",
+        "customer_name": "John Doe",
+        "order_id": "ORD-001"
+    },
+    {
+        "phone": "+0987654321",
+        "customer_name": "Jane Smith",
+        "order_id": "ORD-002"
+    }
+])</code></pre>
+            </div>
+        </section>
+
+        <!-- Bulk Messaging Section -->
+        <section id="bulk-messaging" class="content-section">
+            <h2>Bulk WhatsApp Messaging</h2>
+            <p>Send WhatsApp messages to multiple recipients at once using templates. Ideal for marketing campaigns, announcements, and batch notifications.</p>
+
+            <h3>Creating a Bulk Message</h3>
+            <p>Navigate to <strong>Bulk WhatsApp Message</strong> and create a new document:</p>
+
+            <h4>Basic Settings</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Title</code></td>
+                        <td>A name for this bulk message campaign</td>
+                    </tr>
+                    <tr>
+                        <td><code>WhatsApp Account</code></td>
+                        <td>Select which WhatsApp account to use for sending</td>
+                    </tr>
+                    <tr>
+                        <td><code>Template</code></td>
+                        <td>The approved WhatsApp template to send</td>
+                    </tr>
+                    <tr>
+                        <td><code>Recipient Type</code></td>
+                        <td>"Individual" for direct entry or "Recipient List" for pre-configured lists</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Recipient Types</h4>
+
+            <h5>1. Individual Recipients</h5>
+            <p>Add recipients directly in the document. Each recipient can have:</p>
+            <ul>
+                <li><code>Mobile Number</code> - The WhatsApp number (with country code)</li>
+                <li><code>Recipient Name</code> - Display name for reference</li>
+                <li><code>Recipient Data</code> - JSON data for template variables</li>
+            </ul>
+
+            <h5>2. Recipient List</h5>
+            <p>Use a pre-configured <strong>WhatsApp Recipient List</strong> that can be reused across campaigns.</p>
+
+            <h3>Creating a Recipient List</h3>
+            <p>Navigate to <strong>WhatsApp Recipient List</strong> to create reusable recipient groups:</p>
+
+            <h4>Import from DocType</h4>
+            <p>Import recipients from any DocType (Customer, Contact, Lead, etc.):</p>
+            <ol>
+                <li>Click "Import from DocType"</li>
+                <li>Select the DocType (e.g., "Customer")</li>
+                <li>Map the phone field (e.g., "mobile_no")</li>
+                <li>Optionally add filters and additional data fields</li>
+            </ol>
+
+            <div class="code-block">
+                <pre><code>Example: Import all retail customers
+DocType: Customer
+Phone Field: mobile_no
+Name Field: customer_name
+Filters: {"customer_group": "Retail"}
+Data Fields: ["customer_name", "territory"]</code></pre>
+            </div>
+
+            <h3>Template Variables</h3>
+
+            <h4>Variable Types</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Common</code></td>
+                        <td>Same values for all recipients</td>
+                        <td>Sale announcements, company updates</td>
+                    </tr>
+                    <tr>
+                        <td><code>Unique</code></td>
+                        <td>Different values per recipient</td>
+                        <td>Personalized messages, order updates</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Using Unique Variables</h4>
+            <p>Store recipient-specific data in the <code>recipient_data</code> JSON field:</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code>{
+    "customer_name": "John Doe",
+    "order_id": "ORD-001",
+    "delivery_date": "2024-01-15"
+}</code></pre>
+            </div>
+
+            <h3>Message Workflow</h3>
+            <ol>
+                <li><strong>Draft</strong> - Configure recipients and template</li>
+                <li><strong>Submit</strong> - Messages are queued for background processing</li>
+                <li><strong>In Progress</strong> - Messages are being sent</li>
+                <li><strong>Completed</strong> - All messages sent successfully</li>
+                <li><strong>Partially Failed</strong> - Some messages failed (can retry)</li>
+            </ol>
+
+            <h3>Progress Tracking</h3>
+            <p>Monitor your bulk message progress:</p>
+            <ul>
+                <li><code>Recipient Count</code> - Total recipients</li>
+                <li><code>Sent Count</code> - Successfully sent messages</li>
+                <li><code>Status</code> - Overall campaign status</li>
+            </ul>
+
+            <h3>Retrying Failed Messages</h3>
+            <p>If some messages fail, you can retry them:</p>
+            <ol>
+                <li>Open the Bulk WhatsApp Message document</li>
+                <li>Click "Retry Failed" button</li>
+                <li>Failed messages will be requeued for sending</li>
+            </ol>
+
+            <h3>Attachments</h3>
+            <p>Attach media files to your bulk messages:</p>
+            <ul>
+                <li>Images (JPG, PNG)</li>
+                <li>Documents (PDF)</li>
+                <li>Videos (MP4)</li>
+            </ul>
+
+            <div class="warning-box">
+                <p><strong>Rate Limits:</strong> WhatsApp has rate limits on message sending. For large campaigns, messages are processed in the background queue to avoid hitting these limits.</p>
+            </div>
+        </section>
+
+        <!-- Template Management Section -->
+        <section id="templates" class="content-section">
+            <h2>Template Management</h2>
+            <p>WhatsApp templates are pre-approved message formats required for initiating conversations outside the 24-hour window.</p>
+
+            <h3>Creating Templates</h3>
+            <p>Navigate to <strong>WhatsApp Templates</strong> to create and manage templates:</p>
+
+            <h4>Template Components</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Template Name</code></td>
+                        <td>Unique identifier (lowercase, underscores only)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Language Code</code></td>
+                        <td>Template language (e.g., en, en_US)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Header</code></td>
+                        <td>Optional header (TEXT, IMAGE, or DOCUMENT)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Body</code></td>
+                        <td>Main message content with placeholders ({{1}}, {{2}}, etc.)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Footer</code></td>
+                        <td>Optional footer text</td>
+                    </tr>
+                    <tr>
+                        <td><code>Buttons</code></td>
+                        <td>Interactive buttons (Quick Reply, Call, URL)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Button Types</h4>
+            <ul>
+                <li><strong>Quick Reply</strong> - Pre-defined response buttons</li>
+                <li><strong>Call Phone</strong> - Click-to-call button</li>
+                <li><strong>Visit Website</strong> - URL button (can include dynamic parameters)</li>
+            </ul>
+
+            <h3>Syncing Templates</h3>
+            <p>Fetch templates from Meta to sync approval status:</p>
+            <ol>
+                <li>Open WhatsApp Templates list</li>
+                <li>Click "Fetch Templates" button</li>
+                <li>Templates will be synced from all active WhatsApp accounts</li>
+            </ol>
+
+            <h3>Template Status</h3>
+            <ul>
+                <li><strong>PENDING</strong> - Submitted for approval</li>
+                <li><strong>APPROVED</strong> - Ready to use</li>
+                <li><strong>REJECTED</strong> - Not approved (check rejection reason)</li>
+            </ul>
+
+            <div class="info-box">
+                <p><strong>Tip:</strong> Templates must be approved by Meta before they can be used. This typically takes 24-48 hours.</p>
             </div>
         </section>
 
@@ -873,7 +1276,7 @@ def process_whatsapp_message(doc, method):
                 <a href="https://erpnext.com">ERPNext</a>
             </div>
             <p class="footer-copyright">
-                © 2024 Frappe WhatsApp. Built with ❤️ for the Frappe community.
+                © 2025 Frappe WhatsApp. Built with love for the Frappe community.
             </p>
         </div>
     </footer>
