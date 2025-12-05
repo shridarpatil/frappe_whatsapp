@@ -21,8 +21,11 @@ def get():
 	"""Get."""
 	hub_challenge = frappe.form_dict.get("hub.challenge")
 	verify_token = frappe.form_dict.get("hub.verify_token")
-	webhook_verify_token = frappe.db.get_value('WhatsApp Account', verify_token, 'webhook_verify_token')
-
+	webhook_verify_token = frappe.db.get_value(
+		'WhatsApp Account',
+		{"webhook_verify_token": verify_token},
+		'webhook_verify_token'
+	)
 	if not webhook_verify_token:
 		frappe.throw("No matching WhatsApp account")
 
