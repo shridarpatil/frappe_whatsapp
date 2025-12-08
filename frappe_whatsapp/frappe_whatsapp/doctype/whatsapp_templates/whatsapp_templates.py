@@ -319,7 +319,8 @@ def fetch():
                         typeMap = {
                             "URL": "Visit Website",
                             "PHONE_NUMBER": "Call Phone",
-                            "QUICK_REPLY": "Quick Reply"
+                            "QUICK_REPLY": "Quick Reply",
+                            "FLOW": "Complete Flow"
                         }
 
                         for i, button in enumerate(component.get("buttons", []), start=1):
@@ -339,6 +340,8 @@ def fetch():
                                     btn["example_url"] = ",".join(button["example"])
                             elif button["type"] == "PHONE_NUMBER":
                                 btn["phone_number"] = button.get("phone_number")
+                            elif button["type"] == "FLOW":
+                                btn["flow"] = button.get("flow")
 
                             doc.append("buttons", btn)
 
