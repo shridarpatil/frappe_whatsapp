@@ -27,7 +27,7 @@ function add_mark_as_read(frm){
 	if(frm.doc.type === "Outgoing" || frm.doc.status == "marked as read" || !frm.doc.message_id)
 		return
 	
-	frappe.db.get_single_value('WhatsApp Settings', 'allow_auto_read_receipt').then(value => {
+	frappe.db.get_value('WhatsApp Account', frm.doc.whatsapp_account, 'allow_auto_read_receipt').then(value => {
 		if (value) return; // return if auto read receipt is enabled
 
 		frm.add_custom_button(__('Mark as read'), function(){
