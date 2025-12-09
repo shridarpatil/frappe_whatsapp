@@ -95,18 +95,51 @@ def post():
 					"whatsapp_account":whatsapp_account.name
 				}).insert(ignore_permissions=True)
 			elif message_type == 'interactive':
-				frappe.get_doc({
-					"doctype": "WhatsApp Message",
-					"type": "Incoming",
-					"from": message['from'],
-					"message": message['interactive']['nfm_reply']['response_json'],
-					"message_id": message['id'],
-					"reply_to_message_id": reply_to_message_id,
-					"is_reply": is_reply,
-					"content_type": "flow",
-					"profile_name":sender_profile_name,
-					"whatsapp_account":whatsapp_account.name
-				}).insert(ignore_permissions=True)
+				interactive_data = message['interactive']
+				interactive_type = interactive_data.get('type')
+
+				# Handle button reply
+				if interactive_type == 'button_reply':
+					frappe.get_doc({
+						"doctype": "WhatsApp Message",
+						"type": "Incoming",
+						"from": message['from'],
+						"message": interactive_data['button_reply']['id'],
+						"message_id": message['id'],
+						"reply_to_message_id": reply_to_message_id,
+						"is_reply": is_reply,
+						"content_type": "button",
+						"profile_name": sender_profile_name,
+						"whatsapp_account": whatsapp_account.name
+					}).insert(ignore_permissions=True)
+				# Handle list reply
+				elif interactive_type == 'list_reply':
+					frappe.get_doc({
+						"doctype": "WhatsApp Message",
+						"type": "Incoming",
+						"from": message['from'],
+						"message": interactive_data['list_reply']['id'],
+						"message_id": message['id'],
+						"reply_to_message_id": reply_to_message_id,
+						"is_reply": is_reply,
+						"content_type": "button",
+						"profile_name": sender_profile_name,
+						"whatsapp_account": whatsapp_account.name
+					}).insert(ignore_permissions=True)
+				# Handle WhatsApp Flows (nfm_reply)
+				elif interactive_type == 'nfm_reply':
+					frappe.get_doc({
+						"doctype": "WhatsApp Message",
+						"type": "Incoming",
+						"from": message['from'],
+						"message": interactive_data['nfm_reply']['response_json'],
+						"message_id": message['id'],
+						"reply_to_message_id": reply_to_message_id,
+						"is_reply": is_reply,
+						"content_type": "flow",
+						"profile_name": sender_profile_name,
+						"whatsapp_account": whatsapp_account.name
+					}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				token = whatsapp_account.get_password("token")
 				url = f"{whatsapp_account.url}/{whatsapp_account.version}/"

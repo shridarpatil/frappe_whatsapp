@@ -81,7 +81,44 @@ class WhatsAppMessage(Document):
                 data["text"] = {"preview_url": True, "body": self.message}
 
             elif self.content_type == "audio":
-                data["text"] = {"link": link}
+                data["audio"] = {"link": link}
+
+            elif self.content_type == "interactive":
+                # Interactive message (buttons or list)
+                data["type"] = "interactive"
+                buttons_data = json.loads(self.buttons) if isinstance(self.buttons, str) else self.buttons
+
+                if isinstance(buttons_data, list) and len(buttons_data) > 3:
+                    # Use list message for more than 3 options (max 10)
+                    data["interactive"] = {
+                        "type": "list",
+                        "body": {"text": self.message},
+                        "action": {
+                            "button": "Select Option",
+                            "sections": [{
+                                "title": "Options",
+                                "rows": [
+                                    {"id": btn["id"], "title": btn["title"], "description": btn.get("description", "")}
+                                    for btn in buttons_data[:10]
+                                ]
+                            }]
+                        }
+                    }
+                else:
+                    # Use button message for 3 or fewer options
+                    data["interactive"] = {
+                        "type": "button",
+                        "body": {"text": self.message},
+                        "action": {
+                            "buttons": [
+                                {
+                                    "type": "reply",
+                                    "reply": {"id": btn["id"], "title": btn["title"]}
+                                }
+                                for btn in buttons_data[:3]
+                            ]
+                        }
+                    }
 
             try:
                 self.notify(data)

@@ -23,6 +23,7 @@
   "conversation_id",
   "content_type",
   "attach",
+  "buttons",
   "body_param",
   "whatsapp_account",
   "section_break_iyjf",
@@ -135,7 +136,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "text\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton",
+   "options": "text\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton\ninteractive",
    "reqd": 1
   },
   {
@@ -144,6 +145,14 @@
    "fieldname": "attach",
    "fieldtype": "Attach",
    "label": "Attach"
+  },
+  {
+   "fieldname": "buttons",
+   "fieldtype": "JSON",
+   "label": "Buttons",
+   "default": "{}",
+   "depends_on": "eval:doc.content_type=='interactive'",
+   "description": "JSON array: [{\"id\": \"yes\", \"title\": \"Yes\"}, {\"id\": \"no\", \"title\": \"No\"}]"
   },
   {
    "fieldname": "section_break_iyjf",
