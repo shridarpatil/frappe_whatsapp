@@ -3,8 +3,30 @@
 
 frappe.ui.form.on("WhatsApp Flow", {
     refresh(frm) {
+        // Import from WhatsApp button (for new docs or docs without flow_id)
+        if (frm.is_new() || !frm.doc.flow_id) {
+            frm.add_custom_button(__("Import from WhatsApp"), function() {
+                show_import_dialog(frm);
+            }, __("Actions"));
+        }
+
         // Add action buttons based on flow status
         if (!frm.is_new()) {
+            // Sync from WhatsApp button (if flow_id exists)
+            if (frm.doc.flow_id) {
+                frm.add_custom_button(__("Sync from WhatsApp"), function() {
+                    frm.call({
+                        method: "sync_from_whatsapp",
+                        doc: frm.doc,
+                        freeze: true,
+                        freeze_message: __("Syncing flow from WhatsApp..."),
+                        callback: function(r) {
+                            frm.reload_doc();
+                        }
+                    });
+                }, __("Actions"));
+            }
+
             // Create on WhatsApp button
             if (!frm.doc.flow_id) {
                 frm.add_custom_button(__("Create on WhatsApp"), function() {
@@ -175,3 +197,131 @@ frappe.ui.form.on("WhatsApp Flow", {
         }
     }
 });
+
+
+function show_import_dialog(frm) {
+    // First, select WhatsApp Account
+    let account_dialog = new frappe.ui.Dialog({
+        title: __("Import Flow from WhatsApp"),
+        fields: [
+            {
+                fieldname: "whatsapp_account",
+                fieldtype: "Link",
+                label: __("WhatsApp Account"),
+                options: "WhatsApp Account",
+                reqd: 1,
+                default: frm.doc.whatsapp_account
+            }
+        ],
+        primary_action_label: __("Fetch Flows"),
+        primary_action: function(values) {
+            account_dialog.hide();
+            fetch_and_show_flows(values.whatsapp_account, frm);
+        }
+    });
+    account_dialog.show();
+}
+
+
+function fetch_and_show_flows(whatsapp_account, frm) {
+    frappe.call({
+        method: "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_flow.whatsapp_flow.get_whatsapp_flows",
+        args: {
+            whatsapp_account: whatsapp_account
+        },
+        freeze: true,
+        freeze_message: __("Fetching flows from WhatsApp..."),
+        callback: function(r) {
+            if (r.message && r.message.length > 0) {
+                show_flows_selection_dialog(r.message, whatsapp_account, frm);
+            } else {
+                frappe.msgprint(__("No flows found on WhatsApp Business Account"));
+            }
+        }
+    });
+}
+
+
+function show_flows_selection_dialog(flows, whatsapp_account, frm) {
+    // Build HTML table of flows
+    let flow_rows = flows.map(flow => {
+        let status_badge = flow.status === "PUBLISHED"
+            ? '<span class="badge badge-success">Published</span>'
+            : '<span class="badge badge-warning">Draft</span>';
+
+        let exists_badge = flow.exists_locally
+            ? `<span class="badge badge-info">Exists: ${flow.local_name}</span>`
+            : '<span class="badge badge-secondary">Not imported</span>';
+
+        let import_btn = flow.exists_locally
+            ? `<button class="btn btn-xs btn-default" disabled>Already Imported</button>`
+            : `<button class="btn btn-xs btn-primary import-flow-btn" data-flow-id="${flow.id}" data-flow-name="${flow.name}">Import</button>`;
+
+        return `
+            <tr>
+                <td>${flow.name}</td>
+                <td><code>${flow.id}</code></td>
+                <td>${status_badge}</td>
+                <td>${exists_badge}</td>
+                <td>${import_btn}</td>
+            </tr>
+        `;
+    }).join("");
+
+    let dialog = new frappe.ui.Dialog({
+        title: __("Select Flow to Import"),
+        size: "large",
+        fields: [
+            {
+                fieldname: "flows_html",
+                fieldtype: "HTML",
+                options: `
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>${__("Flow Name")}</th>
+                                <th>${__("Flow ID")}</th>
+                                <th>${__("Status")}</th>
+                                <th>${__("Local Status")}</th>
+                                <th>${__("Action")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${flow_rows}
+                        </tbody>
+                    </table>
+                `
+            }
+        ]
+    });
+
+    dialog.show();
+
+    // Attach click handlers to import buttons
+    dialog.$wrapper.find(".import-flow-btn").on("click", function() {
+        let flow_id = $(this).data("flow-id");
+        let flow_name = $(this).data("flow-name");
+
+        dialog.hide();
+        import_flow(whatsapp_account, flow_id, flow_name, frm);
+    });
+}
+
+
+function import_flow(whatsapp_account, flow_id, flow_name, frm) {
+    frappe.call({
+        method: "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_flow.whatsapp_flow.import_flow_from_whatsapp",
+        args: {
+            whatsapp_account: whatsapp_account,
+            flow_id: flow_id,
+            flow_name: flow_name
+        },
+        freeze: true,
+        freeze_message: __("Importing flow..."),
+        callback: function(r) {
+            if (r.message) {
+                frappe.set_route("Form", "WhatsApp Flow", r.message);
+            }
+        }
+    });
+}

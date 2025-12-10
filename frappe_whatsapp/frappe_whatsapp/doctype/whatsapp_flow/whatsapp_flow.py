@@ -590,3 +590,276 @@ class WhatsAppFlow(Document):
 
         except Exception as e:
             frappe.throw(_("Failed to get flow status: {0}").format(str(e)))
+
+    @frappe.whitelist()
+    def sync_from_whatsapp(self):
+        """Sync flow details from WhatsApp."""
+        if not self.flow_id:
+            frappe.throw(_("Flow ID is required to sync"))
+
+        account = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
+        token = account.get_password("token")
+
+        # Get flow details
+        url = f"{account.url}/{account.version}/{self.flow_id}?fields=id,name,status,categories,json_version,preview"
+
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        try:
+            import requests
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+
+            data = response.json()
+
+            # Update local fields
+            if data.get("status"):
+                self.status = data["status"].title()
+            if data.get("categories"):
+                self.category = data["categories"][0] if data["categories"] else "OTHER"
+            if data.get("json_version"):
+                self.data_api_version = data["json_version"]
+            if data.get("preview", {}).get("preview_url"):
+                self.preview_url = data["preview"]["preview_url"]
+
+            # Try to get the flow JSON
+            flow_json = self.fetch_flow_json()
+            if flow_json:
+                self.flow_json = json.dumps(flow_json, indent=2)
+
+            self.save()
+            frappe.msgprint(_("Flow synced successfully from WhatsApp"), indicator="green")
+
+            return data
+
+        except Exception as e:
+            frappe.throw(_("Failed to sync flow: {0}").format(str(e)))
+
+    def fetch_flow_json(self):
+        """Fetch the flow JSON from WhatsApp."""
+        if not self.flow_id:
+            return None
+
+        account = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
+        token = account.get_password("token")
+
+        url = f"{account.url}/{account.version}/{self.flow_id}/assets"
+
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        try:
+            import requests
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+
+            data = response.json()
+            assets = data.get("data", [])
+
+            # Find the flow.json asset
+            for asset in assets:
+                if asset.get("name") == "flow.json":
+                    # Download the asset
+                    download_url = asset.get("download_url")
+                    if download_url:
+                        asset_response = requests.get(download_url, headers=headers)
+                        if asset_response.status_code == 200:
+                            return asset_response.json()
+
+            return None
+
+        except Exception as e:
+            frappe.log_error(f"Failed to fetch flow JSON: {str(e)}")
+            return None
+
+
+@frappe.whitelist()
+def get_whatsapp_flows(whatsapp_account):
+    """Get list of all flows from WhatsApp Business Account.
+
+    Args:
+        whatsapp_account: Name of WhatsApp Account document
+
+    Returns:
+        List of flows from WhatsApp
+    """
+    account = frappe.get_doc("WhatsApp Account", whatsapp_account)
+    token = account.get_password("token")
+
+    url = f"{account.url}/{account.version}/{account.business_id}/flows?fields=id,name,status,categories"
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    try:
+        import requests
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+        flows = data.get("data", [])
+
+        # Check which flows already exist locally
+        for flow in flows:
+            existing = frappe.db.exists("WhatsApp Flow", {"flow_id": flow["id"]})
+            flow["exists_locally"] = bool(existing)
+            flow["local_name"] = existing if existing else None
+
+        return flows
+
+    except Exception as e:
+        frappe.throw(_("Failed to fetch flows: {0}").format(str(e)))
+
+
+@frappe.whitelist()
+def import_flow_from_whatsapp(whatsapp_account, flow_id, flow_name=None):
+    """Import a flow from WhatsApp into Frappe.
+
+    Args:
+        whatsapp_account: Name of WhatsApp Account document
+        flow_id: WhatsApp Flow ID to import
+        flow_name: Optional name for the flow (uses WhatsApp name if not provided)
+
+    Returns:
+        Name of created WhatsApp Flow document
+    """
+    # Check if flow already exists
+    existing = frappe.db.exists("WhatsApp Flow", {"flow_id": flow_id})
+    if existing:
+        frappe.throw(_("Flow already exists: {0}").format(existing))
+
+    account = frappe.get_doc("WhatsApp Account", whatsapp_account)
+    token = account.get_password("token")
+
+    # Get flow details
+    url = f"{account.url}/{account.version}/{flow_id}?fields=id,name,status,categories,json_version,preview"
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    try:
+        import requests
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+
+        # Create the flow document
+        flow_doc = frappe.get_doc({
+            "doctype": "WhatsApp Flow",
+            "flow_name": flow_name or data.get("name", f"Imported Flow {flow_id}"),
+            "whatsapp_account": whatsapp_account,
+            "flow_id": flow_id,
+            "status": data.get("status", "Draft").title(),
+            "category": data["categories"][0] if data.get("categories") else "OTHER",
+            "data_api_version": data.get("json_version", "6.0"),
+            "preview_url": data.get("preview", {}).get("preview_url", "")
+        })
+
+        # Try to fetch and parse the flow JSON to create screens/fields
+        flow_json = fetch_flow_json_by_id(whatsapp_account, flow_id)
+        if flow_json:
+            flow_doc.flow_json = json.dumps(flow_json, indent=2)
+            parse_flow_json_to_screens(flow_doc, flow_json)
+
+        # Skip validation since we're importing (may not have screens)
+        flow_doc.flags.ignore_validate = True
+        flow_doc.insert(ignore_permissions=True)
+
+        frappe.db.commit()
+        frappe.msgprint(_("Flow imported successfully: {0}").format(flow_doc.name), indicator="green")
+
+        return flow_doc.name
+
+    except Exception as e:
+        frappe.throw(_("Failed to import flow: {0}").format(str(e)))
+
+
+def fetch_flow_json_by_id(whatsapp_account, flow_id):
+    """Fetch flow JSON by flow ID."""
+    account = frappe.get_doc("WhatsApp Account", whatsapp_account)
+    token = account.get_password("token")
+
+    url = f"{account.url}/{account.version}/{flow_id}/assets"
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    try:
+        import requests
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+        assets = data.get("data", [])
+
+        for asset in assets:
+            if asset.get("name") == "flow.json":
+                download_url = asset.get("download_url")
+                if download_url:
+                    asset_response = requests.get(download_url, headers=headers)
+                    if asset_response.status_code == 200:
+                        return asset_response.json()
+
+        return None
+
+    except Exception as e:
+        frappe.log_error(f"Failed to fetch flow JSON: {str(e)}")
+        return None
+
+
+def parse_flow_json_to_screens(flow_doc, flow_json):
+    """Parse flow JSON and create screens and fields in the document.
+
+    Args:
+        flow_doc: WhatsApp Flow document
+        flow_json: Parsed flow JSON dict
+    """
+    screens = flow_json.get("screens", [])
+
+    for screen_data in screens:
+        # Add screen
+        flow_doc.append("screens", {
+            "screen_id": screen_data.get("id"),
+            "screen_title": screen_data.get("title", ""),
+            "terminal": 1 if screen_data.get("terminal") else 0,
+            "refresh_on_back": 1 if screen_data.get("refresh_on_back") else 0
+        })
+
+        # Parse fields from layout
+        layout = screen_data.get("layout", {})
+        children = layout.get("children", [])
+
+        for child in children:
+            field_type = child.get("type")
+            if not field_type:
+                continue
+
+            # Map WhatsApp field types to our field types
+            field_data = {
+                "screen": screen_data.get("id"),
+                "field_type": field_type,
+                "field_name": child.get("name", field_type.lower()),
+                "label": child.get("label") or child.get("text", ""),
+                "required": 1 if child.get("required") else 0,
+                "enabled": 1,
+                "helper_text": child.get("helper-text", ""),
+                "init_value": child.get("init-value", ""),
+                "min_chars": child.get("min-chars"),
+                "max_chars": child.get("max-chars"),
+                "error_message": child.get("error-message", "")
+            }
+
+            # Handle options for dropdowns
+            if field_type in ["Dropdown", "RadioButtonsGroup", "CheckboxGroup"]:
+                data_source = child.get("data-source", [])
+                if data_source:
+                    field_data["options"] = json.dumps(data_source)
+
+            flow_doc.append("fields", field_data)
