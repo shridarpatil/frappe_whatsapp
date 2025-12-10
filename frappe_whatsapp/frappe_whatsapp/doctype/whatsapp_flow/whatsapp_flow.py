@@ -814,6 +814,102 @@ def fetch_flow_json_by_id(whatsapp_account, flow_id):
         return None
 
 
+@frappe.whitelist()
+def sync_all_flows(whatsapp_account):
+    """Sync all flows from WhatsApp Business Account.
+
+    Imports new flows and updates existing ones.
+
+    Args:
+        whatsapp_account: Name of WhatsApp Account document
+
+    Returns:
+        Dict with counts: imported, updated, skipped
+    """
+    account = frappe.get_doc("WhatsApp Account", whatsapp_account)
+    token = account.get_password("token")
+
+    url = f"{account.url}/{account.version}/{account.business_id}/flows?fields=id,name,status,categories"
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    result = {"imported": 0, "updated": 0, "skipped": 0}
+
+    try:
+        import requests
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+
+        data = response.json()
+        flows = data.get("data", [])
+
+        for flow in flows:
+            flow_id = flow.get("id")
+            flow_name = flow.get("name")
+
+            # Check if flow exists locally
+            existing = frappe.db.exists("WhatsApp Flow", {"flow_id": flow_id})
+
+            if existing:
+                # Update existing flow
+                try:
+                    flow_doc = frappe.get_doc("WhatsApp Flow", existing)
+                    flow_doc.status = flow.get("status", "Draft").title()
+                    if flow.get("categories"):
+                        flow_doc.category = flow["categories"][0]
+
+                    # Try to fetch flow JSON and update screens/fields
+                    flow_json = fetch_flow_json_by_id(whatsapp_account, flow_id)
+                    if flow_json:
+                        flow_doc.flow_json = json.dumps(flow_json, indent=2)
+                        flow_doc.data_api_version = flow_json.get("version", "6.0")
+
+                        # Clear existing screens and fields, then re-parse
+                        flow_doc.screens = []
+                        flow_doc.fields = []
+                        parse_flow_json_to_screens(flow_doc, flow_json)
+
+                    flow_doc.flags.ignore_validate = True
+                    flow_doc.save(ignore_permissions=True)
+                    result["updated"] += 1
+                except Exception as e:
+                    frappe.log_error(f"Failed to update flow {flow_id}: {str(e)}")
+                    result["skipped"] += 1
+            else:
+                # Import new flow
+                try:
+                    flow_doc = frappe.get_doc({
+                        "doctype": "WhatsApp Flow",
+                        "flow_name": flow_name or f"Flow {flow_id}",
+                        "whatsapp_account": whatsapp_account,
+                        "flow_id": flow_id,
+                        "status": flow.get("status", "Draft").title(),
+                        "category": flow["categories"][0] if flow.get("categories") else "OTHER"
+                    })
+
+                    # Try to fetch and parse flow JSON
+                    flow_json = fetch_flow_json_by_id(whatsapp_account, flow_id)
+                    if flow_json:
+                        flow_doc.flow_json = json.dumps(flow_json, indent=2)
+                        flow_doc.data_api_version = flow_json.get("version", "6.0")
+                        parse_flow_json_to_screens(flow_doc, flow_json)
+
+                    flow_doc.flags.ignore_validate = True
+                    flow_doc.insert(ignore_permissions=True)
+                    result["imported"] += 1
+                except Exception as e:
+                    frappe.log_error(f"Failed to import flow {flow_id}: {str(e)}")
+                    result["skipped"] += 1
+
+        frappe.db.commit()
+        return result
+
+    except Exception as e:
+        frappe.throw(_("Failed to sync flows: {0}").format(str(e)))
+
+
 def parse_flow_json_to_screens(flow_doc, flow_json):
     """Parse flow JSON and create screens and fields in the document.
 

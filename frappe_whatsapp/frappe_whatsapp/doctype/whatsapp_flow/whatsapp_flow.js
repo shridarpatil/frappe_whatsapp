@@ -3,23 +3,23 @@
 
 frappe.ui.form.on("WhatsApp Flow", {
     refresh(frm) {
-        // Import from WhatsApp button (for new docs or docs without flow_id)
+        // Import from Meta button (for new docs or docs without flow_id)
         if (frm.is_new() || !frm.doc.flow_id) {
-            frm.add_custom_button(__("Import from WhatsApp"), function() {
+            frm.add_custom_button(__("Import from Meta"), function() {
                 show_import_dialog(frm);
             }, __("Actions"));
         }
 
         // Add action buttons based on flow status
         if (!frm.is_new()) {
-            // Sync from WhatsApp button (if flow_id exists)
+            // Sync from Meta button (if flow_id exists)
             if (frm.doc.flow_id) {
-                frm.add_custom_button(__("Sync from WhatsApp"), function() {
+                frm.add_custom_button(__("Sync from Meta"), function() {
                     frm.call({
                         method: "sync_from_whatsapp",
                         doc: frm.doc,
                         freeze: true,
-                        freeze_message: __("Syncing flow from WhatsApp..."),
+                        freeze_message: __("Syncing flow from Meta..."),
                         callback: function(r) {
                             frm.reload_doc();
                         }
@@ -202,7 +202,7 @@ frappe.ui.form.on("WhatsApp Flow", {
 function show_import_dialog(frm) {
     // First, select WhatsApp Account
     let account_dialog = new frappe.ui.Dialog({
-        title: __("Import Flow from WhatsApp"),
+        title: __("Import Flow from Meta"),
         fields: [
             {
                 fieldname: "whatsapp_account",
@@ -230,12 +230,12 @@ function fetch_and_show_flows(whatsapp_account, frm) {
             whatsapp_account: whatsapp_account
         },
         freeze: true,
-        freeze_message: __("Fetching flows from WhatsApp..."),
+        freeze_message: __("Fetching flows from Meta..."),
         callback: function(r) {
             if (r.message && r.message.length > 0) {
                 show_flows_selection_dialog(r.message, whatsapp_account, frm);
             } else {
-                frappe.msgprint(__("No flows found on WhatsApp Business Account"));
+                frappe.msgprint(__("No flows found on Meta Business Account"));
             }
         }
     });
