@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-09 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "screen_id",
+  "screen_title",
+  "column_break_1",
+  "terminal",
+  "refresh_on_back",
+  "column_break_2",
+  "layout_type",
+  "success_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "screen_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Screen ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "screen_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Screen Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Mark this as the final screen that completes the flow",
+   "fieldname": "terminal",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Terminal Screen"
+  },
+  {
+   "default": "0",
+   "description": "Refresh screen data when user navigates back",
+   "fieldname": "refresh_on_back",
+   "fieldtype": "Check",
+   "label": "Refresh on Back"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "SingleColumnLayout",
+   "fieldname": "layout_type",
+   "fieldtype": "Select",
+   "label": "Layout Type",
+   "options": "SingleColumnLayout"
+  },
+  {
+   "depends_on": "eval:doc.terminal",
+   "description": "Message to show when flow is completed",
+   "fieldname": "success_message",
+   "fieldtype": "Data",
+   "label": "Success Message"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Flow Screen",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -26,6 +26,14 @@
   "buttons",
   "body_param",
   "whatsapp_account",
+  "section_break_flow",
+  "flow",
+  "flow_cta",
+  "column_break_flow",
+  "flow_screen",
+  "flow_token",
+  "section_break_flow_response",
+  "flow_response",
   "section_break_iyjf",
   "is_reply",
   "reply_to_message_id",
@@ -211,6 +219,59 @@
    "fieldtype": "Link",
    "label": "WhatsApp Account",
    "options": "WhatsApp Account"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.content_type=='flow'",
+   "fieldname": "section_break_flow",
+   "fieldtype": "Section Break",
+   "label": "Flow Settings"
+  },
+  {
+   "depends_on": "eval:doc.content_type=='flow'",
+   "fieldname": "flow",
+   "fieldtype": "Link",
+   "label": "WhatsApp Flow",
+   "options": "WhatsApp Flow"
+  },
+  {
+   "depends_on": "eval:doc.content_type=='flow'",
+   "description": "Button text to open the flow",
+   "fieldname": "flow_cta",
+   "fieldtype": "Data",
+   "label": "Flow CTA"
+  },
+  {
+   "fieldname": "column_break_flow",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.content_type=='flow'",
+   "description": "Starting screen ID (optional)",
+   "fieldname": "flow_screen",
+   "fieldtype": "Data",
+   "label": "Flow Screen"
+  },
+  {
+   "depends_on": "eval:doc.content_type=='flow'",
+   "description": "Optional token for flow authentication",
+   "fieldname": "flow_token",
+   "fieldtype": "Data",
+   "label": "Flow Token"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.type=='Incoming' && doc.content_type=='flow'",
+   "fieldname": "section_break_flow_response",
+   "fieldtype": "Section Break",
+   "label": "Flow Response"
+  },
+  {
+   "depends_on": "eval:doc.type=='Incoming' && doc.content_type=='flow'",
+   "fieldname": "flow_response",
+   "fieldtype": "JSON",
+   "label": "Flow Response Data",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,

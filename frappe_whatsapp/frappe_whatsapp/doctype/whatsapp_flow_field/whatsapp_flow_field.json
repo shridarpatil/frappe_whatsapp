@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-09 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "screen",
+  "field_name",
+  "field_type",
+  "label",
+  "column_break_1",
+  "required",
+  "enabled",
+  "section_break_options",
+  "init_value",
+  "min_chars",
+  "max_chars",
+  "column_break_2",
+  "helper_text",
+  "error_message",
+  "section_break_dropdown",
+  "options"
+ ],
+ "fields": [
+  {
+   "fieldname": "screen",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Screen ID",
+   "reqd": 1,
+   "description": "Screen ID this field belongs to"
+  },
+  {
+   "fieldname": "field_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Field Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "field_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Field Type",
+   "options": "TextInput\nTextArea\nDatePicker\nRadioButtonsGroup\nCheckboxGroup\nDropdown\nOptIn\nEmbeddedLink\nImage\nTextHeading\nTextSubheading\nTextBody\nTextCaption\nFooter",
+   "reqd": 1
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "required",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Required"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "section_break_options",
+   "fieldtype": "Section Break",
+   "label": "Validation"
+  },
+  {
+   "description": "Default value for the field",
+   "fieldname": "init_value",
+   "fieldtype": "Data",
+   "label": "Initial Value"
+  },
+  {
+   "depends_on": "eval:['TextInput', 'TextArea'].includes(doc.field_type)",
+   "fieldname": "min_chars",
+   "fieldtype": "Int",
+   "label": "Min Characters"
+  },
+  {
+   "depends_on": "eval:['TextInput', 'TextArea'].includes(doc.field_type)",
+   "fieldname": "max_chars",
+   "fieldtype": "Int",
+   "label": "Max Characters"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "helper_text",
+   "fieldtype": "Data",
+   "label": "Helper Text"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Data",
+   "label": "Error Message"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(doc.field_type)",
+   "fieldname": "section_break_dropdown",
+   "fieldtype": "Section Break",
+   "label": "Options"
+  },
+  {
+   "description": "JSON array of options: [{\"id\": \"opt1\", \"title\": \"Option 1\"}, ...]",
+   "fieldname": "options",
+   "fieldtype": "Code",
+   "label": "Options",
+   "options": "JSON"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Whatsapp",
+ "name": "WhatsApp Flow Field",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

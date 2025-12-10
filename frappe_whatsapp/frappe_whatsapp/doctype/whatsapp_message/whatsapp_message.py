@@ -120,7 +120,59 @@ class WhatsAppMessage(Document):
                         }
                     }
 
+            elif self.content_type == "flow":
+                # WhatsApp Flow message
+                if not self.flow:
+                    frappe.throw(_("WhatsApp Flow is required for flow content type"))
+
+                flow_doc = frappe.get_doc("WhatsApp Flow", self.flow)
+
+                if not flow_doc.flow_id:
+                    frappe.throw(_("Flow must be created on WhatsApp before sending"))
+
+                # Determine flow mode - draft flows can be tested with mode: "draft"
+                flow_mode = None
+                if flow_doc.status != "Published":
+                    flow_mode = "draft"
+                    frappe.msgprint(_("Sending flow in draft mode (for testing only)"), indicator="orange")
+
+                # Get first screen if not specified
+                flow_screen = self.flow_screen
+                if not flow_screen and flow_doc.screens:
+                    flow_screen = flow_doc.screens[0].screen_id
+
+                data["type"] = "interactive"
+                data["interactive"] = {
+                    "type": "flow",
+                    "body": {"text": self.message or "Please fill out the form"},
+                    "action": {
+                        "name": "flow",
+                        "parameters": {
+                            "flow_message_version": "3",
+                            "flow_id": flow_doc.flow_id,
+                            "flow_cta": self.flow_cta or flow_doc.flow_cta or "Open",
+                            "flow_action": "navigate",
+                            "flow_action_payload": {
+                                "screen": flow_screen
+                            }
+                        }
+                    }
+                }
+
+                # Add draft mode for testing unpublished flows
+                if flow_mode:
+                    data["interactive"]["action"]["parameters"]["mode"] = flow_mode
+
+                # Add flow token - generate one if not provided (required by WhatsApp)
+                flow_token = self.flow_token or frappe.generate_hash(length=16)
+                data["interactive"]["action"]["parameters"]["flow_token"] = flow_token
+
             try:
+                # Log the request for debugging
+                frappe.log_error(
+                    f"Flow Message Request:\n{json.dumps(data, indent=2)}",
+                    "WhatsApp Flow Debug"
+                )
                 self.notify(data)
                 self.status = "Success"
             except Exception as e:
