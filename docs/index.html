@@ -508,6 +508,7 @@
                     <li><a href="#configuration">Configuration</a></li>
                     <li><a href="#notifications">Notifications</a></li>
                     <li><a href="#bulk-messaging">Bulk Messaging</a></li>
+                    <li><a href="#whatsapp-flows">Flows</a></li>
                     <li><a href="#api">API</a></li>
                     <li>
                         <a href="https://github.com/shridarpatil/frappe_whatsapp" class="github-link">
@@ -599,6 +600,27 @@
                         ERPNext Integration
                     </h3>
                     <p>Native integration with ERPNext doctypes for automated notifications and alerts.</p>
+                </div>
+                <div class="feature">
+                    <h3>
+                        <span class="feature-icon">📝</span>
+                        WhatsApp Flows
+                    </h3>
+                    <p>Build interactive forms using WhatsApp's native Flow Builder for rich data collection experiences.</p>
+                </div>
+                <div class="feature">
+                    <h3>
+                        <span class="feature-icon">🔘</span>
+                        Interactive Messages
+                    </h3>
+                    <p>Send button and list messages for quick user responses and improved engagement.</p>
+                </div>
+                <div class="feature">
+                    <h3>
+                        <span class="feature-icon">🔄</span>
+                        Sync from Meta
+                    </h3>
+                    <p>Import and synchronize templates and flows from your Meta Business Account.</p>
                 </div>
             </div>
         </section>
@@ -1088,6 +1110,188 @@ Data Fields: ["customer_name", "territory"]</code></pre>
 
             <div class="info-box">
                 <p><strong>Tip:</strong> Templates must be approved by Meta before they can be used. This typically takes 24-48 hours.</p>
+            </div>
+        </section>
+
+        <!-- Interactive Messages Section -->
+        <section id="interactive-messages" class="content-section">
+            <h2>Interactive Messages</h2>
+            <p>Send interactive button and list messages for quick user responses and improved engagement.</p>
+
+            <h3>Button Messages</h3>
+            <p>Button messages allow users to respond with a single tap:</p>
+            <ul>
+                <li>Up to 3 quick reply buttons per message</li>
+                <li>Users tap to respond instantly</li>
+                <li>Great for confirmations, options, and CTAs</li>
+            </ul>
+
+            <h3>List Messages</h3>
+            <p>List messages provide a menu-style interface:</p>
+            <ul>
+                <li>Up to 10 items organized in sections</li>
+                <li>Users select from a scrollable menu</li>
+                <li>Ideal for product catalogs, service menus, FAQs</li>
+            </ul>
+
+            <h3>Sending Interactive Messages</h3>
+            <p>Set the <code>content_type</code> field when creating a WhatsApp Message:</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code># Button message
+message = frappe.get_doc({
+    "doctype": "WhatsApp Message",
+    "to": "+1234567890",
+    "content_type": "button",
+    "message": "Please choose an option:",
+    "buttons": [
+        {"type": "button", "title": "Option 1", "id": "btn_1"},
+        {"type": "button", "title": "Option 2", "id": "btn_2"},
+        {"type": "button", "title": "Option 3", "id": "btn_3"}
+    ]
+})
+message.insert()</code></pre>
+            </div>
+        </section>
+
+        <!-- WhatsApp Flows Section -->
+        <section id="whatsapp-flows" class="content-section">
+            <h2>WhatsApp Flows</h2>
+            <p>Build interactive forms using WhatsApp's native Flow Builder. Flows provide a rich UI experience for collecting structured data from users.</p>
+
+            <h3>Features</h3>
+            <ul>
+                <li>Visual form builder with multiple screens</li>
+                <li>Support for text inputs, dropdowns, date pickers, and more</li>
+                <li>Client-only flows (no endpoint required)</li>
+                <li>Publish and manage flows directly from Frappe</li>
+                <li>Send flow messages and receive responses via webhook</li>
+            </ul>
+
+            <h3>Creating a Flow</h3>
+            <p>Navigate to <strong>WhatsApp Flow</strong> to create a new flow:</p>
+            <ol>
+                <li>Enter a <strong>Flow Name</strong></li>
+                <li>Select the <strong>WhatsApp Account</strong></li>
+                <li>Choose a <strong>Category</strong> (e.g., APPOINTMENT_BOOKING, LEAD_GENERATION)</li>
+                <li>Add <strong>Screens</strong> to define the flow structure</li>
+                <li>Add <strong>Fields</strong> for each screen</li>
+            </ol>
+
+            <h3>Supported Field Types</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>TextInput</code></td>
+                        <td>Single-line text input</td>
+                    </tr>
+                    <tr>
+                        <td><code>TextArea</code></td>
+                        <td>Multi-line text input</td>
+                    </tr>
+                    <tr>
+                        <td><code>Dropdown</code></td>
+                        <td>Select from predefined options</td>
+                    </tr>
+                    <tr>
+                        <td><code>DatePicker</code></td>
+                        <td>Date selection</td>
+                    </tr>
+                    <tr>
+                        <td><code>RadioButtonsGroup</code></td>
+                        <td>Single selection from radio buttons</td>
+                    </tr>
+                    <tr>
+                        <td><code>CheckboxGroup</code></td>
+                        <td>Multiple selection checkboxes</td>
+                    </tr>
+                    <tr>
+                        <td><code>OptIn</code></td>
+                        <td>Consent checkbox</td>
+                    </tr>
+                    <tr>
+                        <td><code>TextHeading</code></td>
+                        <td>Display heading text</td>
+                    </tr>
+                    <tr>
+                        <td><code>TextBody</code></td>
+                        <td>Display body text</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Flow Actions</h3>
+            <p>Available actions from the WhatsApp Flow form:</p>
+            <ul>
+                <li><strong>Create on WhatsApp</strong> - Push the flow to Meta</li>
+                <li><strong>Upload Flow JSON</strong> - Update the flow definition</li>
+                <li><strong>Publish</strong> - Make the flow available to all users</li>
+                <li><strong>Deprecate</strong> - Mark the flow as deprecated</li>
+                <li><strong>Send Test</strong> - Test draft flows with registered test numbers</li>
+                <li><strong>Sync from Meta</strong> - Import flow data back from Meta</li>
+                <li><strong>Delete from WhatsApp</strong> - Remove the flow from Meta</li>
+            </ul>
+
+            <h3>Sending Flow Messages</h3>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code># Send a flow message
+message = frappe.get_doc({
+    "doctype": "WhatsApp Message",
+    "to": "+1234567890",
+    "content_type": "flow",
+    "flow": "My Booking Flow",  # Link to WhatsApp Flow
+    "flow_cta": "Open Booking Form",
+    "message": "Please fill out the booking form below"
+})
+message.insert()</code></pre>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>Note:</strong> Draft flows can only be tested with phone numbers registered as test numbers in the Meta Business Manager. Published flows are available to all users.</p>
+            </div>
+        </section>
+
+        <!-- Sync from Meta Section -->
+        <section id="sync-from-meta" class="content-section">
+            <h2>Sync from Meta</h2>
+            <p>Keep your Frappe data synchronized with your Meta Business Account.</p>
+
+            <h3>Syncing Templates</h3>
+            <ol>
+                <li>Go to <strong>WhatsApp Templates</strong> list view</li>
+                <li>Click the <strong>Sync from Meta</strong> button</li>
+                <li>All templates from active WhatsApp accounts are imported/updated</li>
+            </ol>
+            <p>The sync will:</p>
+            <ul>
+                <li>Import new templates that don't exist locally</li>
+                <li>Update existing templates with latest status and content</li>
+                <li>Sync header, body, footer, and button configurations</li>
+            </ul>
+
+            <h3>Syncing Flows</h3>
+            <ol>
+                <li>Go to <strong>WhatsApp Flow</strong> list view</li>
+                <li>Click the <strong>Sync from Meta</strong> button</li>
+                <li>Select the WhatsApp Account to sync from</li>
+                <li>All flows are imported/updated</li>
+            </ol>
+            <p>The sync will:</p>
+            <ul>
+                <li>Import new flows with their JSON definitions</li>
+                <li>Update existing flows with latest status</li>
+                <li>Parse flow JSON into screens and fields</li>
+            </ul>
+
+            <div class="info-box">
+                <p><strong>Tip:</strong> Use bulk sync to quickly import all flows and templates after setting up a new WhatsApp Account.</p>
             </div>
         </section>
 

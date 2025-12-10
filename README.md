@@ -17,10 +17,13 @@ WhatsApp integration for Frappe/ERPNext. Use Meta's WhatsApp Cloud API directly 
 - **Multi-Account Support** - Manage multiple WhatsApp Business accounts
 - **Two-way Messaging** - Send and receive messages with full conversation tracking
 - **Template Management** - Create and sync WhatsApp templates with Meta
+- **WhatsApp Flows** - Build interactive forms using WhatsApp's native Flow Builder
+- **Interactive Messages** - Send button and list messages for quick user responses
 - **WhatsApp Notifications** - Automated notifications triggered by DocType events
 - **Bulk Messaging** - Send campaigns to recipient lists with variable substitution
 - **Webhook Support** - Real-time message delivery and status updates
 - **Media Support** - Send and receive images, documents, videos, and audio files
+- **Sync from Meta** - Import and sync templates and flows from your Meta Business Account
 - **ERPNext Integration** - Native integration with Frappe/ERPNext DocTypes
 
 ## Installation
@@ -101,6 +104,62 @@ Send WhatsApp messages to multiple recipients at once.
 Send messages without templates (within 24-hour window):
 
 ![Direct Message](https://user-images.githubusercontent.com/11792643/211518862-de2d3fbc-69c8-48e1-b000-8eebf20b75ab.png)
+
+### Interactive Messages
+
+Send interactive button and list messages for quick user responses.
+
+**Button Messages:**
+- Up to 3 quick reply buttons
+- Users tap to respond instantly
+- Great for confirmations, options, and CTAs
+
+**List Messages:**
+- Up to 10 items organized in sections
+- Users select from a menu
+- Ideal for product catalogs, service menus, FAQs
+
+### WhatsApp Flows
+
+Build interactive forms using WhatsApp's native Flow Builder. Flows provide a rich UI experience for collecting structured data from users.
+
+**Features:**
+- Visual form builder with multiple screens
+- Support for text inputs, dropdowns, date pickers, and more
+- Client-only flows (no endpoint required)
+- Publish and manage flows directly from Frappe
+- Send flow messages and receive responses via webhook
+
+**Supported Field Types:**
+- TextInput, TextArea
+- Dropdown (with static options)
+- DatePicker
+- RadioButtonsGroup, CheckboxGroup
+- OptIn
+- Text display components (TextHeading, TextBody, TextSubheading, TextCaption)
+
+**Flow Actions:**
+- Create on WhatsApp - Push new flows to Meta
+- Upload Flow JSON - Update flow definition
+- Publish - Make flow available to all users
+- Deprecate - Mark flow as deprecated
+- Send Test - Test draft flows with registered test numbers
+- Sync from Meta - Import existing flows back to Frappe
+
+### Sync from Meta
+
+Keep your Frappe data synchronized with your Meta Business Account.
+
+**Templates:**
+- Go to **WhatsApp Templates** list view
+- Click **Sync from Meta** button
+- All templates from active WhatsApp accounts are imported/updated
+
+**Flows:**
+- Go to **WhatsApp Flow** list view
+- Click **Sync from Meta** button
+- Select the WhatsApp Account to sync from
+- New flows are imported, existing flows are updated with latest status and JSON
 
 ### Custom Data Templates
 
