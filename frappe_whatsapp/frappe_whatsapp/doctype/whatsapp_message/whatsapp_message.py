@@ -168,11 +168,6 @@ class WhatsAppMessage(Document):
                 data["interactive"]["action"]["parameters"]["flow_token"] = flow_token
 
             try:
-                # Log the request for debugging
-                frappe.log_error(
-                    f"Flow Message Request:\n{json.dumps(data, indent=2)}",
-                    "WhatsApp Flow Debug"
-                )
                 self.notify(data)
                 self.status = "Success"
             except Exception as e:
