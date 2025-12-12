@@ -27,6 +27,21 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
+      redis-cache:
+        image: redis:alpine
+        ports:
+          - 13000:6379
+
+      redis-queue:
+        image: redis:alpine
+        ports:
+          - 11000:6379
+
+      redis-socketio:
+        image: redis:alpine
+        ports:
+          - 12000:6379
+
     steps:
       - name: Clone
         uses: actions/checkout@v3
@@ -53,7 +68,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: 'echo "::set-output name=dir::$(yarn cache dir)"'
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - uses: actions/cache@v3
         id: yarn-cache
