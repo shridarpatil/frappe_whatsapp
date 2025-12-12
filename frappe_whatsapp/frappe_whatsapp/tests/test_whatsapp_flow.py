@@ -16,7 +16,7 @@ class TestWhatsAppFlow(FrappeTestCase):
         if not frappe.db.exists("WhatsApp Account", "Test Account"):
             frappe.get_doc({
                 "doctype": "WhatsApp Account",
-                "name": "Test Account",
+                "account_name": "Test Account",
                 "url": "https://graph.facebook.com",
                 "version": "v18.0",
                 "phone_id": "123456789",
