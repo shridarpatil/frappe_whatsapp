@@ -21,7 +21,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Button Type",
-   "options": "Quick Reply\nCall Phone\nVisit Website\nComplete Flow",
+   "options": "Quick Reply\nCall Phone\nVisit Website\nFlow",
    "reqd": 1
   },
   {

@@ -320,7 +320,7 @@ def fetch():
                             "URL": "Visit Website",
                             "PHONE_NUMBER": "Call Phone",
                             "QUICK_REPLY": "Quick Reply",
-                            "FLOW": "Complete Flow"
+                            "FLOW": "Flow"
                         }
 
                         for i, button in enumerate(component.get("buttons", []), start=1):
