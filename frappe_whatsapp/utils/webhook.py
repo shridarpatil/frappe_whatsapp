@@ -198,7 +198,7 @@ def post():
 							"message_id": message['id'],
 							"reply_to_message_id": reply_to_message_id,
 							"is_reply": is_reply,
-							"message": message[message_type].get("caption",f"/files/{file_name}"),
+							"message": message[message_type].get("caption", ""),
 							"content_type" : message_type,
 							"profile_name":sender_profile_name,
 							"whatsapp_account":whatsapp_account.name
