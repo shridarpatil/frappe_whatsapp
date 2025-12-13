@@ -1,3 +1,12 @@
+<div align="right">
+	<a href="https://frappecloud.com/marketplace/apps/frappe_whatsapp" target="_blank">
+		<picture>
+			<source media="(prefers-color-scheme: dark)" srcset="https://frappe.io/files/try-on-fc-white.png">
+			<img src="https://frappe.io/files/try-on-fc-black.png" alt="Try on Frappe Cloud" height="28" />
+		</picture>
+	</a>
+</div>
+
 # Frappe WhatsApp
 
 [Documentation](https://shridarpatil.github.io/frappe_whatsapp/)
@@ -198,9 +207,27 @@ Manage multiple WhatsApp Business accounts for different use cases:
 - Route notifications through designated accounts
 - Auto-read receipts per account
 
-## Chat Integration
+## Recommended Apps
 
-Install [whatsapp_chat](https://frappecloud.com/marketplace/apps/whatsapp_chat) for a messenger-like chat interface.
+Enhance your WhatsApp experience with these companion apps:
+
+### WhatsApp Chat
+A chat app for Frappe Desk to manage WhatsApp conversations.
+
+| | |
+|---|---|
+| **Features** | Real-time messaging, media support, contact management, read receipts |
+| **Install** | `bench get-app https://github.com/shridarpatil/whatsapp_chat` |
+| **Marketplace** | [Frappe Cloud](https://frappecloud.com/marketplace/apps/whatsapp_chat) |
+
+### WhatsApp Chatbot
+Build automated chatbots with flows, keyword replies, and AI-powered responses.
+
+| | |
+|---|---|
+| **Features** | Multi-step flows, keyword matching, AI fallback (OpenAI/Anthropic/Google), session management |
+| **Install** | `bench get-app https://github.com/shridarpatil/frappe_whatsapp_chatbot` |
+| **Use Cases** | Customer support, order status, appointment booking, lead capture |
 
 ## Documentation
 
