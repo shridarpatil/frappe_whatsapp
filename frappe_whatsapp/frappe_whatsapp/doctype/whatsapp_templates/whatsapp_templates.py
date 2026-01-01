@@ -6,6 +6,8 @@ import os
 import json
 import frappe
 import magic
+import requests
+import tempfile
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
@@ -77,11 +79,33 @@ class WhatsAppTemplates(Document):
         self._media_id = response['h']
 
     def get_absolute_path(self, file_name):
-        if(file_name.startswith('/files/')):
+        """Get absolute path for a file, handling local paths and URLs."""
+        # Handle full URLs (S3, HTTP, HTTPS)
+        if file_name.startswith(('http://', 'https://')):
+            # Download the file to a temporary location
+            try:
+                response = requests.get(file_name, timeout=30)
+                response.raise_for_status()
+                
+                # Create a temporary file with the same extension
+                file_extension = os.path.splitext(file_name)[1] or ''
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=file_extension)
+                temp_file.write(response.content)
+                temp_file.close()
+                return temp_file.name
+            except Exception as e:
+                frappe.throw(f"Failed to download file from URL: {str(e)}")
+        
+        # Handle local file paths
+        elif file_name.startswith('/files/'):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}'
-        if(file_name.startswith('/private/')):
+        elif file_name.startswith('/private/'):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}'
-        return file_name
+        else:
+            # Fallback: assume it's a relative path or handle as-is
+            file_path = file_name
+        
+        return file_path
 
 
     def after_insert(self):
