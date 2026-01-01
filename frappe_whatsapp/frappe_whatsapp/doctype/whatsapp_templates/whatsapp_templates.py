@@ -81,7 +81,7 @@ class WhatsAppTemplates(Document):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}'
         if(file_name.startswith('/private/')):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}'
-        return file_path
+        return file_name
 
 
     def after_insert(self):
