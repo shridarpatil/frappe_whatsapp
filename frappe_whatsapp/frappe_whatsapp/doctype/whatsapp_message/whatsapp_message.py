@@ -242,6 +242,18 @@ class WhatsAppMessage(Document):
                         }]
                     })
 
+                elif template.header_type == 'DOCUMENT':
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "document",
+                            "document": {
+                                "link": url,
+                                "filename": "document.pdf"  # should be configurable
+                            }
+                        }]
+                    })
+
             elif template.sample:
                 if template.header_type == 'IMAGE':
                     if template.sample.startswith("http"):
