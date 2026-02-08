@@ -7,7 +7,6 @@ import json
 import frappe
 import magic
 import requests
-import tempfile
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
@@ -24,8 +23,8 @@ class WhatsAppTemplates(Document):
             self.language_code = lang_code.replace("-", "_")
 
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
-            self.get_session_id()
-            self.get_media_id()
+            self.get_session_id(self.sample)
+            self.get_media_id(self.sample)
 
         if not self.is_new():
             self.update_template()
@@ -39,15 +38,23 @@ class WhatsAppTemplates(Document):
             else:
                 self.whatsapp_account = default_whatsapp_account.name
 
-    def get_session_id(self):
+    def get_session_id(self, file):
         """Upload media."""
         self.get_settings()
-        file_path = self.get_absolute_path(self.sample)
-        mime = magic.Magic(mime=True)
-        file_type = mime.from_file(file_path)
+        
+        # Check if it's a remote file, load data accordingly
+        if file.startswith(('http://', 'https://')):
+            remote_file_data = self._prepare_remote_file(file)
+            file_type = remote_file_data['file_type']
+            file_length = remote_file_data['file_size']
+        else:
+            file_path = self.get_absolute_path(file)
+            mime = magic.Magic(mime=True)
+            file_type = mime.from_file(file_path)
+            file_length = os.path.getsize(file_path)
 
         payload = {
-            'file_length': os.path.getsize(file_path),
+            'file_length': file_length,
             'file_type': file_type,
             'messaging_product': 'whatsapp'
         }
@@ -59,15 +66,47 @@ class WhatsAppTemplates(Document):
         )
         self._session_id = response['id']
 
-    def get_media_id(self):
+    def _prepare_remote_file(self, file_url):
+        """Download and return remote file content from URL."""
+        try:
+            response = requests.get(file_url, timeout=30)
+            response.raise_for_status()
+            
+            file_content = response.content
+            file_size = len(file_content)
+            
+            # Get MIME type from Content-Type header or detect from content
+            content_type = response.headers.get('Content-Type', '').split(';')[0].strip()
+            if content_type:
+                file_type = content_type
+            else:
+                # Fallback to magic detection from content
+                mime = magic.Magic(mime=True)
+                file_type = mime.from_buffer(file_content)
+            
+            return {
+                'file_content': file_content,
+                'file_size': file_size,
+                'file_type': file_type
+            }
+        except Exception as e:
+            frappe.throw(f"Failed to download file from URL: {str(e)}")
+
+    def get_media_id(self, file):
         self.get_settings()
 
         headers = {
                 "authorization": f"OAuth {self._token}"
             }
-        file_name = self.get_absolute_path(self.sample)
-        with open(file_name, mode='rb') as file: # b is important -> binary
-            file_content = file.read()
+        
+        # Check if it's a remote file, load data accordingly
+        if file.startswith(('http://', 'https://')):
+            remote_file_data = self._prepare_remote_file(file)
+            file_content = remote_file_data['file_content']
+        else:
+            file_path = self.get_absolute_path(file)
+            with open(file_path, mode='rb') as f: # b is important -> binary
+                file_content = f.read()
 
         payload = file_content
         response = make_post_request(
@@ -79,25 +118,9 @@ class WhatsAppTemplates(Document):
         self._media_id = response['h']
 
     def get_absolute_path(self, file_name):
-        """Get absolute path for a file, handling local paths and URLs."""
-        # Handle full URLs (S3, HTTP, HTTPS)
-        if file_name.startswith(('http://', 'https://')):
-            # Download the file to a temporary location
-            try:
-                response = requests.get(file_name, timeout=30)
-                response.raise_for_status()
-                
-                # Create a temporary file with the same extension
-                file_extension = os.path.splitext(file_name)[1] or ''
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=file_extension)
-                temp_file.write(response.content)
-                temp_file.close()
-                return temp_file.name
-            except Exception as e:
-                frappe.throw(f"Failed to download file from URL: {str(e)}")
-        
+        """Get absolute path for a file, handling local paths."""
         # Handle local file paths
-        elif file_name.startswith('/files/'):
+        if file_name.startswith('/files/'):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}/public{file_name}'
         elif file_name.startswith('/private/'):
             file_path = f'{frappe.utils.get_bench_path()}/sites/{frappe.utils.get_site_base_path()[2:]}{file_name}'
