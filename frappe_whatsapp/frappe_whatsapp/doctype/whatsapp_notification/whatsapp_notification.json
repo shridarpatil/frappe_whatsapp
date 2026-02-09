@@ -48,6 +48,7 @@
   },
   {
    "depends_on": "eval:doc.notification_type == \"Scheduler Event\"",
+   "description": "Tip: You can use \"Custom\" when you don\u2019t want a default frequency, but you must set up the custom schedule manually after selecting this option.",
    "fieldname": "event_frequency",
    "fieldtype": "Select",
    "label": "Event Frequency",
@@ -219,7 +220,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-04 16:56:52.149544",
+ "modified": "2026-02-09 08:57:16.575175",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Notification",
