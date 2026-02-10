@@ -168,6 +168,28 @@ def post():
 							"whatsapp_account": whatsapp_account.name
 						}
 					)
+			# NEW: Handle Shopping Cart / Orders from MPM
+			elif message_type == 'order':
+				order_data = message['order']
+
+				# 1. Create a clean display message for the Frappe Timeline
+				items = [f"{i.get('quantity')}x {i.get('product_retailer_id')}" for i in
+						 order_data.get('product_items', [])]
+				display_message = f"🛒 Order Received: {', '.join(items)}"
+
+				# 2. Inject the raw data into product_catalog_json
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming",
+					"from": message['from'],
+					"message": display_message,
+					"message_id": message['id'],
+					"content_type": "order",
+					"profile_name": sender_profile_name,
+					"whatsapp_account": whatsapp_account.name,
+					# INJECTION: Save the structured data here
+					"product_catalog_json": json.dumps(order_data)
+				}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				token = whatsapp_account.get_password("token")
 				url = f"{whatsapp_account.url}/{whatsapp_account.version}/"
