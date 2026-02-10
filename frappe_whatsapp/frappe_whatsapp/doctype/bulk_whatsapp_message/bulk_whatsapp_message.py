@@ -173,7 +173,7 @@ class BulkWhatsAppMessage(Document):
 
     def get_mpm_action_json(self):
         """Constructs the Meta 'action' JSON by fetching Catalog ID from the Account"""
-        if not self.whatsapp_account or not self.catalog_id or not self.product_ids:
+        if not self.whatsapp_account or not self.thumbnail_product_retailer_id or not self.product_ids:
             return None
 
         raw_ids = self.product_ids
@@ -186,11 +186,13 @@ class BulkWhatsAppMessage(Document):
             frappe.msgprint(_("Note: Only the first 30 products were included due to WhatsApp limitations."),
                             indicator="orange")
         return {
-            "catalog_id": self.catalog_id,
+            "thumbnail_product_retailer_id": self.thumbnail_product_retailer_id,
             "sections": [
                 {
                     "title": self.mpm_header or "Our Products",
-                    "product_retailer_ids": product_list
+                    "product_items": [
+                        {"product_retailer_id": pid} for pid in product_list
+                    ]
                 }
             ]
         }

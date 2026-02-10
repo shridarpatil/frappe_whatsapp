@@ -274,12 +274,13 @@
   {
    "fieldname": "product_catalog_json",
    "fieldtype": "JSON",
-   "label": "Product Catalog"
+   "label": "Product Catalog",
+   "set_only_once": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-10 18:52:35.493857",
+ "modified": "2026-02-10 23:51:40.315603",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
