@@ -177,7 +177,8 @@ class BulkWhatsAppMessage(Document):
             return None
 
         # Clean the product list from the user input
-        product_list = [p.strip() for p in self.product_ids.split(",") if p.strip()]
+        # Convert to a set to remove duplicates, then back to a list
+        product_list = list(dict.fromkeys([p.strip() for p in raw_ids.split(",") if p.strip()]))
 
         if len(product_list) > 30:
             product_list = product_list[:30]
