@@ -176,6 +176,7 @@ class BulkWhatsAppMessage(Document):
         if not self.whatsapp_account or not self.catalog_id or not self.product_ids:
             return None
 
+        raw_ids = self.product_ids
         # Clean the product list from the user input
         # Convert to a set to remove duplicates, then back to a list
         product_list = list(dict.fromkeys([p.strip() for p in raw_ids.split(",") if p.strip()]))
