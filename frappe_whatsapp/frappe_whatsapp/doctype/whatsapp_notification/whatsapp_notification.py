@@ -209,7 +209,7 @@ class WhatsAppNotification(Document):
                         }
                     }]
                 })
-            self.content_type = template.header_type.lower()
+            self.content_type = template.header_type.lower() if template.header_type else None
 
             if template.buttons:
                 button_fields = self.button_fields.split(",") if self.button_fields else []
@@ -328,6 +328,8 @@ class WhatsAppNotification(Document):
 
     def format_number(self, number):
         """Format number."""
+        if not number:
+            return number
         if (number.startswith("+")):
             number = number[1:len(number)]
 
