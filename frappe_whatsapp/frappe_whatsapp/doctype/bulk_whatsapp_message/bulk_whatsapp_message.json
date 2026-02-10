@@ -206,13 +206,14 @@
    "description": "Provide any of your products id to use its image.",
    "fieldname": "thumbnail_product_retailer_id",
    "fieldtype": "Data",
-   "label": "Thumbnail Product"
+   "label": "Thumbnail Product",
+   "mandatory_depends_on": "eval:doc.is_mpm==1"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-11 00:09:48.165466",
+ "modified": "2026-02-11 01:17:05.293810",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",
