@@ -1,14 +1,14 @@
-
 name: CI
 
 on:
   push:
     branches:
+      - master
       - develop
   pull_request:
 
 concurrency:
-  group: develop-frappe_whatsapp-${{ github.event.number }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -16,7 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-    name: Server
+      matrix:
+        include:
+          - frappe-branch: version-14
+            python-version: "3.10"
+            node-version: 16
+          - frappe-branch: version-15
+            python-version: "3.11"
+            node-version: 18
+          - frappe-branch: version-16
+            python-version: "3.14"
+            node-version: 24
+          - frappe-branch: develop
+            python-version: "3.14"
+            node-version: 24
+
+    name: Frappe ${{ matrix.frappe-branch }} (Python ${{ matrix.python-version }})
 
     services:
       mariadb:
@@ -31,70 +46,80 @@ jobs:
         image: redis:alpine
         ports:
           - 13000:6379
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
       redis-queue:
         image: redis:alpine
         ports:
           - 11000:6379
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
       redis-socketio:
         image: redis:alpine
         ports:
           - 12000:6379
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-          check-latest: true
+          node-version: ${{ matrix.node-version }}
 
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
+          key: ${{ runner.os }}-pip-${{ matrix.frappe-branch }}-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
           restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.frappe-branch }}-
             ${{ runner.os }}-pip-
-            ${{ runner.os }}-
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
-        id: yarn-cache
+      - name: Cache yarn
+        uses: actions/cache@v4
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Setup
+      - name: Setup bench
         run: |
           pip install frappe-bench
-          bench init --skip-redis-config-generation --skip-assets --python "$(which python)" ~/frappe-bench
+          bench init --skip-redis-config-generation --skip-assets --python "$(which python)" --frappe-branch ${{ matrix.frappe-branch }} ~/frappe-bench
           mysql --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
           mysql --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
-      - name: Install
+      - name: Configure Redis
+        working-directory: /home/runner/frappe-bench
+        run: |
+          bench set-config -g redis_cache "redis://localhost:13000"
+          bench set-config -g redis_queue "redis://localhost:11000"
+          bench set-config -g redis_socketio "redis://localhost:12000"
+
+      - name: Install app
         working-directory: /home/runner/frappe-bench
         run: |
           bench get-app frappe_whatsapp $GITHUB_WORKSPACE
           bench setup requirements --dev
+          ~/frappe-bench/env/bin/python -m pip install setuptools
           bench new-site --db-root-password root --admin-password admin test_site
           bench --site test_site install-app frappe_whatsapp
           bench build
         env:
-          CI: 'Yes'
+          CI: "Yes"
 
       - name: Run Tests
         working-directory: /home/runner/frappe-bench
