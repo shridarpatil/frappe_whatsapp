@@ -8,6 +8,7 @@
  "field_order": [
   "title",
   "from_number",
+  "column_break_fpdx",
   "section_recipients",
   "recipient_type",
   "recipient_list",
@@ -16,12 +17,16 @@
   "recipients",
   "section_message",
   "use_template",
+  "is_mpm",
   "template",
   "variable_type",
   "attach",
   "whatsapp_account",
+  "catalog_id",
+  "mpm_header",
   "column_break_hztf",
   "template_variables",
+  "product_ids",
   "section_status",
   "status",
   "scheduled_time",
@@ -169,12 +174,42 @@
   {
    "fieldname": "column_break_hwbk",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_mpm",
+   "fieldtype": "Check",
+   "label": "Use MPM"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "fieldname": "catalog_id",
+   "fieldtype": "Data",
+   "label": "Catalog ID",
+   "mandatory_depends_on": "eval:doc.is_mpm==1"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "fieldname": "product_ids",
+   "fieldtype": "Code",
+   "label": "Product IDs",
+   "mandatory_depends_on": "eval:doc.is_mpm==1"
+  },
+  {
+   "fieldname": "column_break_fpdx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "fieldname": "mpm_header",
+   "fieldtype": "Data",
+   "label": "MPM Header"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-01 18:45:42.313769",
+ "modified": "2026-02-10 18:42:34.750677",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",

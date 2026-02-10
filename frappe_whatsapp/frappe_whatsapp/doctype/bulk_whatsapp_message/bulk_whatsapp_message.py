@@ -103,6 +103,12 @@ class BulkWhatsAppMessage(Document):
             wa_message.use_template = self.use_template
             # Handle template variables if needed
 
+            # handle MPM action JSON if product IDs and catalog ID are provided
+            mpm_action = self.get_mpm_action_json()
+            if mpm_action:
+                # We store the action JSON so the outgoing API call can find it
+                wa_message.product_catalog_json = json.dumps(mpm_action)
+
             if recipient.get("recipient_data") and self.variable_type=='Unique':
                 wa_message.body_param = recipient.get("recipient_data")
             elif self.template_variables and self.variable_type=='Common':
@@ -163,4 +169,26 @@ class BulkWhatsAppMessage(Document):
             "failed": failed,
             "queued": queued,
             "percent": (sent / total * 100) if total else 0
+        }
+
+    def get_mpm_action_json(self):
+        """Constructs the Meta 'action' JSON by fetching Catalog ID from the Account"""
+        if not self.whatsapp_account or not self.catalog_id or not self.product_ids:
+            return None
+
+        # Clean the product list from the user input
+        product_list = [p.strip() for p in self.product_ids.split(",") if p.strip()]
+
+        if len(product_list) > 30:
+            product_list = product_list[:30]
+            frappe.msgprint(_("Note: Only the first 30 products were included due to WhatsApp limitations."),
+                            indicator="orange")
+        return {
+            "catalog_id": self.catalog_id,
+            "sections": [
+                {
+                    "title": self.mpm_header or "Our Products",
+                    "product_retailer_ids": product_list
+                }
+            ]
         }

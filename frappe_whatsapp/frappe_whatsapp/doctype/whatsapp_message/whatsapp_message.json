@@ -16,6 +16,7 @@
   "template",
   "template_parameters",
   "template_header_parameters",
+  "product_catalog_json",
   "column_break_5",
   "message",
   "message_type",
@@ -57,8 +58,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Type",
-   "options": "Outgoing\nIncoming",
-   "set_only_once": 1
+   "options": "Outgoing\nIncoming"
   },
   {
    "fieldname": "status",
@@ -73,15 +73,13 @@
    "description": "Mobile number with country code",
    "fieldname": "to",
    "fieldtype": "Data",
-   "label": "TO ",
-   "set_only_once": 1
+   "label": "TO "
   },
   {
    "depends_on": "eval:(doc.type==\"Incoming\");",
    "fieldname": "from",
    "fieldtype": "Data",
-   "label": "From",
-   "set_only_once": 1
+   "label": "From"
   },
   {
    "default": "0",
@@ -155,12 +153,12 @@
    "label": "Attach"
   },
   {
-   "fieldname": "buttons",
-   "fieldtype": "JSON",
-   "label": "Buttons",
    "default": "{}",
    "depends_on": "eval:doc.content_type=='interactive'",
-   "description": "JSON array: [{\"id\": \"yes\", \"title\": \"Yes\"}, {\"id\": \"no\", \"title\": \"No\"}]"
+   "description": "JSON array: [{\"id\": \"yes\", \"title\": \"Yes\"}, {\"id\": \"no\", \"title\": \"No\"}]",
+   "fieldname": "buttons",
+   "fieldtype": "JSON",
+   "label": "Buttons"
   },
   {
    "fieldname": "section_break_iyjf",
@@ -272,11 +270,16 @@
    "fieldtype": "JSON",
    "label": "Flow Response Data",
    "read_only": 1
+  },
+  {
+   "fieldname": "product_catalog_json",
+   "fieldtype": "JSON",
+   "label": "Product Catalog"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-20 15:13:42.233969",
+ "modified": "2026-02-10 18:52:35.493857",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",
