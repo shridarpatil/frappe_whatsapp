@@ -115,7 +115,7 @@ jobs:
           bench get-app frappe_whatsapp $GITHUB_WORKSPACE
           bench setup requirements --dev
           ~/frappe-bench/env/bin/python -m ensurepip --upgrade 2>/dev/null || true
-          ~/frappe-bench/env/bin/python -m pip install setuptools
+          ~/frappe-bench/env/bin/python -m pip install "setuptools<70"
           ~/frappe-bench/env/bin/python -c "import pkg_resources; print('pkg_resources OK')"
           bench new-site --db-root-password root --admin-password admin test_site
           bench --site test_site install-app frappe_whatsapp
