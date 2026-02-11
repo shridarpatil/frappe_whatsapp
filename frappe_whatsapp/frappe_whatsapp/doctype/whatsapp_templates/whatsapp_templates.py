@@ -127,6 +127,10 @@ class WhatsAppTemplates(Document):
                     b["phone_number"] = btn.phone_number
                 elif btn.button_type == "Quick Reply":
                     b["type"] = "QUICK_REPLY"
+                elif btn.button_type == "Multi-Product Message":
+                    b["type"] = "MPM"
+                elif btn.button_type == "Catalog":
+                    b["type"] = "CATALOG"
 
                 button_block["buttons"].append(b)
 
@@ -180,6 +184,11 @@ class WhatsAppTemplates(Document):
                     b["phone_number"] = btn.phone_number
                 elif btn.button_type == "Quick Reply":
                     b["type"] = "QUICK_REPLY"
+                elif btn.button_type == "Multi-Product Message":
+                    b["type"] = "MPM"
+                    # MPM buttons often require additional fields like catalog_id
+                elif btn.button_type == "Catalog":
+                    b["type"] = "CATALOG"
 
                 button_block["buttons"].append(b)
 
@@ -320,10 +329,17 @@ def fetch():
                             "URL": "Visit Website",
                             "PHONE_NUMBER": "Call Phone",
                             "QUICK_REPLY": "Quick Reply",
-                            "FLOW": "Flow"
+                            "FLOW": "Flow",
+                            "MPM": "Multi-Product Message",
+                            "CATALOG": "Catalog"
                         }
 
                         for i, button in enumerate(component.get("buttons", []), start=1):
+                            btn_type_raw = button.get("type")
+                            if btn_type_raw not in typeMap:
+                                frappe.log_error("WhatsApp Fetch Error", f"Unknown WhatsApp Button Type: {btn_type_raw}")
+                                continue
+
                             btn = {}
                             btn["button_type"] = typeMap[button["type"]]
                             btn["button_label"] = button.get("text")

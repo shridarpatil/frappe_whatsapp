@@ -224,6 +224,27 @@ class WhatsAppNotification(Document):
                                     {"type": "text", "text": doc.get(button_fields.pop(0))}
                                 ]
                             })
+                    elif btn.button_type == "Multi-Product Message":
+                        # MPM requires a catalog_id and product_retailer_ids
+                        if button_fields:
+                            data['template']['components'].append({
+                                "type": "button",
+                                "sub_type": "mpm",
+                                "index": str(idx),
+                                "parameters": [
+                                    {"type": "action", "action": doc.get(button_fields.pop(0))}
+                                ]
+                            })
+                    elif btn.button_type == "Catalog":
+                        if button_fields:
+                            data['template']['components'].append({
+                                "type": "button",
+                                "sub_type": "catalog",
+                                "index": str(idx),
+                                "parameters": [
+                                    {"type": "action", "action": doc.get(button_fields.pop(0))}
+                                ]
+                            })
 
 
             self.notify(data, doc_data, template_account=template.whatsapp_account)
