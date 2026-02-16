@@ -192,10 +192,10 @@ class WhatsAppMessage(Document):
             },
         }
 
+        parameters = []
+        template_parameters = []
         if template.sample_values:
             field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
-            parameters = []
-            template_parameters = []
 
             if self.body_param is not None:
                 params = list(json.loads(self.body_param).values())
@@ -217,12 +217,12 @@ class WhatsAppMessage(Document):
                     template_parameters.append(value)
 
             self.template_parameters = json.dumps(template_parameters)
-            data["template"]["components"].append(
-                {
-                    "type": "body",
-                    "parameters": parameters,
-                }
-            )
+
+        # Always add the body component, even if parameters list is empty
+        data["template"]["components"].append({
+            "type": "body",
+            "parameters": parameters,
+        })
 
         if template.header_type:
             if self.attach:
@@ -258,21 +258,44 @@ class WhatsAppMessage(Document):
                         }]
                     })
 
+        # We check this before standard buttons because MPM is an interactive action
+        has_mpm = False
+        if self.product_catalog_json:
+            try:
+                catalog_data = json.loads(self.product_catalog_json)
+                data['template']['components'].append({
+                    "type": "button",
+                    "sub_type": "mpm",
+                    "index": "0",
+                    "parameters": [
+                        {
+                            "type": "action",
+                            "action": catalog_data
+                        }
+                    ]
+                })
+                has_mpm = True
+            except Exception as e:
+                frappe.log_error(f"Failed to parse Product Catalog JSON: {str(e)}", "WhatsApp MPM Error")
+
         if template.buttons:
             button_parameters = []
             for idx, btn in enumerate(template.buttons):
+                # Shift index if MPM was added at index 0
+                current_idx = str(idx + 1) if has_mpm else str(idx)
+
                 if btn.button_type == "Quick Reply":
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "quick_reply",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
                 elif btn.button_type == "Call Phone":
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "phone_number",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "text", "text": btn.phone_number}]
                     })
                 elif btn.button_type == "Visit Website":
@@ -283,7 +306,7 @@ class WhatsAppMessage(Document):
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "url",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "text", "text": url}]
                     })
 

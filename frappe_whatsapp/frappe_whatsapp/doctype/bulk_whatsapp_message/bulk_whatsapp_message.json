@@ -8,6 +8,7 @@
  "field_order": [
   "title",
   "from_number",
+  "column_break_fpdx",
   "section_recipients",
   "recipient_type",
   "recipient_list",
@@ -16,12 +17,16 @@
   "recipients",
   "section_message",
   "use_template",
+  "is_mpm",
   "template",
   "variable_type",
   "attach",
   "whatsapp_account",
   "column_break_hztf",
   "template_variables",
+  "thumbnail_product_retailer_id",
+  "mpm_header",
+  "product_ids",
   "section_status",
   "status",
   "scheduled_time",
@@ -82,7 +87,7 @@
    "label": "Message"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "use_template",
    "fieldtype": "Check",
    "label": "Use Template"
@@ -169,12 +174,46 @@
   {
    "fieldname": "column_break_hwbk",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Enables Multi-Product Message.",
+   "fieldname": "is_mpm",
+   "fieldtype": "Check",
+   "label": "Enable MPM"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "description": "A comma-separated list of Content IDs (also known as Retailer IDs) from your Meta Catalog. 7jz1ottjd2, oidpztf4vp etc.",
+   "fieldname": "product_ids",
+   "fieldtype": "Code",
+   "label": "Product IDs",
+   "mandatory_depends_on": "eval:doc.is_mpm==1"
+  },
+  {
+   "fieldname": "column_break_fpdx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "description": "The text that appears at the very top of the multi-product message.",
+   "fieldname": "mpm_header",
+   "fieldtype": "Data",
+   "label": "MPM Header"
+  },
+  {
+   "depends_on": "eval:doc.is_mpm==1",
+   "description": "Provide any of your products id to use its image.",
+   "fieldname": "thumbnail_product_retailer_id",
+   "fieldtype": "Data",
+   "label": "Thumbnail Product",
+   "mandatory_depends_on": "eval:doc.is_mpm==1"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-01 18:45:42.313769",
+ "modified": "2026-02-11 01:17:05.293810",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "Bulk WhatsApp Message",

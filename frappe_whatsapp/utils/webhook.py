@@ -3,6 +3,7 @@ import frappe
 import json
 import requests
 import time
+from frappe import _
 from werkzeug.wrappers import Response
 import frappe.utils
 
@@ -168,6 +169,22 @@ def post():
 							"whatsapp_account": whatsapp_account.name
 						}
 					)
+			# NEW: Handle Shopping Cart / Orders from MPM
+			elif message_type == 'order':
+				order_data = message['order']
+
+				# Inject the raw data into product_catalog_json
+				frappe.get_doc({
+					"doctype": "WhatsApp Message",
+					"type": "Incoming",
+					"from": message['from'],
+					"message": _("New Order Received via WhatsApp"),
+					"message_id": message['id'],
+					"content_type": "order",
+					"profile_name": sender_profile_name,
+					"whatsapp_account": whatsapp_account.name,
+					"product_catalog_json": json.dumps(order_data)
+				}).insert(ignore_permissions=True)
 			elif message_type in ["image", "audio", "video", "document"]:
 				token = whatsapp_account.get_password("token")
 				url = f"{whatsapp_account.url}/{whatsapp_account.version}/"
