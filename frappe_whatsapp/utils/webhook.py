@@ -3,6 +3,7 @@ import frappe
 import json
 import requests
 import time
+from frappe import _
 from werkzeug.wrappers import Response
 import frappe.utils
 
