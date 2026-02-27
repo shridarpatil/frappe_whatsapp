@@ -55,6 +55,10 @@ class WhatsAppMessage(Document):
         """Send message."""
         self.set_whatsapp_account()
         if self.type == "Outgoing" and self.message_type != "Template":
+            if self.content_type in ["document", "image", "video", "audio"] and not self.attach:
+                # No attachment provided - fall back to text message
+                self.content_type = "text"
+
             if self.attach and not self.attach.startswith("http"):
                 link = frappe.utils.get_url() + "/" + self.attach
             else:
@@ -313,17 +317,22 @@ class WhatsAppMessage(Document):
             self.message_id = response["messages"][0]["id"]
 
         except Exception as e:
-            res = frappe.flags.integration_request.json().get("error", {})
-            error_message = res.get("Error", res.get("message"))
+            res = {}
+            if hasattr(frappe.flags, "integration_request") and frappe.flags.integration_request:
+                try:
+                    res = frappe.flags.integration_request.json().get("error", {})
+                except Exception:
+                    res = {}
+            error_message = res.get("Error", res.get("message", str(e)))
             frappe.get_doc(
                 {
                     "doctype": "WhatsApp Notification Log",
                     "template": "Text Message",
-                    "meta_data": frappe.flags.integration_request.json(),
+                    "meta_data": res or {"error": str(e)},
                 }
             ).insert(ignore_permissions=True)
 
-            frappe.throw(msg=error_message, title=res.get("error_user_title", "Error"))
+            frappe.throw(msg=error_message, title=res.get("error_user_title", "WhatsApp Error"))
 
     def format_number(self, number):
         """Format number."""
@@ -364,9 +373,14 @@ class WhatsAppMessage(Document):
                 return response.get("success")
 
         except Exception as e:
-            res = frappe.flags.integration_request.json().get("error", {})
-            error_message = res.get("Error", res.get("message"))
-            frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
+            res = {}
+            if hasattr(frappe.flags, "integration_request") and frappe.flags.integration_request:
+                try:
+                    res = frappe.flags.integration_request.json().get("error", {})
+                except Exception:
+                    res = {}
+            error_message = res.get("Error", res.get("message", str(e)))
+            frappe.log_error("WhatsApp Read Receipt Error", f"{error_message}\n{res}")
 
 
 def on_doctype_update():
