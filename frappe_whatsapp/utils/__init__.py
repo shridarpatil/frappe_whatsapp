@@ -25,15 +25,40 @@ def run_server_script_for_doc_event(doc, event):
     if notification:
         # run all scripts for this doctype + event
         for notification_name in notification:
-            try:
-                frappe.get_doc(
-                    "WhatsApp Notification",
-                    notification_name
-                ).send_template_message(doc)
-            except Exception:
-                frappe.log_error(
-                    title=f"WhatsApp Notification failed: {notification_name}"
-                )
+            _schedule_whatsapp_notification(notification_name, doc)
+
+
+def _schedule_whatsapp_notification(notification_name, doc):
+    """Schedule WhatsApp notification to run after commit.
+
+    Frappe v16 disallows frappe.db.commit() in doc hooks, so we defer
+    the API call to after the transaction commits. This also ensures
+    share keys (for document print attachments) are persisted before
+    the WhatsApp message containing their URL is sent to Meta.
+    """
+    try:
+        # Frappe v15+: runs immediately after the current transaction commits,
+        # in the same process — no queue delay.
+        frappe.db.after_commit.add(
+            lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+        )
+    except AttributeError:
+        # Older Frappe: call directly (commit in doc hooks is still allowed)
+        _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+
+
+def _send_whatsapp_notification(notification_name, doctype, docname):
+    """Send WhatsApp notification."""
+    try:
+        doc = frappe.get_doc(doctype, docname)
+        frappe.get_doc(
+            "WhatsApp Notification",
+            notification_name
+        ).send_template_message(doc)
+    except Exception:
+        frappe.log_error(
+            title=f"WhatsApp Notification failed: {notification_name}"
+        )
 
 
 def get_notifications_map():
