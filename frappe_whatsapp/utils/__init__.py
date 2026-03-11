@@ -32,19 +32,13 @@ def _schedule_whatsapp_notification(notification_name, doc):
     """Schedule WhatsApp notification to run after commit.
 
     Frappe v16 disallows frappe.db.commit() in doc hooks, so we defer
-    the API call to after the transaction commits. This also ensures
-    share keys (for document print attachments) are persisted before
-    the WhatsApp message containing their URL is sent to Meta.
+    the API call to after the transaction commits. This ensures share
+    keys (for document print attachments) are persisted before the
+    WhatsApp message containing their URL is sent to Meta.
     """
-    try:
-        # Frappe v15+: runs immediately after the current transaction commits,
-        # in the same process — no queue delay.
-        frappe.db.after_commit.add(
-            lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
-        )
-    except AttributeError:
-        # Older Frappe: call directly (commit in doc hooks is still allowed)
-        _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+    frappe.db.after_commit.add(
+        lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+    )
 
 
 def _send_whatsapp_notification(notification_name, doctype, docname):
