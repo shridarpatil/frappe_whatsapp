@@ -35,10 +35,17 @@ def _schedule_whatsapp_notification(notification_name, doc):
     the API call to after the transaction commits. This ensures share
     keys (for document print attachments) are persisted before the
     WhatsApp message containing their URL is sent to Meta.
+
+    On Frappe v14/v15, after_commit is not available, so we call directly.
     """
-    frappe.db.after_commit.add(
-        lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
-    )
+    if hasattr(frappe.db, "after_commit"):
+        # Frappe v16+
+        frappe.db.after_commit.add(
+            lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+        )
+    else:
+        # Frappe v14/v15
+        _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
 
 
 def _send_whatsapp_notification(notification_name, doctype, docname):
