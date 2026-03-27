@@ -84,7 +84,7 @@ class WhatsAppNotification(Document):
                 }
             }
             self.content_type = template.get("header_type", "text").lower()
-            self.notify(data, template_account=template.get("whatsapp_account"))
+            self.notify(data)
 
 
     def send_template_message(self, doc: Document, phone_no=None, default_template=None, ignore_condition=False):
@@ -226,13 +226,13 @@ class WhatsAppNotification(Document):
                             })
 
 
-            self.notify(data, doc_data, template_account=template.whatsapp_account)
+            self.notify(data, doc_data)
 
-    def notify(self, data, doc_data=None, template_account=None):
+    def notify(self, data, doc_data=None):
         """Notify."""
-        # Use template's whatsapp account if available, otherwise use default outgoing account
-        if template_account:
-            whatsapp_account = frappe.get_doc("WhatsApp Account", template_account)
+        # Use notification WhatsApp account if available, otherwise use a default outgoing account
+        if self.whatsapp_account:
+            whatsapp_account = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
         else:
             whatsapp_account = get_whatsapp_account(account_type='outgoing')
 
