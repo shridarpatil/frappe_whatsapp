@@ -54,6 +54,10 @@ class WhatsAppMessage(Document):
     def before_insert(self):
         """Send message."""
         self.set_whatsapp_account()
+        # Route to template path when a template is selected,
+        # since message_type is read_only and cannot be set from the UI.
+        if self.template:
+            self.message_type = "Template"
         if self.type == "Outgoing" and self.message_type != "Template":
             if self.attach and not self.attach.startswith("http"):
                 link = frappe.utils.get_url() + "/" + self.attach
