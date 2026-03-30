@@ -61,7 +61,7 @@ Go to **WhatsApp Account** in Frappe and enter your credentials:
 - App ID
 - Webhook Verify Token
 
-![WhatsApp Settings](https://user-images.githubusercontent.com/11792643/198827382-90283b36-f8ab-430e-a909-1b600d6f5da4.png)
+![WhatsApp Account](https://user-images.githubusercontent.com/11792643/198827382-90283b36-f8ab-430e-a909-1b600d6f5da4.png)
 
 ### 3. Create Templates
 Create WhatsApp templates that are approved by Meta:
