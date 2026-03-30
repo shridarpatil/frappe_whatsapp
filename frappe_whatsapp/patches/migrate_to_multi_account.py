@@ -47,8 +47,6 @@ def execute():
     update_whatsapp_settings(account.name)
     update_whatsapp_templates(account.name)
 
-    frappe.db.commit()
-
 
 def update_whatsapp_settings(account_name: str):
     """Update WhatsApp Settings with the new default account."""
