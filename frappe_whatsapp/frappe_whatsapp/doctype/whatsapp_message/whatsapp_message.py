@@ -54,6 +54,10 @@ class WhatsAppMessage(Document):
     def before_insert(self):
         """Send message."""
         self.set_whatsapp_account()
+        # Route to template path when a template is selected,
+        # since message_type is read_only and cannot be set from the UI.
+        if self.template:
+            self.message_type = "Template"
         if self.type == "Outgoing" and self.message_type != "Template":
             if self.attach and not self.attach.startswith("http"):
                 link = frappe.utils.get_url() + "/" + self.attach
@@ -192,10 +196,10 @@ class WhatsAppMessage(Document):
             },
         }
 
+        parameters = []
+        template_parameters = []
         if template.sample_values:
             field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
-            parameters = []
-            template_parameters = []
 
             if self.body_param is not None:
                 params = list(json.loads(self.body_param).values())
@@ -217,27 +221,38 @@ class WhatsAppMessage(Document):
                     template_parameters.append(value)
 
             self.template_parameters = json.dumps(template_parameters)
-            data["template"]["components"].append(
-                {
-                    "type": "body",
-                    "parameters": parameters,
-                }
-            )
+
+        # Always add the body component, even if parameters list is empty
+        data["template"]["components"].append({
+            "type": "body",
+            "parameters": parameters,
+        })
 
         if template.header_type:
             if self.attach:
+                if self.attach.startswith("http"):
+                    url = f'{self.attach}'
+                else:
+                    url = f'{frappe.utils.get_url()}{self.attach}'
                 if template.header_type == 'IMAGE':
-
-                    if self.attach.startswith("http"):
-                        url = f'{self.attach}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{self.attach}'
                     data['template']['components'].append({
                         "type": "header",
                         "parameters": [{
                             "type": "image",
                             "image": {
                                 "link": url
+                            }
+                        }]
+                    })
+
+                elif template.header_type == 'DOCUMENT':
+                    data['template']['components'].append({
+                        "type": "header",
+                        "parameters": [{
+                            "type": "document",
+                            "document": {
+                                "link": url,
+                                "filename": "document.pdf"  # should be configurable
                             }
                         }]
                     })
@@ -258,21 +273,44 @@ class WhatsAppMessage(Document):
                         }]
                     })
 
+        # We check this before standard buttons because MPM is an interactive action
+        has_mpm = False
+        if self.product_catalog_json:
+            try:
+                catalog_data = json.loads(self.product_catalog_json)
+                data['template']['components'].append({
+                    "type": "button",
+                    "sub_type": "mpm",
+                    "index": "0",
+                    "parameters": [
+                        {
+                            "type": "action",
+                            "action": catalog_data
+                        }
+                    ]
+                })
+                has_mpm = True
+            except Exception as e:
+                frappe.log_error(f"Failed to parse Product Catalog JSON: {str(e)}", "WhatsApp MPM Error")
+
         if template.buttons:
             button_parameters = []
             for idx, btn in enumerate(template.buttons):
+                # Shift index if MPM was added at index 0
+                current_idx = str(idx + 1) if has_mpm else str(idx)
+
                 if btn.button_type == "Quick Reply":
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "quick_reply",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
                 elif btn.button_type == "Call Phone":
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "phone_number",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "text", "text": btn.phone_number}]
                     })
                 elif btn.button_type == "Visit Website":
@@ -283,7 +321,7 @@ class WhatsAppMessage(Document):
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "url",
-                        "index": str(idx),
+                        "index": current_idx,
                         "parameters": [{"type": "text", "text": url}]
                     })
 
