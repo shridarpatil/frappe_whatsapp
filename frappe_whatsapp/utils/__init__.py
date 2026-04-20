@@ -39,16 +39,21 @@ def _schedule_whatsapp_notification(notification_name, doc):
     On Frappe v14/v15, after_commit is not available, so we call directly.
     """
     if hasattr(frappe.db, "after_commit"):
-        # Frappe v16+
+        # Frappe v16+: run after the doc-event transaction commits so that
+        # share keys / set-property-after-alert writes are visible to Meta,
+        # and commit our own writes (WhatsApp Message + Notification Log)
+        # since we are outside the request's auto-commit scope.
         frappe.db.after_commit.add(
-            lambda: _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
+            lambda: _send_whatsapp_notification(
+                notification_name, doc.doctype, doc.name, commit=True
+            )
         )
     else:
         # Frappe v14/v15
         _send_whatsapp_notification(notification_name, doc.doctype, doc.name)
 
 
-def _send_whatsapp_notification(notification_name, doctype, docname):
+def _send_whatsapp_notification(notification_name, doctype, docname, commit=False):
     """Send WhatsApp notification."""
     try:
         doc = frappe.get_doc(doctype, docname)
@@ -56,7 +61,11 @@ def _send_whatsapp_notification(notification_name, doctype, docname):
             "WhatsApp Notification",
             notification_name
         ).send_template_message(doc)
+        if commit:
+            frappe.db.commit()
     except Exception:
+        if commit:
+            frappe.db.rollback()
         frappe.log_error(
             title=f"WhatsApp Notification failed: {notification_name}"
         )
