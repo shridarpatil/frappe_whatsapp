@@ -1,8 +1,6 @@
 # Copyright (c) 2025, Shridhar Patil and contributors
 # For license information, please see license.txt
 
-import json
-
 import frappe
 from frappe import _
 from frappe.integrations.utils import make_post_request
@@ -52,7 +50,7 @@ class WhatsAppAccount(Document):
 		}
 
 		try:
-			response = make_post_request(endpoint, headers=headers, data=json.dumps({}))
+			response = make_post_request(endpoint, headers=headers)
 		except Exception as e:
 			error_message = str(e)
 			if frappe.flags.integration_request:
