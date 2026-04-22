@@ -306,6 +306,11 @@ class WhatsAppMessage(Document):
                 frappe.log_error(f"Failed to parse Product Catalog JSON: {str(e)}", "WhatsApp MPM Error")
 
         if template.buttons:
+            # Only buttons with *runtime* parameters go into components.
+            # Static Call Phone and static Visit Website buttons are applied
+            # by Meta from the approved template — sending them here yields
+            # "sub_type must be one of {...}" errors since Meta no longer
+            # accepts `phone_number`. See issue #188.
             button_parameters = []
             for idx, btn in enumerate(template.buttons):
                 # Shift index if MPM was added at index 0
@@ -318,18 +323,9 @@ class WhatsAppMessage(Document):
                         "index": current_idx,
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
-                elif btn.button_type == "Call Phone":
-                    button_parameters.append({
-                        "type": "button",
-                        "sub_type": "phone_number",
-                        "index": current_idx,
-                        "parameters": [{"type": "text", "text": btn.phone_number}]
-                    })
-                elif btn.button_type == "Visit Website":
-                    url = btn.website_url
-                    if btn.url_type == "Dynamic":
-                        ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-                        url = ref_doc.get_formatted(btn.website_url)
+                elif btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
+                    ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
+                    url = ref_doc.get_formatted(btn.website_url)
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "url",
