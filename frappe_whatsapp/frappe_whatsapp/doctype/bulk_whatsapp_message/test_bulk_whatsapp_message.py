@@ -168,7 +168,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
 
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
     def test_retry_failed(self, mock_post):
-        """Test retry_failed requeues failed messages."""
+        """Test retry_failed actually re-sends failed messages to Meta."""
         mock_post.return_value = {
             "messages": [{"id": "wamid.bulk_retry_1"}],
         }
@@ -194,7 +194,9 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
         doc.retry_failed()
 
         failed_msg.reload()
-        self.assertEqual(failed_msg.status, "Queued")
+        self.assertEqual(failed_msg.status, "Success")
+        self.assertEqual(failed_msg.message_id, "wamid.bulk_retry_1")
+        mock_post.assert_called_once()
 
     def test_validate_with_recipient_list(self):
         """Test validation with recipient_list type."""
