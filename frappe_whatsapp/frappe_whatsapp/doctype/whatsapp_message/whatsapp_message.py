@@ -58,7 +58,21 @@ class WhatsAppMessage(Document):
         # since message_type is read_only and cannot be set from the UI.
         if self.template:
             self.message_type = "Template"
-        if self.type == "Outgoing" and self.message_type != "Template":
+        self.send_outgoing()
+        self.create_whatsapp_profile()
+
+    def send_outgoing(self):
+        """Dispatch an Outgoing message to Meta.
+
+        Called from `before_insert` for first-time sends and from bulk
+        retry for re-sending Failed messages. No-op for non-Outgoing docs.
+        On non-template sends, raises and sets status to Failed on error;
+        on template sends, `send_template` -> `notify` raises on error.
+        """
+        if self.type != "Outgoing":
+            return
+
+        if self.message_type != "Template":
             if self.attach and not self.attach.startswith("http"):
                 link = frappe.utils.get_url() + "/" + self.attach
             else:
@@ -177,10 +191,8 @@ class WhatsAppMessage(Document):
             except Exception as e:
                 self.status = "Failed"
                 frappe.throw(f"Failed to send message {str(e)}")
-        elif self.type == "Outgoing" and self.message_type == "Template" and not self.message_id:
+        elif not self.message_id:
             self.send_template()
-
-        self.create_whatsapp_profile()
 
     def send_template(self):
         """Send template."""
