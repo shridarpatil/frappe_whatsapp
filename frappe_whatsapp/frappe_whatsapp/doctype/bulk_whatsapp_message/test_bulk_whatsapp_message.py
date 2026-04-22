@@ -168,11 +168,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
 
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
     def test_retry_failed(self, mock_post):
-        """Test retry_failed actually re-sends failed messages to Meta."""
-        mock_post.return_value = {
-            "messages": [{"id": "wamid.bulk_retry_1"}],
-        }
-
+        """Test retry_failed enqueues each failed message for re-send."""
         doc = self._make_bulk_message(title="Test Bulk Retry")
         # Create a failed message referencing this bulk
         failed_msg = frappe.get_doc({
@@ -191,7 +187,39 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
         failed_msg.db_insert()
         frappe.db.commit()
 
-        doc.retry_failed()
+        with patch(
+            "frappe_whatsapp.frappe_whatsapp.doctype.bulk_whatsapp_message.bulk_whatsapp_message.frappe.enqueue_doc"
+        ) as mock_enqueue:
+            doc.retry_failed()
+            mock_enqueue.assert_called_once()
+            call_kwargs = mock_enqueue.call_args.kwargs
+            self.assertEqual(call_kwargs.get("message_name"), failed_msg.name)
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_resend_single_message(self, mock_post):
+        """Test the worker entry actually re-sends and persists Success."""
+        mock_post.return_value = {
+            "messages": [{"id": "wamid.bulk_retry_1"}],
+        }
+
+        doc = self._make_bulk_message(title="Test Bulk Resend Single")
+        failed_msg = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112277",
+            "message": "Failed msg",
+            "message_type": "Manual",
+            "content_type": "text",
+            "status": "Failed",
+            "bulk_message_reference": doc.name,
+            "whatsapp_account": "Test WA Bulk Account",
+            "message_id": "wamid.failed_bulk_2",
+        })
+        failed_msg.flags.ignore_validate = True
+        failed_msg.db_insert()
+        frappe.db.commit()
+
+        doc.resend_single_message(failed_msg.name)
 
         failed_msg.reload()
         self.assertEqual(failed_msg.status, "Success")
