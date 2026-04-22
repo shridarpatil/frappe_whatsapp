@@ -335,3 +335,65 @@ class TestWhatsAppMessage(IntegrationTestCase):
         self.assertTrue(
             frappe.db.exists("WhatsApp Message", {"to": "919900112263", "message_type": "Template"})
         )
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_send_template_omits_static_buttons(self, mock_post):
+        """Static Call Phone / Visit Website buttons must NOT appear in the
+        outgoing components payload — Meta rejects sub_type=phone_number and
+        applies static buttons from the approved template automatically.
+        See issue #188.
+        """
+        mock_post.return_value = {"messages": [{"id": "wamid.test_buttons"}]}
+
+        template_name = "test_msg_buttons_template-en"
+        if not frappe.db.exists("WhatsApp Templates", template_name):
+            tmpl = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "test_msg_buttons_template",
+                "actual_name": "test_msg_buttons_template",
+                "template": "Hello",
+                "category": "TRANSACTIONAL",
+                "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+                "language_code": "en",
+                "whatsapp_account": "Test WA Msg Account",
+                "status": "APPROVED",
+                "id": "test_template_buttons_id",
+            })
+            tmpl.append("buttons", {
+                "button_type": "Quick Reply",
+                "button_label": "Yes",
+            })
+            tmpl.append("buttons", {
+                "button_type": "Call Phone",
+                "button_label": "Call Us",
+                "phone_number": "+919876543210",
+            })
+            tmpl.append("buttons", {
+                "button_type": "Visit Website",
+                "button_label": "Homepage",
+                "website_url": "https://example.com",
+                "url_type": "Static",
+            })
+            tmpl.flags.ignore_validate = True
+            tmpl.db_insert()
+            for row in tmpl.buttons:
+                row.db_insert()
+            frappe.db.commit()
+
+        doc = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112264",
+            "message_type": "Template",
+            "content_type": "text",
+            "template": template_name,
+            "whatsapp_account": "Test WA Msg Account",
+        })
+        doc.insert(ignore_permissions=True)
+
+        sent_data = json.loads(mock_post.call_args.kwargs["data"])
+        components = sent_data["template"]["components"]
+        sub_types = [c.get("sub_type") for c in components if c.get("type") == "button"]
+        self.assertNotIn("phone_number", sub_types)
+        self.assertNotIn("url", sub_types)  # static URL button also excluded
+        self.assertIn("quick_reply", sub_types)
