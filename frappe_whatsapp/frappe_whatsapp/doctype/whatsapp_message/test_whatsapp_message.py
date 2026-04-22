@@ -358,25 +358,35 @@ class TestWhatsAppMessage(IntegrationTestCase):
                 "whatsapp_account": "Test WA Msg Account",
                 "status": "APPROVED",
                 "id": "test_template_buttons_id",
-            })
-            tmpl.append("buttons", {
-                "button_type": "Quick Reply",
-                "button_label": "Yes",
-            })
-            tmpl.append("buttons", {
-                "button_type": "Call Phone",
-                "button_label": "Call Us",
-                "phone_number": "+919876543210",
-            })
-            tmpl.append("buttons", {
-                "button_type": "Visit Website",
-                "button_label": "Homepage",
-                "website_url": "https://example.com",
-                "url_type": "Static",
+                "name": template_name,
             })
             tmpl.flags.ignore_validate = True
             tmpl.db_insert()
-            for row in tmpl.buttons:
+            # Link child rows manually — append() before the parent has a
+            # name leaves parent blank, so we wire them up here.
+            buttons = [
+                {"button_type": "Quick Reply", "button_label": "Yes"},
+                {
+                    "button_type": "Call Phone",
+                    "button_label": "Call Us",
+                    "phone_number": "+919876543210",
+                },
+                {
+                    "button_type": "Visit Website",
+                    "button_label": "Homepage",
+                    "website_url": "https://example.com",
+                    "url_type": "Static",
+                },
+            ]
+            for idx, data in enumerate(buttons, start=1):
+                row = frappe.get_doc({
+                    "doctype": "WhatsApp Button",
+                    "parent": template_name,
+                    "parenttype": "WhatsApp Templates",
+                    "parentfield": "buttons",
+                    "idx": idx,
+                    **data,
+                })
                 row.db_insert()
             frappe.db.commit()
 
