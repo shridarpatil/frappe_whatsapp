@@ -15,12 +15,12 @@ class TestWhatsAppAccount(IntegrationTestCase):
         # Clear ALL defaults to prevent cascading on_update side effects
         # (other test classes' accounts would trigger there_must_be_only_one_default)
         frappe.db.sql("UPDATE `tabWhatsApp Account` SET is_default_incoming=0, is_default_outgoing=0")
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Account", filters={"account_name": ["like", "Test WA Account%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Account", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_account(self, account_name="Test WA Account 1", **kwargs):
         """Helper to create a WhatsApp Account."""

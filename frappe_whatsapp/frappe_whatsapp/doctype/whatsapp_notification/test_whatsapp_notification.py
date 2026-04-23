@@ -34,7 +34,7 @@ class TestWhatsAppNotification(IntegrationTestCase):
                 "is_default_outgoing": 1,
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     @classmethod
     def _ensure_test_template(cls):
@@ -55,7 +55,7 @@ class TestWhatsAppNotification(IntegrationTestCase):
                 "header_type": "",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -71,7 +71,7 @@ class TestWhatsAppNotification(IntegrationTestCase):
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Notification", filters={"notification_name": ["like", "Test Notif%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Notification", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_notification(self, **kwargs):
         doc = frappe.get_doc({

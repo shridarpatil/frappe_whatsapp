@@ -53,7 +53,7 @@ class TestGetWhatsAppAccount(IntegrationTestCase):
                 "is_default_outgoing": 1,
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Clear ALL defaults then set ours (db.set_value bypasses on_update hooks)
@@ -113,7 +113,7 @@ class TestGetNotificationsMap(IntegrationTestCase):
                 "webhook_verify_token": "utils_map_verify_token",
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         template_name = "test_utils_map_template-en"
         if not frappe.db.exists("WhatsApp Templates", template_name):
@@ -130,7 +130,7 @@ class TestGetNotificationsMap(IntegrationTestCase):
                 "id": "test_utils_map_tmpl_id",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         if not frappe.db.exists("WhatsApp Notification", "Test Utils Map Notif"):
             frappe.get_doc({
@@ -143,7 +143,7 @@ class TestGetNotificationsMap(IntegrationTestCase):
                 "template": template_name,
                 "disabled": 0,
             }).insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         result = get_notifications_map()
         self.assertIn("User", result)
