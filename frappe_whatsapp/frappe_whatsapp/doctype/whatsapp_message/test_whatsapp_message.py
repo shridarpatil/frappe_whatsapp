@@ -34,7 +34,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
                 "is_default_outgoing": 1,
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -54,7 +54,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
             frappe.delete_doc("WhatsApp Message", name, force=True)
         for name in frappe.get_all("WhatsApp Profiles", filters={"number": ["like", "9199%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Profiles", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def test_incoming_message_creation(self):
         """Test creating an incoming WhatsApp message."""
@@ -322,7 +322,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
                 "status": "APPROVED",
                 "id": "test_template_id_123",
             }).db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message import send_template
         send_template(
@@ -388,7 +388,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
                     **data,
                 })
                 row.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         doc = frappe.get_doc({
             "doctype": "WhatsApp Message",

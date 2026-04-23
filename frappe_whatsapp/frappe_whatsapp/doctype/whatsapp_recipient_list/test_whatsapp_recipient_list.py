@@ -20,12 +20,12 @@ class TestWhatsAppRecipientList(IntegrationTestCase):
         """Ensure there's at least one user with mobile_no set for import tests."""
         if not frappe.db.get_value("User", "Administrator", "mobile_no"):
             frappe.db.set_value("User", "Administrator", "mobile_no", "919900000001")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Recipient List", filters={"list_name": ["like", "Test Recipient%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Recipient List", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_recipient_list(self, list_name="Test Recipient List 1", recipients=None):
         """Helper to create a WhatsApp Recipient List."""

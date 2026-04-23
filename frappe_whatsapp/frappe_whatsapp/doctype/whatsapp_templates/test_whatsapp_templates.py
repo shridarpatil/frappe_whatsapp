@@ -33,7 +33,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
                 "is_default_outgoing": 1,
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -50,7 +50,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         # Use SQL-level delete to avoid triggering on_trash (which calls get_settings)
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_tmpl_%"]})
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_msg_template%"]})
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_template_without_hooks(self, **kwargs):
         """Create a template directly in DB to avoid Meta API calls."""
@@ -73,7 +73,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
             "sample_values": kwargs.get("sample_values", ""),
         })
         doc.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
         return frappe.get_doc("WhatsApp Templates", doc.name)
 
     def test_template_autoname(self):

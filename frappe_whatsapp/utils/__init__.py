@@ -62,6 +62,7 @@ def _send_whatsapp_notification(notification_name, doctype, docname, commit=Fals
             notification_name
         ).send_template_message(doc)
         if commit:
+            # nosemgrep: frappe-manual-commit -- runs in after_commit callback outside request scope; WhatsApp Message + Notification Log rows rely on this to persist
             frappe.db.commit()
     except Exception:
         if commit:

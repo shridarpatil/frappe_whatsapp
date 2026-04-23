@@ -12,12 +12,12 @@ class TestWhatsAppProfiles(IntegrationTestCase):
         # Clean up leftover profiles from other test classes (e.g., notification tests)
         for name in frappe.get_all("WhatsApp Profiles", filters={"number": ["like", "9199%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Profiles", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Profiles", filters={"number": ["like", "9199%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Profiles", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_profile(self, **kwargs):
         """Helper to create a WhatsApp Profile."""

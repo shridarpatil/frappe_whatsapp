@@ -132,8 +132,10 @@ class WhatsAppTemplates(Document):
 
 
     def after_insert(self):
+        # actual_name / id / status are persisted via self.db_update() below
+        # after the Meta round-trip; the static check can't trace that call.
         if self.template_name:
-            self.actual_name = self.template_name.lower().replace(" ", "_")
+            self.actual_name = self.template_name.lower().replace(" ", "_")  # nosemgrep: frappe-modifying-but-not-committing
 
         self.get_settings()
         data = {
@@ -189,8 +191,8 @@ class WhatsAppTemplates(Document):
                 headers=self._headers,
                 data=json.dumps(data),
             )
-            self.id = response["id"]
-            self.status = response["status"]
+            self.id = response["id"]  # nosemgrep: frappe-modifying-but-not-committing
+            self.status = response["status"]  # nosemgrep: frappe-modifying-but-not-committing
             self.db_update()
         except Exception as e:
             res = frappe.flags.integration_request.json().get("error", {})
@@ -258,14 +260,17 @@ class WhatsAppTemplates(Document):
 
     def get_settings(self):
         """Get whatsapp settings."""
+        # Underscore-prefixed attributes below are in-memory scratch for the
+        # outbound HTTP call — they are not DocType fields and must not be
+        # persisted. Semgrep's static check can't tell the difference.
         settings = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
-        self._token = settings.get_password("token")
-        self._url = settings.url
-        self._version = settings.version
-        self._business_id = settings.business_id
-        self._app_id = settings.app_id
+        self._token = settings.get_password("token")  # nosemgrep: frappe-modifying-but-not-committing-other-method
+        self._url = settings.url  # nosemgrep: frappe-modifying-but-not-committing-other-method
+        self._version = settings.version  # nosemgrep: frappe-modifying-but-not-committing-other-method
+        self._business_id = settings.business_id  # nosemgrep: frappe-modifying-but-not-committing-other-method
+        self._app_id = settings.app_id  # nosemgrep: frappe-modifying-but-not-committing-other-method
 
-        self._headers = {
+        self._headers = {  # nosemgrep: frappe-modifying-but-not-committing-other-method
             "authorization": f"Bearer {self._token}",
             "content-type": "application/json",
         }

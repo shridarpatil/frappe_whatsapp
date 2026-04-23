@@ -36,7 +36,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             from frappe.utils.password import set_encrypted_password
             set_encrypted_password("WhatsApp Account", account.name, "test_bulk_token", "token")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     @classmethod
     def _ensure_test_template(cls):
@@ -56,7 +56,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
                 "id": "test_bulk_template_id",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -73,7 +73,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
         for name in frappe.get_all("Bulk WhatsApp Message", filters={"title": ["like", "Test Bulk%"]}, pluck="name"):
             frappe.db.set_value("Bulk WhatsApp Message", name, "docstatus", 2)
             frappe.delete_doc("Bulk WhatsApp Message", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_bulk_message(self, **kwargs):
         """Helper to create a Bulk WhatsApp Message."""
@@ -185,7 +185,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
         })
         failed_msg.flags.ignore_validate = True
         failed_msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         with patch(
             "frappe_whatsapp.frappe_whatsapp.doctype.bulk_whatsapp_message.bulk_whatsapp_message.frappe.enqueue_doc"
@@ -217,7 +217,7 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
         })
         failed_msg.flags.ignore_validate = True
         failed_msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         doc.resend_single_message(failed_msg.name)
 

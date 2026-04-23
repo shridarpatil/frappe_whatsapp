@@ -41,7 +41,7 @@ class TestWebhookHelpers(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             from frappe.utils.password import set_encrypted_password
             set_encrypted_password("WhatsApp Account", account.name, "test_webhook_token", "token")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -53,7 +53,7 @@ class TestWebhookHelpers(IntegrationTestCase):
             frappe.delete_doc("WhatsApp Message", name, force=True)
         for name in frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"}, pluck="name"):
             frappe.delete_doc("WhatsApp Notification Log", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def test_update_status_template_status(self):
         """Test update_status routes to template status update."""
@@ -81,7 +81,7 @@ class TestWebhookHelpers(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "statuses": [{
@@ -109,7 +109,7 @@ class TestWebhookHelpers(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "statuses": [{
@@ -140,7 +140,7 @@ class TestWebhookHelpers(IntegrationTestCase):
                 "id": "webhook_tmpl_id_123",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "event": "APPROVED",
@@ -175,7 +175,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             from frappe.utils.password import set_encrypted_password
             set_encrypted_password("WhatsApp Account", account.name, "ep_token", "token")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -195,7 +195,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
             frappe.delete_doc("WhatsApp Notification Log", name, force=True)
         for name in frappe.get_all("WhatsApp Profiles", filters={"number": ["like", "9199%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Profiles", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_mock_request(self, method="GET"):
         """Create a mock request object."""
@@ -371,7 +371,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         mock_request = self._make_mock_request("POST")
         payload = {
