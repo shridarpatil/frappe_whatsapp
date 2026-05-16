@@ -106,7 +106,13 @@ class WhatsAppMessage(Document):
                 data["type"] = "interactive"
                 buttons_data = json.loads(self.buttons) if isinstance(self.buttons, str) else self.buttons
 
-                if isinstance(buttons_data, list) and len(buttons_data) > 3:
+                if not isinstance(buttons_data, list) or not buttons_data:
+                    frappe.throw(_(
+                        "Please provide at least one button as a JSON array, "
+                        "e.g. [{\"id\": \"yes\", \"title\": \"Yes\"}]"
+                    ))
+
+                if len(buttons_data) > 3:
                     # Use list message for more than 3 options (max 10)
                     data["interactive"] = {
                         "type": "list",
@@ -137,6 +143,15 @@ class WhatsAppMessage(Document):
                             ]
                         }
                     }
+
+                # Optional header and footer (supported for both list and button types)
+                if self.header_text:
+                    data["interactive"]["header"] = {
+                        "type": "text",
+                        "text": self.header_text,
+                    }
+                if self.footer_text:
+                    data["interactive"]["footer"] = {"text": self.footer_text}
 
             elif self.content_type == "flow":
                 # WhatsApp Flow message

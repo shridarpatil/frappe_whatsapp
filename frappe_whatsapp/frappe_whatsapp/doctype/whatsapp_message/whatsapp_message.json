@@ -25,6 +25,8 @@
   "content_type",
   "attach",
   "buttons",
+  "header_text",
+  "footer_text",
   "body_param",
   "whatsapp_account",
   "section_break_flow",
@@ -159,6 +161,22 @@
    "fieldname": "buttons",
    "fieldtype": "JSON",
    "label": "Buttons"
+  },
+  {
+   "depends_on": "eval:doc.content_type=='interactive'",
+   "description": "Optional header text shown above the message body (max 60 characters)",
+   "fieldname": "header_text",
+   "fieldtype": "Data",
+   "label": "Header Text",
+   "length": 60
+  },
+  {
+   "depends_on": "eval:doc.content_type=='interactive'",
+   "description": "Optional footer text shown below the message body (max 60 characters)",
+   "fieldname": "footer_text",
+   "fieldtype": "Data",
+   "label": "Footer Text",
+   "length": 60
   },
   {
    "fieldname": "section_break_iyjf",
