@@ -38,7 +38,7 @@
   {
    "depends_on": "eval:doc.button_type == \"Visit Website\"",
    "fieldname": "website_url",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Website URL"
   },
   {
@@ -51,14 +51,14 @@
   {
    "depends_on": "eval:doc.button_type == \"Visit Website\"",
    "fieldname": "example_url",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Example URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-10 10:57:52.134456",
+ "modified": "2026-05-19 00:30:52.134456",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Button",

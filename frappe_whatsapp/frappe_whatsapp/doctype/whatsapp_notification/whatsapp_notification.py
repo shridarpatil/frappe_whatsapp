@@ -143,6 +143,15 @@ class WhatsAppNotification(Document):
                     "parameters": parameters
                 }]
 
+            # OTP templates require a button component carrying the same value as the body
+            if (template.get("category") or "").upper() == "AUTHENTICATION" and parameters:
+                data['template']["components"].append({
+                    "type": "button",
+                    "sub_type": "url",
+                    "index": "0",
+                    "parameters": [{"type": "text", "text": parameters[0]["text"]}],
+                })
+
             if self.attach_document_print:
                 key = doc.get_document_share_key()  # noqa
                 print_format = "Standard"
