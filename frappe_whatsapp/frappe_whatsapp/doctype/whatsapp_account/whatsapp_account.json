@@ -27,7 +27,7 @@
    "fieldname": "token",
    "fieldtype": "Password",
    "label": "Token",
-   "length": 300
+   "length": 1000
   },
   {
    "fieldname": "url",
