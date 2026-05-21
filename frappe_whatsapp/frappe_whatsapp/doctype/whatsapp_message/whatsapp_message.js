@@ -12,8 +12,16 @@ frappe.ui.form.on('WhatsApp Message', {
 	refresh: function(frm) {
 		if (frm.doc.type == 'Incoming'){
 			frm.add_custom_button(__("Reply"), function(){
-				frappe.new_doc("WhatsApp Message", {"to": frm.doc.from});
-
+				let opts = {
+					"to": frm.doc.from,
+					"is_reply": 1,
+					"reply_to_message_id": frm.doc.message_id,
+				};
+				if (frm.doc.reference_doctype && frm.doc.reference_name) {
+					opts["reference_doctype"] = frm.doc.reference_doctype;
+					opts["reference_name"] = frm.doc.reference_name;
+				}
+				frappe.new_doc("WhatsApp Message", opts);
 			});
 		}
 
