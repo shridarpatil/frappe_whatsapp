@@ -62,7 +62,14 @@ def post():
 	)
 
 	whatsapp_account = get_whatsapp_account(phone_id) if phone_id else None
-	if not whatsapp_account:
+
+	# Only `messages` events carry `metadata.phone_number_id`. Status-change
+	# events (`message_template_status_update`, message status callbacks) have
+	# no metadata, so `phone_id` is None and `whatsapp_account` is also None
+	# for them by design. Gating the entire handler on `whatsapp_account`
+	# silently drops every template-status update; gate only the message-
+	# ingestion branch instead.
+	if messages and not whatsapp_account:
 		return
 
 	if messages:
