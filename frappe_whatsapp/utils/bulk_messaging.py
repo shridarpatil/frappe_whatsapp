@@ -1,6 +1,6 @@
 import json
 import frappe
-from frappe.utils import cint
+from frappe.utils import cint, now
 
 
 @frappe.whitelist()
@@ -30,6 +30,27 @@ def import_recipients(list_name, doctype, mobile_field, name_field=None, filters
     doc.save()
     
     return count
+
+def process_scheduled_bulk_messages():
+    """Check for scheduled bulk messages whose time has arrived and queue them."""
+    scheduled = frappe.get_all(
+        "Bulk WhatsApp Message",
+        filters={
+            "status": "Scheduled",
+            "docstatus": 1,
+            "scheduled_time": ["<=", now()],
+        },
+        pluck="name",
+    )
+
+    for name in scheduled:
+        doc = frappe.get_doc("Bulk WhatsApp Message", name)
+        doc.db_set("status", "Queued")
+        doc.queue_messages()
+
+    if scheduled:
+        frappe.db.commit()
+
 
 @frappe.whitelist()
 def schedule_bulk_messages():

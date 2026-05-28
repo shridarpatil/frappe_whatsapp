@@ -21,6 +21,11 @@ class BulkWhatsAppMessage(Document):
     def validate(self):
         # self.validate_message()
         self.validate_recipients()
+        self.validate_scheduled_time()
+
+    def validate_scheduled_time(self):
+        if self.scheduled_time and get_datetime(self.scheduled_time) <= get_datetime(now()):
+            frappe.throw(_("Scheduled time must be in the future"))
     
     def validate_message(self):
         if not self.message_content:
@@ -41,8 +46,11 @@ class BulkWhatsAppMessage(Document):
             self.recipient_count = len(self.recipients)
     
     def on_submit(self):
-        self.db_set("status", "Queued")
-        self.queue_messages()
+        if self.scheduled_time and get_datetime(self.scheduled_time) > get_datetime(now()):
+            self.db_set("status", "Scheduled")
+        else:
+            self.db_set("status", "Queued")
+            self.queue_messages()
     
     def queue_messages(self):
         """Queue messages for sending"""

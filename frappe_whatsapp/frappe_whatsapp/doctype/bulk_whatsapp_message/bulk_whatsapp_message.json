@@ -118,7 +118,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Draft\nQueued\nIn Progress\nCompleted\nPartially Failed",
+   "options": "Draft\nScheduled\nQueued\nIn Progress\nCompleted\nPartially Failed",
    "read_only": 1
   },
   {

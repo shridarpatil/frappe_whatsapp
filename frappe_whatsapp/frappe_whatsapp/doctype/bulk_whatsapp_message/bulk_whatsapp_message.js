@@ -1,5 +1,13 @@
 frappe.ui.form.on('Bulk WhatsApp Message', {
     refresh: function(frm) {
+        if(frm.doc.docstatus === 1 && frm.doc.status === 'Scheduled') {
+            frm.dashboard.set_headline(
+                __('This message is scheduled to be sent on {0}',
+                    [frappe.datetime.str_to_user(frm.doc.scheduled_time)]),
+                'blue'
+            );
+        }
+
         // Add progress bar
         if(frm.doc.docstatus === 1 && frm.doc.status != 'Draft') {
             frm.add_custom_button(__('Check Progress'), function() {
@@ -56,6 +64,11 @@ frappe.ui.form.on('Bulk WhatsApp Message', {
         }
     },
     validate: function(frm) {
+        if(frm.doc.scheduled_time && new Date(frm.doc.scheduled_time) <= new Date()) {
+            frappe.throw(__('Scheduled time must be in the future'));
+            return false;
+        }
+
         if(frm.doc.recipient_type == 'Individual' && (!frm.doc.recipients || frm.doc.recipients.length === 0)) {
             frappe.throw(__('Please add at least one recipient'));
             return false;
