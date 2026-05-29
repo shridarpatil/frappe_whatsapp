@@ -1,6 +1,7 @@
 import frappe
 import json
 from frappe import _
+from frappe.model import default_fields
 from frappe.model.document import Document
 
 
@@ -28,13 +29,10 @@ class WhatsAppRecipientList(Document):
 		if name_field:
 			fields.append(name_field)
 		if data_fields:
-			from frappe.model import default_fields
 			meta = frappe.get_meta(doctype)
 			meta_fieldnames = {f.fieldname for f in meta.fields}
 			for field in data_fields:
-				if field in fields:
-					continue
-				if field in meta_fieldnames or field in default_fields:
+				if field not in fields and (field in meta_fieldnames or field in default_fields):
 					fields.append(field)
 		# Get records from the doctype
 		records = frappe.get_all(
