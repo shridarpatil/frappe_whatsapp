@@ -42,7 +42,7 @@ class TestBulkMessagingUtils(IntegrationTestCase):
                 "is_default_outgoing": 1,
             })
             account.insert(ignore_permissions=True)
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     @classmethod
     def _ensure_test_template(cls):
@@ -62,14 +62,14 @@ class TestBulkMessagingUtils(IntegrationTestCase):
                 "id": "test_bulkutil_template_id",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     @classmethod
     def _ensure_test_user_with_mobile(cls):
         """Ensure there's at least one user with mobile_no set for import tests."""
         if not frappe.db.get_value("User", "Administrator", "mobile_no"):
             frappe.db.set_value("User", "Administrator", "mobile_no", "919900000001")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -88,7 +88,7 @@ class TestBulkMessagingUtils(IntegrationTestCase):
             frappe.delete_doc("Bulk WhatsApp Message", name, force=True)
         for name in frappe.get_all("WhatsApp Recipient List", filters={"list_name": ["like", "Test BulkUtil%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Recipient List", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_bulk_message(self, title="Test BulkUtil Msg"):
         """Create a bulk message for testing."""
@@ -134,7 +134,7 @@ class TestBulkMessagingUtils(IntegrationTestCase):
         })
         failed_msg.flags.ignore_validate = True
         failed_msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         result = retry_failed(doc.name)
         self.assertTrue(result)

@@ -128,7 +128,13 @@ class BulkWhatsAppMessage(Document):
             self.db_set("status", "Completed")
 
     def retry_failed(self):
-        """Retry failed messages"""
+        """Retry failed messages by re-sending to Meta.
+
+        The original send lives in WhatsAppMessage.before_insert, which only
+        fires on first creation. For an existing Failed row we call
+        send_outgoing() explicitly — queued on the "long" worker the same
+        way queue_messages does, so large batches don't block the request.
+        """
         failed_messages = frappe.get_all(
             "WhatsApp Message",
             filters={
@@ -137,15 +143,35 @@ class BulkWhatsAppMessage(Document):
             },
             fields=["name"]
         )
-        
-        count = 0
+
         for msg in failed_messages:
-            message_doc = frappe.get_doc("WhatsApp Message", msg.name)
-            message_doc.status = "Queued"
-            message_doc.save(ignore_permissions=True)
-            count += 1
-        
-        frappe.msgprint(_("{0} messages have been requeued for sending").format(count))
+            frappe.enqueue_doc(
+                self.doctype, self.name,
+                "resend_single_message",
+                "long", 4000,
+                message_name=msg.name,
+            )
+
+        frappe.msgprint(_("{0} message(s) requeued for sending").format(len(failed_messages)))
+
+    def resend_single_message(self, message_name):
+        """Worker entry: re-send a single failed WhatsApp Message."""
+        message_doc = frappe.get_doc("WhatsApp Message", message_name)
+        # Clear the prior message_id so the template send path (which gates
+        # on `not self.message_id`) runs again.
+        message_doc.message_id = None
+        message_doc.status = "Queued"
+        message_doc.db_update()
+        try:
+            message_doc.send_outgoing()
+            message_doc.status = "Success"
+            message_doc.db_update()
+        except Exception:
+            message_doc.status = "Failed"
+            message_doc.db_update()
+            frappe.log_error(
+                title=f"WhatsApp bulk retry failed: {message_doc.name}"
+            )
         
     def get_progress(self):
         """Get sending progress for this bulk message"""

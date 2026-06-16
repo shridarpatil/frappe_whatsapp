@@ -77,33 +77,21 @@ def get_columns():
     ]
 
 def get_data(filters):
-    conditions = ""
+    query_filters = {"docstatus": 1}
     if filters.get("from_date") and filters.get("to_date"):
-        conditions += " AND creation BETWEEN %(from_date)s AND %(to_date)s"
-    
+        query_filters["creation"] = ["between", [filters["from_date"], filters["to_date"]]]
     if filters.get("status"):
-        conditions += " AND status = %(status)s"
-        
+        query_filters["status"] = filters["status"]
     if filters.get("from_number"):
-        conditions += " AND from_number = %(from_number)s"
-    
-    data = frappe.db.sql("""
-        SELECT 
-            name, 
-            title, 
-            creation, 
-            recipient_count, 
-            sent_count, 
-            status 
-        FROM 
-            `tabBulk WhatsApp Message` 
-        WHERE 
-            docstatus = 1 
-            {conditions}
-        ORDER BY 
-            creation DESC
-    """.format(conditions=conditions), filters, as_dict=1)
-    
+        query_filters["from_number"] = filters["from_number"]
+
+    data = frappe.get_all(
+        "Bulk WhatsApp Message",
+        filters=query_filters,
+        fields=["name", "title", "creation", "recipient_count", "sent_count", "status"],
+        order_by="creation desc",
+    )
+
     # Fetch additional stats for each bulk message
     for row in data:
         # Get delivered count

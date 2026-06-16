@@ -20,12 +20,12 @@ class TestWhatsAppRecipientList(IntegrationTestCase):
         """Ensure there's at least one user with mobile_no set for import tests."""
         if not frappe.db.get_value("User", "Administrator", "mobile_no"):
             frappe.db.set_value("User", "Administrator", "mobile_no", "919900000001")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Recipient List", filters={"list_name": ["like", "Test Recipient%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Recipient List", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_recipient_list(self, list_name="Test Recipient List 1", recipients=None):
         """Helper to create a WhatsApp Recipient List."""
@@ -107,6 +107,30 @@ class TestWhatsAppRecipientList(IntegrationTestCase):
             if recipient.recipient_data:
                 data = json.loads(recipient.recipient_data)
                 self.assertIsInstance(data, dict)
+
+    def test_import_list_with_default_field_name(self):
+        """Test importing with 'name' (a framework default_field) in data_fields."""
+        doc = self._make_recipient_list(
+            list_name="Test Recipient DefaultField",
+            recipients=[{"mobile_number": "placeholder"}]
+        )
+
+        count = doc.import_list_from_doctype(
+            doctype="User",
+            mobile_field="mobile_no",
+            name_field="full_name",
+            data_fields=["name"],
+            filters={"mobile_no": ["is", "set"]},
+            limit=3,
+        )
+
+        self.assertGreater(count, 0)
+        doc.save()
+        for recipient in doc.recipients:
+            data = json.loads(recipient.recipient_data)
+            self.assertIn("name", data)
+            self.assertTrue(data["name"])
+            self.assertTrue(frappe.db.exists("User", data["name"]))
 
     def test_import_clears_existing_recipients(self):
         """Test that import replaces existing recipients."""

@@ -11,7 +11,7 @@ class TestWhatsAppNotificationLog(IntegrationTestCase):
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Notification Log", filters={"template": ["like", "Test Log%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Notification Log", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def test_log_creation(self):
         """Test basic notification log creation."""

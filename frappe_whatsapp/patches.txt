@@ -2,5 +2,9 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
-frappe_whatsapp.patches.set_default_in_whatsapp_settings
+# migrate_to_multi_account must run before set_default_in_whatsapp_settings:
+# the latter calls settings.save(), which triggers update_single and wipes
+# all legacy field rows from tabSingles. Running migrate first lets it read
+# the legacy phone_id/business_id/etc. before they're lost.
 frappe_whatsapp.patches.migrate_to_multi_account
+frappe_whatsapp.patches.set_default_in_whatsapp_settings

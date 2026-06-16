@@ -15,4 +15,4 @@ class WhatsAppProfiles(Document):
             self.number = format_number(self.number)
 
     def set_title(self):
-        self.title = " - ".join(filter(None, [self.profile_name, self.number])) or "Unnamed Profile"
+        self.title = " - ".join(p for p in (self.profile_name, self.number) if p) or "Unnamed Profile"

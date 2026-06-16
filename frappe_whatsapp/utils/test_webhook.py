@@ -41,7 +41,7 @@ class TestWebhookHelpers(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             from frappe.utils.password import set_encrypted_password
             set_encrypted_password("WhatsApp Account", account.name, "test_webhook_token", "token")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -53,7 +53,7 @@ class TestWebhookHelpers(IntegrationTestCase):
             frappe.delete_doc("WhatsApp Message", name, force=True)
         for name in frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"}, pluck="name"):
             frappe.delete_doc("WhatsApp Notification Log", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def test_update_status_template_status(self):
         """Test update_status routes to template status update."""
@@ -81,7 +81,7 @@ class TestWebhookHelpers(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "statuses": [{
@@ -109,7 +109,7 @@ class TestWebhookHelpers(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "statuses": [{
@@ -140,7 +140,7 @@ class TestWebhookHelpers(IntegrationTestCase):
                 "id": "webhook_tmpl_id_123",
             })
             doc.db_insert()
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         data = {
             "event": "APPROVED",
@@ -175,7 +175,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             from frappe.utils.password import set_encrypted_password
             set_encrypted_password("WhatsApp Account", account.name, "ep_token", "token")
-            frappe.db.commit()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def setUp(self):
         # Set password within each test's transaction scope
@@ -195,7 +195,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
             frappe.delete_doc("WhatsApp Notification Log", name, force=True)
         for name in frappe.get_all("WhatsApp Profiles", filters={"number": ["like", "9199%"]}, pluck="name"):
             frappe.delete_doc("WhatsApp Profiles", name, force=True)
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_mock_request(self, method="GET"):
         """Create a mock request object."""
@@ -206,7 +206,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
     def test_webhook_get_verification(self):
         """Test GET webhook verification."""
         mock_request = self._make_mock_request("GET")
-        frappe.form_dict = frappe._dict({
+        frappe.local.form_dict = frappe._dict({
             "hub.challenge": "test_challenge_123",
             "hub.verify_token": "Test WA Webhook EP Account",
             "hub.mode": "subscribe",
@@ -220,7 +220,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
     def test_webhook_get_wrong_token(self):
         """Test GET webhook with wrong verify token."""
         mock_request = self._make_mock_request("GET")
-        frappe.form_dict = frappe._dict({
+        frappe.local.form_dict = frappe._dict({
             "hub.challenge": "test_challenge",
             "hub.verify_token": "wrong_token",
         })
@@ -371,7 +371,7 @@ class TestWebhookEndpoint(IntegrationTestCase):
         })
         msg.flags.ignore_validate = True
         msg.db_insert()
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
         mock_request = self._make_mock_request("POST")
         payload = {
@@ -398,6 +398,59 @@ class TestWebhookEndpoint(IntegrationTestCase):
         msg.reload()
         self.assertEqual(msg.status, "read")
         self.assertEqual(msg.conversation_id, "conv_456")
+
+    def test_webhook_post_template_status_update(self):
+        """Template status updates have no metadata.phone_number_id; the handler
+        must still route them to update_status. Regression for PR #231."""
+        template_id = "webhook_ep_tmpl_id_status"
+        template_name = "ep_status_template-en"
+
+        # Seed the template (or reset its status if a prior run left it APPROVED)
+        if frappe.db.exists("WhatsApp Templates", template_name):
+            frappe.db.set_value(
+                "WhatsApp Templates", template_name, "status", "PENDING"
+            )
+        else:
+            doc = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "ep_status_template",
+                "actual_name": "ep_status_template",
+                "template": "Status webhook regression template",
+                "category": "TRANSACTIONAL",
+                "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+                "language_code": "en",
+                "whatsapp_account": "Test WA Webhook EP Account",
+                "status": "PENDING",
+                "id": template_id,
+            })
+            doc.db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        mock_request = self._make_mock_request("POST")
+        payload = {
+            "entry": [{
+                "changes": [{
+                    "field": "message_template_status_update",
+                    "value": {
+                        "event": "APPROVED",
+                        "message_template_id": template_id,
+                        "message_template_name": "ep_status_template",
+                        "message_template_language": "en_US",
+                        "reason": None,
+                    },
+                }],
+            }],
+        }
+        frappe.local.form_dict = frappe._dict(payload)
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.request", mock_request):
+            from frappe_whatsapp.utils.webhook import webhook
+            webhook()
+
+        status = frappe.db.get_value(
+            "WhatsApp Templates", {"id": template_id}, "status"
+        )
+        self.assertEqual(status, "APPROVED")
 
     def test_webhook_creates_notification_log(self):
         """Test that webhook POST creates a notification log entry."""
