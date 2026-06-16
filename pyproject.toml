@@ -19,6 +19,5 @@ build-backend = "flit_core.buildapi"
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
 
-
 [tool.bench.frappe-dependencies]
 frappe = ">=14.0.0,<=17.0.0-dev"
