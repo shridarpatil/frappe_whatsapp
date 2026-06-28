@@ -172,3 +172,19 @@ def format_number(number):
         number = number[1 : len(number)]
 
     return number
+
+
+def format_number_with_default(number, default_calling_code="91"):
+    """Normalise a phone number for the WhatsApp Cloud API.
+
+    Strips non-digits, and prepends the default calling code when the number
+    looks like a bare local (<= 10 digit) number.
+    """
+    if not number:
+        return number
+    digits = "".join(ch for ch in str(number) if ch.isdigit())
+    if not digits:
+        return digits
+    if len(digits) <= 10:
+        digits = f"{default_calling_code}{digits}"
+    return digits

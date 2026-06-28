@@ -1,12 +1,30 @@
 # Copyright (c) 2022, Shridhar Patil and contributors
 # For license information, please see license.txt
 import json
+import re
 import frappe
 from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
 
 from frappe_whatsapp.utils import get_whatsapp_account, format_number
+
+
+def _clean_value(value):
+    """Strip HTML tags and return a clean string for a WhatsApp body parameter."""
+    if value is None:
+        return ""
+    return re.sub(r"<[^>]+>", "", str(value)).strip()
+
+
+def _build_body_param(field_name, value):
+    """Build a NAMED body parameter (WhatsApp Cloud API named-parameter format)."""
+    return {
+        "type": "text",
+        "parameter_name": field_name.strip(),
+        "text": _clean_value(value),
+    }
+
 
 class WhatsAppMessage(Document):
     def validate(self):
@@ -193,70 +211,62 @@ class WhatsAppMessage(Document):
         }
 
         if template.sample_values:
-            field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
-            parameters = []
-            template_parameters = []
+            field_names = (
+                template.field_names.split(",") if template.field_names
+                else template.sample_values.split(",")
+            )
+            parameters, stored = [], []
 
             if self.body_param is not None:
-                params = list(json.loads(self.body_param).values())
-                for param in params:
-                    parameters.append({"type": "text", "text": param})
-                    template_parameters.append(param)
+                params = json.loads(self.body_param)
+                if isinstance(params, dict):
+                    # named dict: {field_name: value}
+                    for pname, pval in params.items():
+                        p = _build_body_param(pname, pval)
+                        parameters.append(p)
+                        stored.append(p["text"])
+                else:
+                    # positional list, mapped onto the template's field_names
+                    for idx, fname in enumerate(field_names):
+                        val = params[idx] if idx < len(params) else ""
+                        p = _build_body_param(fname, val)
+                        parameters.append(p)
+                        stored.append(p["text"])
             elif self.flags.custom_ref_doc:
-                custom_values = self.flags.custom_ref_doc
-                for field_name in field_names:
-                    value = custom_values.get(field_name.strip())
-                    parameters.append({"type": "text", "text": value})
-                    template_parameters.append(value)                    
-
+                # pre-computed values supplied by the caller
+                for fname in field_names:
+                    p = _build_body_param(fname, self.flags.custom_ref_doc.get(fname.strip()))
+                    parameters.append(p)
+                    stored.append(p["text"])
             else:
+                # default: read formatted fields off the reference document
                 ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-                for field_name in field_names:
-                    value = ref_doc.get_formatted(field_name.strip())
-                    parameters.append({"type": "text", "text": value})
-                    template_parameters.append(value)
+                for fname in field_names:
+                    p = _build_body_param(fname, ref_doc.get_formatted(fname.strip()))
+                    parameters.append(p)
+                    stored.append(p["text"])
 
-            self.template_parameters = json.dumps(template_parameters)
-            data["template"]["components"].append(
-                {
-                    "type": "body",
-                    "parameters": parameters,
-                }
-            )
+            self.template_parameters = json.dumps(stored)
+            data["template"]["components"].append({"type": "body", "parameters": parameters})
 
-        if template.header_type:
-            if self.attach:
-                if template.header_type == 'IMAGE':
-
-                    if self.attach.startswith("http"):
-                        url = f'{self.attach}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{self.attach}'
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "image",
-                            "image": {
-                                "link": url
-                            }
-                        }]
-                    })
-
-            elif template.sample:
-                if template.header_type == 'IMAGE':
-                    if template.sample.startswith("http"):
-                        url = f'{template.sample}'
-                    else:
-                        url = f'{frappe.utils.get_url()}{template.sample}'
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "image",
-                            "image": {
-                                "link": url
-                            }
-                        }]
-                    })
+        if template.header_type in ("IMAGE", "DOCUMENT", "VIDEO"):
+            # media source: the message's own attachment first, else the template sample
+            attachment = self.attach or template.sample
+            if attachment:
+                url = attachment if attachment.startswith("http") else f"{frappe.utils.get_url()}{attachment}"
+                media_type = template.header_type.lower()  # image / document / video
+                media_param = {"type": media_type, media_type: {"link": url}}
+                if media_type == "document":
+                    # WhatsApp requires a filename for documents; derive it from the path
+                    media_param[media_type]["filename"] = (
+                        attachment.split("/")[-1] if "/" in attachment else attachment
+                    )
+                data["template"]["components"].append({"type": "header", "parameters": [media_param]})
+            else:
+                frappe.log_error(
+                    title="WhatsApp - Missing Header Attachment",
+                    message=f"Template '{template.name}' needs {template.header_type} header but no attachment available.",
+                )
 
         if template.buttons:
             button_parameters = []
