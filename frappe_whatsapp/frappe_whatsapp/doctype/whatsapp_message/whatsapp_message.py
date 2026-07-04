@@ -5,7 +5,8 @@ import frappe
 from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
-
+from frappe.query_builder import Interval
+from frappe.query_builder.functions import Now
 from frappe_whatsapp.utils import get_whatsapp_account, format_number
 
 class WhatsAppMessage(Document):
@@ -51,6 +52,13 @@ class WhatsAppMessage(Document):
                 self.whatsapp_account = default_whatsapp_account.name
 
     """Send whats app messages."""
+    @staticmethod
+    def clear_old_logs(days=90):
+        whatsapp_message = frappe.qb.DocType("WhatsApp Message")
+        frappe.db.delete(
+			whatsapp_message,
+			filters=(whatsapp_message.modified < (Now() - Interval(days=days))),
+		)
     def before_insert(self):
         """Send message."""
         self.set_whatsapp_account()

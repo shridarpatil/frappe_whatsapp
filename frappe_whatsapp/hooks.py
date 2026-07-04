@@ -218,3 +218,7 @@ doc_events = {
         "on_update_after_submit": "frappe_whatsapp.utils.run_server_script_for_doc_event"
     }
 }
+
+default_log_clearing_doctypes = {
+    "WhatsApp Message": 90,
+}
