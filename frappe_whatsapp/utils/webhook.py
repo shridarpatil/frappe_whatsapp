@@ -152,6 +152,13 @@ def post():
 							summary_parts.append(f"{key}: {value}")
 					summary_message = ", ".join(summary_parts) if summary_parts else "Flow completed"
 
+					# Echo the originating flow_token: a client-only Flow reply does not carry it, so recover it
+					# from the outbound message this reply is a context of. Lets a sender correlate the reply back
+					# to what it sent (e.g. an e-signature Flow keyed by the signer's token).
+					origin_flow_token = frappe.db.get_value(
+						"WhatsApp Message", {"message_id": reply_to_message_id}, "flow_token"
+					) if reply_to_message_id else None
+
 					msg_doc = frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
@@ -162,6 +169,7 @@ def post():
 						"is_reply": is_reply,
 						"content_type": "flow",
 						"flow_response": json.dumps(flow_response),
+						"flow_token": origin_flow_token,
 						"profile_name": sender_profile_name,
 						"whatsapp_account": whatsapp_account.name
 					}).insert(ignore_permissions=True)
