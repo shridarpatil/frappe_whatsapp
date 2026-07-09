@@ -67,6 +67,18 @@
 }
 .wtb-btn-mini:hover { background: #e4f7ec; }
 
+/* locked (Meta-approved) template: read-only */
+.wtb-subtitle.is-locked { color: var(--wtb-green-dark); font-weight: 500; }
+.wtb-root.is-locked .wtb-palette-item,
+.wtb-root.is-locked .wtb-btntype,
+.wtb-root.is-locked .wtb-drophint { opacity: .5; pointer-events: none; }
+.wtb-root.is-locked .is-disabled { opacity: .45; pointer-events: none; cursor: not-allowed; }
+.wtb-root.is-locked .wtb-input:disabled,
+.wtb-root.is-locked .wtb-select:disabled,
+.wtb-root.is-locked .wtb-texted:disabled {
+	background: #f6f8f9; color: #5a6570; cursor: not-allowed; opacity: 1;
+}
+
 /* ---- workspace grid ---- */
 .wtb-workspace {
 	display: grid;

@@ -58,6 +58,7 @@ class TemplateBuilder {
 			fields: {},  // { "1": "customer_name" }  (maps to field_names)
 			status: null,
 			has_meta_id: false,
+			locked: false,
 		};
 	}
 
@@ -97,6 +98,7 @@ class TemplateBuilder {
 		s.buttons = (d.buttons || []).map((b) => ({ kind: b.kind, label: b.label || '', url: b.url || '', phone_number: b.phone_number || '', example: b.example || '' }));
 		s.status = d.status || null;
 		s.has_meta_id = !!d.has_meta_id;
+		s.locked = !!d.locked;
 
 		const vars = this.detectVars(s.body);
 		(d.sample_values || []).forEach((v, i) => { if (vars[i] != null) s.samples[vars[i]] = v; });
@@ -217,11 +219,25 @@ class TemplateBuilder {
 			</div>
 		`);
 		this.bind();
+		this.applyLock();
+	}
+
+	/** An approved template is read-only: freeze every editing control. */
+	applyLock() {
+		if (!this.state.locked) return;
+		const $root = this.$body.find('.wtb-root');
+		$root.addClass('is-locked');
+		$root.find('input, textarea, select').prop('disabled', true);
+		// Structural controls (palette, add/remove, toolbar) are inert too.
+		$root.find('[data-add], [data-addbtn], [data-remove], [data-btnremove], [data-wrap], [data-emoji], [data-addvar], [data-htype], [data-media-upload], [data-media-remove], [data-fill-all]')
+			.addClass('is-disabled')
+			.off('click');
 	}
 
 	renderHeader() {
 		const editing = !!this.editName;
 		const pushed = this.state.has_meta_id;
+		const locked = this.state.locked;
 		const badge = editing
 			? `<span class="wtb-badge ${this.statusBadgeClass()}">${frappe.utils.escape_html(this.state.status || 'Pending')}</span>`
 			: `<span class="wtb-badge is-pending">${__('Draft')}</span>`;
@@ -234,6 +250,15 @@ class TemplateBuilder {
 			: '';
 		const draftLabel = pushed ? __('Save Locally') : __('Save Draft');
 		const submitLabel = pushed ? __('Update on Meta') : __('Submit to Meta');
+		// Meta freezes approved templates: offer read-only + "duplicate" instead
+		// of Save/Submit, which the server would reject anyway.
+		const saveActions = locked
+			? `<button class="wtb-btn wtb-btn-primary" data-act="duplicate">⧉ ${__('Duplicate as New')}</button>`
+			: `<button class="wtb-btn" data-act="save-draft">${draftLabel}</button>
+			   <button class="wtb-btn wtb-btn-primary" data-act="submit"><span>✓</span> ${submitLabel}</button>`;
+		const subtitle = locked
+			? __('Approved by Meta — content is locked and cannot be edited. Duplicate it to make changes.')
+			: (editing ? __('Editing {0}', [frappe.utils.escape_html(this.editName)]) : __('Build a Meta-approved WhatsApp message template visually.'));
 		return `
 			<div class="wtb-pagehead">
 				<div>
@@ -242,15 +267,14 @@ class TemplateBuilder {
 						${badge}
 						${syncBtn}
 					</div>
-					<p class="wtb-subtitle">${editing ? __('Editing {0}', [frappe.utils.escape_html(this.editName)]) : __('Build a Meta-approved WhatsApp message template visually.')}</p>
+					<p class="wtb-subtitle ${locked ? 'is-locked' : ''}">${subtitle}</p>
 				</div>
 				<div class="wtb-actions">
 					<button class="wtb-btn wtb-btn-ghost" data-act="new">＋ ${__('New')}</button>
 					<button class="wtb-btn wtb-btn-ghost" data-act="open">${__('Open…')}</button>
 					${deleteBtn}
 					<span class="wtb-actions-sep"></span>
-					<button class="wtb-btn" data-act="save-draft">${draftLabel}</button>
-					<button class="wtb-btn wtb-btn-primary" data-act="submit"><span>✓</span> ${submitLabel}</button>
+					${saveActions}
 				</div>
 			</div>`;
 	}
@@ -644,6 +668,7 @@ class TemplateBuilder {
 		root.find('[data-act="open"]').on('click', () => self.openTemplateDialog());
 		root.find('[data-act="delete"]').on('click', () => self.deleteTemplate());
 		root.find('[data-act="sync"]').on('click', () => self.syncStatus());
+		root.find('[data-act="duplicate"]').on('click', () => self.duplicateTemplate());
 
 		this.enableDnD();
 	}
@@ -892,6 +917,20 @@ class TemplateBuilder {
 		this.doctypeFields = [];
 		window.history.replaceState(null, '', '/app/template-builder');
 		this.render();
+	}
+
+	/** Copy an approved (locked) template into a fresh, editable draft. */
+	duplicateTemplate() {
+		const copy = JSON.parse(JSON.stringify(this.state));
+		copy.status = null;
+		copy.has_meta_id = false;
+		copy.locked = false;
+		copy.template_name = `${copy.template_name}_copy`.slice(0, 512);
+		this.editName = null;
+		this.state = copy;
+		window.history.replaceState(null, '', '/app/template-builder');
+		this.render();
+		frappe.show_alert({ message: __('Duplicated as a new draft — rename and submit'), indicator: 'blue' }, 5);
 	}
 
 	deleteTemplate() {

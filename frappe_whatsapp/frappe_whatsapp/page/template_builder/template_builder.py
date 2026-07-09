@@ -32,6 +32,14 @@ BUTTON_KIND_MAP = {
 # Reverse map, for loading an existing template back into the builder.
 BUTTON_TYPE_TO_KIND = {v: k for k, v in BUTTON_KIND_MAP.items()}
 
+# Once Meta has approved a template its content is frozen: it can be read and
+# deleted, but not re-submitted from here.
+LOCKED_STATUSES = {"APPROVED"}
+
+
+def _is_locked(status):
+	return (status or "").upper() in LOCKED_STATUSES
+
 
 @frappe.whitelist()
 def get_boot():
@@ -178,6 +186,7 @@ def load_template(name):
 		"buttons": buttons,
 		"status": doc.status,
 		"has_meta_id": bool(doc.id),
+		"locked": _is_locked(doc.status),
 	}
 
 
@@ -274,11 +283,21 @@ def save_template(payload, submit=0, name=None):
 	submit = frappe.utils.cint(submit)
 	_validate(data)
 
+	is_update = bool(name)
+	doc = frappe.get_doc("WhatsApp Templates", name) if is_update else frappe.new_doc("WhatsApp Templates")
+
+	# Meta freezes an approved template's content — refuse any write to it.
+	# This is checked first (before the account guard) so the caller always sees
+	# the real reason, and before _apply_payload overwrites the doc in memory.
+	if is_update and _is_locked(doc.status):
+		frappe.throw(
+			_("Template {0} is already approved by Meta and can no longer be edited. "
+			  "Duplicate it as a new template instead.").format(doc.name)
+		)
+
 	if submit and not data.get("whatsapp_account") and not get_whatsapp_account(account_type="outgoing"):
 		frappe.throw(_("Select a WhatsApp Account to submit the template to Meta"))
 
-	is_update = bool(name)
-	doc = frappe.get_doc("WhatsApp Templates", name) if is_update else frappe.new_doc("WhatsApp Templates")
 	_apply_payload(doc, data)
 
 	# A draft skips the Meta round-trip and the account requirement.
