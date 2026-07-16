@@ -5,7 +5,6 @@
 import os
 import json
 import frappe
-import magic
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
@@ -41,6 +40,7 @@ class WhatsAppTemplates(Document):
         """Upload media."""
         self.get_settings()
         file_path = self.get_absolute_path(self.sample)
+        import magic  # lazy: needs system libmagic, only required when uploading media
         mime = magic.Magic(mime=True)
         file_type = mime.from_file(file_path)
 
