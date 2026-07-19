@@ -248,16 +248,15 @@ class TemplateBuilder {
 		const deleteBtn = editing
 			? `<button class="wtb-icon-act wtb-icon-danger" data-act="delete" title="${__('Delete template')}">🗑</button>`
 			: '';
-		const draftLabel = pushed ? __('Save Locally') : __('Save Draft');
-		const submitLabel = pushed ? __('Update on Meta') : __('Submit to Meta');
-		// Meta freezes approved templates: offer read-only + "duplicate" instead
-		// of Save/Submit, which the server would reject anyway.
+		// A template that already exists on Meta is view-only (Meta does not
+		// allow re-editing submitted templates): offer read-only + "duplicate"
+		// instead of Save/Submit, which the server would reject anyway.
 		const saveActions = locked
 			? `<button class="wtb-btn wtb-btn-primary" data-act="duplicate">⧉ ${__('Duplicate as New')}</button>`
-			: `<button class="wtb-btn" data-act="save-draft">${draftLabel}</button>
-			   <button class="wtb-btn wtb-btn-primary" data-act="submit"><span>✓</span> ${submitLabel}</button>`;
+			: `<button class="wtb-btn" data-act="save-draft">${__('Save Draft')}</button>
+			   <button class="wtb-btn wtb-btn-primary" data-act="submit"><span>✓</span> ${__('Submit to Meta')}</button>`;
 		const subtitle = locked
-			? __('Approved by Meta — content is locked and cannot be edited. Duplicate it to make changes.')
+			? __('Already submitted to Meta — templates on Meta cannot be edited. Duplicate it to make changes.')
 			: (editing ? __('Editing {0}', [frappe.utils.escape_html(this.editName)]) : __('Build a Meta-approved WhatsApp message template visually.'));
 		return `
 			<div class="wtb-pagehead">
@@ -783,6 +782,7 @@ class TemplateBuilder {
 	/* ---- drag and drop ---- */
 
 	enableDnD() {
+		if (this.state.locked) return; // view-only: no reordering
 		if (typeof Sortable === 'undefined') return;
 		const rows = this.$body.find('.wtb-btn-rows')[0];
 		if (rows) {
@@ -817,7 +817,11 @@ class TemplateBuilder {
 			buttons: s.components.buttons
 				? s.buttons.filter((b) => (b.label || '').trim()).map((b) => ({
 					kind: b.kind, label: b.label, url: b.url, phone_number: b.phone_number,
-					example: b.kind === 'url' && b.url && b.url.includes('{{') ? this.sampleFor('1') : null,
+					// Meta wants a full example URL for dynamic URL buttons. Keep a
+					// loaded/duplicated example as-is, else derive one from the URL.
+					example: b.kind === 'url' && b.url && b.url.includes('{{')
+						? (b.example || b.url.replace(/\{\{\s*\d+\s*\}\}/g, encodeURIComponent(this.sampleFor('1') || 'example')))
+						: null,
 				}))
 				: [],
 		};

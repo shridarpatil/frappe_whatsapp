@@ -5,15 +5,12 @@ frappe.ui.form.on('WhatsApp Templates', {
 	refresh(frm) {
 		frm.add_custom_button(__('Preview'), () => show_template_preview(frm));
 
-		// Approved templates are frozen by Meta, so only offer the builder for
-		// ones that can still be changed.
-		if (!frm.is_new() && (frm.doc.status || '').toUpperCase() !== 'APPROVED') {
-			frm.add_custom_button(__('Edit in Builder'), () => {
-				frappe.set_route('template-builder');
-				// set_route drops the query string, so push it after navigating.
-				setTimeout(() => {
-					window.location.href = `/app/template-builder?name=${encodeURIComponent(frm.doc.name)}`;
-				}, 0);
+		// A template that already exists on Meta cannot be re-edited, so the
+		// builder opens it read-only; local drafts stay fully editable there.
+		if (!frm.is_new()) {
+			const on_meta = !!frm.doc.id;
+			frm.add_custom_button(on_meta ? __('View in Builder') : __('Edit in Builder'), () => {
+				window.location.href = `/app/template-builder?name=${encodeURIComponent(frm.doc.name)}`;
 			});
 		}
 	},

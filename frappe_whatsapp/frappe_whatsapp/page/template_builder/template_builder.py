@@ -8,6 +8,7 @@ media upload, language-code derivation) are handled by the DocType controller
 """
 
 import json
+import re
 
 import frappe
 from frappe import _
@@ -32,13 +33,16 @@ BUTTON_KIND_MAP = {
 # Reverse map, for loading an existing template back into the builder.
 BUTTON_TYPE_TO_KIND = {v: k for k, v in BUTTON_KIND_MAP.items()}
 
-# Once Meta has approved a template its content is frozen: it can be read and
-# deleted, but not re-submitted from here.
+# A template that already exists on Meta (it has a Meta template id) is
+# view-only in the builder: Meta does not reliably allow editing submitted
+# templates (PENDING cannot be edited at all, APPROVED only within tight
+# limits), so pushed templates are frozen here — read, duplicate or delete
+# only. The status check is a safety net for rows synced without an id.
 LOCKED_STATUSES = {"APPROVED"}
 
 
-def _is_locked(status):
-	return (status or "").upper() in LOCKED_STATUSES
+def _is_locked(doc):
+	return bool(doc.id) or (doc.status or "").upper() in LOCKED_STATUSES
 
 
 @frappe.whitelist()
@@ -51,7 +55,8 @@ def get_boot():
 		order_by="language_name asc",
 	)
 
-	accounts = frappe.get_all(
+	# get_list (not get_all) so account names stay behind read permission.
+	accounts = frappe.get_list(
 		"WhatsApp Account",
 		fields=["name", "is_default_outgoing"],
 		filters={"status": "Active"},
@@ -79,6 +84,8 @@ def get_doctype_fields(doctype):
 	"""
 	if not doctype:
 		return []
+	if not frappe.has_permission(doctype, "read"):
+		frappe.throw(_("You are not permitted to read {0}").format(doctype))
 	skip = {
 		"Section Break", "Column Break", "Tab Break", "HTML", "Table",
 		"Table MultiSelect", "Button", "Image", "Fold", "Heading",
@@ -90,8 +97,8 @@ def get_doctype_fields(doctype):
 		if df.fieldtype not in skip and df.fieldname
 	]
 	# Common always-present fields worth exposing.
-	for extra in ("name", "owner", "creation"):
-		fields.insert(0, {"value": extra, "label": extra}) if extra == "name" else fields.append({"value": extra, "label": extra})
+	fields.insert(0, {"value": "name", "label": "name"})
+	fields.extend({"value": extra, "label": extra} for extra in ("owner", "creation"))
 	return fields
 
 
@@ -150,6 +157,7 @@ def get_sample_record(doctype, fieldnames=None):
 def load_template(name):
 	"""Load an existing WhatsApp Template into builder state for editing."""
 	doc = frappe.get_doc("WhatsApp Templates", name)
+	doc.check_permission("read")
 
 	sample_values = doc.sample_values.split(",") if doc.sample_values else []
 	field_names = doc.field_names.split(",") if doc.field_names else []
@@ -186,7 +194,7 @@ def load_template(name):
 		"buttons": buttons,
 		"status": doc.status,
 		"has_meta_id": bool(doc.id),
-		"locked": _is_locked(doc.status),
+		"locked": _is_locked(doc),
 	}
 
 
@@ -256,8 +264,12 @@ def _apply_payload(doc, data):
 
 
 def _validate(data):
-	if not (data.get("template_name") or "").strip():
+	template_name = (data.get("template_name") or "").strip()
+	if not template_name:
 		frappe.throw(_("Template Name is required"))
+	if not re.fullmatch(r"[a-z0-9_]+", template_name):
+		# Meta's naming rule; also mirrored client-side.
+		frappe.throw(_("Template Name may only contain lowercase letters, numbers and underscores"))
 	if not (data.get("body") or "").strip():
 		frappe.throw(_("Body text is required"))
 	category = (data.get("category") or "").strip()
@@ -286,12 +298,12 @@ def save_template(payload, submit=0, name=None):
 	is_update = bool(name)
 	doc = frappe.get_doc("WhatsApp Templates", name) if is_update else frappe.new_doc("WhatsApp Templates")
 
-	# Meta freezes an approved template's content — refuse any write to it.
+	# A template that already exists on Meta is frozen — refuse any write to it.
 	# This is checked first (before the account guard) so the caller always sees
 	# the real reason, and before _apply_payload overwrites the doc in memory.
-	if is_update and _is_locked(doc.status):
+	if is_update and _is_locked(doc):
 		frappe.throw(
-			_("Template {0} is already approved by Meta and can no longer be edited. "
+			_("Template {0} has already been submitted to Meta and can no longer be edited. "
 			  "Duplicate it as a new template instead.").format(doc.name)
 		)
 
