@@ -256,7 +256,7 @@ class TemplateBuilder {
 			: `<button class="wtb-btn" data-act="save-draft">${__('Save Draft')}</button>
 			   <button class="wtb-btn wtb-btn-primary" data-act="submit"><span>✓</span> ${__('Submit to Meta')}</button>`;
 		const subtitle = locked
-			? __('Already submitted to Meta — templates on Meta cannot be edited. Duplicate it to make changes.')
+			? __('Already submitted to Meta. Templates on Meta cannot be edited, duplicate it to make changes.')
 			: (editing ? __('Editing {0}', [frappe.utils.escape_html(this.editName)]) : __('Build a Meta-approved WhatsApp message template visually.'));
 		return `
 			<div class="wtb-pagehead">
@@ -269,7 +269,7 @@ class TemplateBuilder {
 					<p class="wtb-subtitle ${locked ? 'is-locked' : ''}">${subtitle}</p>
 				</div>
 				<div class="wtb-actions">
-					<button class="wtb-btn wtb-btn-ghost" data-act="new">＋ ${__('New')}</button>
+					<button class="wtb-btn wtb-btn-ghost" data-act="new">+ ${__('New')}</button>
 					<button class="wtb-btn wtb-btn-ghost" data-act="open">${__('Open…')}</button>
 					${deleteBtn}
 					<span class="wtb-actions-sep"></span>
@@ -379,7 +379,7 @@ class TemplateBuilder {
 					${h.sample
 						? `<div class="wtb-media-file"><span class="wtb-media-name">${frappe.utils.escape_html(this.fileName(h.sample))}</span><button class="wtb-icon-btn" data-media-remove title="${__('Remove')}">🗑</button></div>`
 						: ''}
-					<button class="wtb-btn" data-media-upload>⬆ ${h.sample ? __('Replace file') : __('Upload {0}', [frappe.utils.to_title_case(h.type.toLowerCase())])}</button>
+					<button class="wtb-btn" data-media-upload>↑ ${h.sample ? __('Replace file') : __('Upload {0}', [frappe.utils.to_title_case(h.type.toLowerCase())])}</button>
 					<div class="wtb-meta-row"><span>${__('Uploaded to Meta on submit')}</span></div>
 				</div>`;
 		}

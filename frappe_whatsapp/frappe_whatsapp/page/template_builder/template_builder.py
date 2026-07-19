@@ -210,6 +210,12 @@ def _apply_payload(doc, data):
 	doc.template = (data.get("body") or "").strip()
 	doc.category = (data.get("category") or "").strip()
 	doc.language = (data.get("language") or "").strip()
+	# Derive language_code here, not just in validate(): autoname
+	# (format:{template_name}-{language_code}) runs before validate, so a
+	# new document would otherwise be named with an empty suffix.
+	if doc.language:
+		lang_code = frappe.db.get_value("Language", doc.language) or "en"
+		doc.language_code = lang_code.replace("-", "_")
 	doc.footer = (data.get("footer") or "").strip() or None
 	doc.for_doctype = (data.get("for_doctype") or "").strip() or None
 
