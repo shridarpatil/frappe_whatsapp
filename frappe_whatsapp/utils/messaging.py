@@ -12,7 +12,7 @@ to any number, bypassing every surface's gate.
 """
 
 import frappe
-from frappe.utils import add_to_date, now_datetime
+from frappe.utils import add_to_date, cint, now_datetime
 
 
 def send_text(to, message, reference_doctype=None, reference_name=None):
@@ -51,7 +51,9 @@ def send_template(to, template, params=None, reference_doctype=None, reference_n
             "message_type": "Template",
             "content_type": "text",
             "template": template,
-            "body_param": params or "{}",
+            # body_param must be a JSON *string* (WhatsAppMessage.send_template does
+            # json.loads on it). Accept a JSON string as-is; coerce dict/list/None.
+            "body_param": (params or "{}") if isinstance(params, str) else frappe.as_json(params or {}),
             "reference_doctype": reference_doctype,
             "reference_name": reference_name,
         }
@@ -70,15 +72,17 @@ def reply_window_open(to, hours):
     if not to:
         return False
     last10 = to[-10:]
-    cutoff = add_to_date(now_datetime(), hours=-int(hours or 0))
+    cutoff = add_to_date(now_datetime(), hours=-cint(hours))
     if frappe.db.has_column("WhatsApp Message", "from_normalized"):
         from_filter = {"from_normalized": last10}
     else:
         from_filter = {"from": ["like", f"%{last10}"]}
+    # type="Incoming" makes "inbound" explicit — an outgoing row that happens to carry
+    # the contact in `from` must never be read as the customer having replied.
     return bool(
         frappe.get_all(
             "WhatsApp Message",
-            filters={**from_filter, "creation": [">", cutoff]},
+            filters={**from_filter, "type": "Incoming", "creation": [">", cutoff]},
             limit=1,
         )
     )
