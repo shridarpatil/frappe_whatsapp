@@ -50,10 +50,29 @@ class WhatsAppMessage(Document):
             else:
                 self.whatsapp_account = default_whatsapp_account.name
 
+    def copy_reference_from_reply(self):
+        """Copy reference_doctype/reference_name from the original incoming message when replying."""
+        if (
+            self.type == "Outgoing"
+            and self.is_reply
+            and self.reply_to_message_id
+            and not self.reference_doctype
+        ):
+            ref = frappe.db.get_value(
+                "WhatsApp Message",
+                {"message_id": self.reply_to_message_id},
+                ["reference_doctype", "reference_name"],
+                as_dict=True,
+            )
+            if ref and ref.reference_doctype and ref.reference_name:
+                self.reference_doctype = ref.reference_doctype
+                self.reference_name = ref.reference_name
+
     """Send whats app messages."""
     def before_insert(self):
         """Send message."""
         self.set_whatsapp_account()
+        self.copy_reference_from_reply()
         # Route to template path when a template is selected,
         # since message_type is read_only and cannot be set from the UI.
         if self.template:
