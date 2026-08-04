@@ -6,6 +6,7 @@ import json
 import frappe
 import magic
 import requests
+from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
@@ -21,21 +22,31 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
-        if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
+        # Media headers are uploaded to Meta up front (needs an account). Skip
+        # for a local draft — the sample URL is stored and uploaded on submit.
+        if (
+            self.header_type in ["IMAGE", "DOCUMENT"]
+            and self.sample
+            and not self.flags.get("skip_meta_submit")
+        ):
             self.get_session_id(self.sample)
             self.get_media_id(self.sample)
 
-        if not self.is_new():
+        # skip_meta_submit: keep a local draft in sync without pushing the edit
+        # to Meta (used by the Template Builder's "Save Draft" on an existing row).
+        if not self.is_new() and not self.flags.get("skip_meta_submit"):
             self.update_template()
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account:
             default_whatsapp_account = get_whatsapp_account()
-            if not default_whatsapp_account:
-                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
-            else:
+            if default_whatsapp_account:
                 self.whatsapp_account = default_whatsapp_account.name
+            elif not self.flags.get("skip_meta_submit"):
+                # A local draft (skip_meta_submit) can be saved without an
+                # account; a real submit cannot — it needs Meta credentials.
+                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
 
     def get_session_id(self, file):
         """Upload media."""
@@ -126,6 +137,14 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
         if self.template_name:
             self.actual_name = self.template_name.lower().replace(" ", "_")  # nosemgrep: frappe-modifying-but-not-committing
 
+        # Allow callers to persist a local draft without pushing to Meta
+        # (e.g. the Template Builder's "Save Draft"). The row is created with
+        # its default "Pending" status and can be submitted later.
+        if self.flags.get("skip_meta_submit"):
+            if self.template_name:
+                self.db_update()  # nosemgrep: frappe-modifying-but-not-committing
+            return
+
         self.get_settings()
         data = {
             "name": self.actual_name,
@@ -193,6 +212,10 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
     def update_template(self):
         """Update template to meta."""
+        if not self.id:
+            # Never created on Meta (local draft) — nothing to update remotely.
+            # The Meta create happens through the after_insert path on submit.
+            return
         self.get_settings()
         data = {"components": []}
 
@@ -265,6 +288,9 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
         }
 
     def on_trash(self):
+        if not self.id:
+            # Local draft that never reached Meta — delete locally only.
+            return
         self.get_settings()
         url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
         try:
