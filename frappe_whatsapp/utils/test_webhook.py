@@ -399,6 +399,59 @@ class TestWebhookEndpoint(IntegrationTestCase):
         self.assertEqual(msg.status, "read")
         self.assertEqual(msg.conversation_id, "conv_456")
 
+    def test_webhook_post_template_status_update(self):
+        """Template status updates have no metadata.phone_number_id; the handler
+        must still route them to update_status. Regression for PR #231."""
+        template_id = "webhook_ep_tmpl_id_status"
+        template_name = "ep_status_template-en"
+
+        # Seed the template (or reset its status if a prior run left it APPROVED)
+        if frappe.db.exists("WhatsApp Templates", template_name):
+            frappe.db.set_value(
+                "WhatsApp Templates", template_name, "status", "PENDING"
+            )
+        else:
+            doc = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "ep_status_template",
+                "actual_name": "ep_status_template",
+                "template": "Status webhook regression template",
+                "category": "TRANSACTIONAL",
+                "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+                "language_code": "en",
+                "whatsapp_account": "Test WA Webhook EP Account",
+                "status": "PENDING",
+                "id": template_id,
+            })
+            doc.db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        mock_request = self._make_mock_request("POST")
+        payload = {
+            "entry": [{
+                "changes": [{
+                    "field": "message_template_status_update",
+                    "value": {
+                        "event": "APPROVED",
+                        "message_template_id": template_id,
+                        "message_template_name": "ep_status_template",
+                        "message_template_language": "en_US",
+                        "reason": None,
+                    },
+                }],
+            }],
+        }
+        frappe.local.form_dict = frappe._dict(payload)
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.request", mock_request):
+            from frappe_whatsapp.utils.webhook import webhook
+            webhook()
+
+        status = frappe.db.get_value(
+            "WhatsApp Templates", {"id": template_id}, "status"
+        )
+        self.assertEqual(status, "APPROVED")
+
     def test_webhook_creates_notification_log(self):
         """Test that webhook POST creates a notification log entry."""
         mock_request = self._make_mock_request("POST")

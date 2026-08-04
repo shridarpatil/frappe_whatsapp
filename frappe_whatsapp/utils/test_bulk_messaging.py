@@ -5,13 +5,20 @@ import json
 from unittest.mock import patch
 
 import frappe
+from frappe.utils import add_to_date, now
 from frappe_whatsapp.testing import IntegrationTestCase
 
 from frappe_whatsapp.utils.bulk_messaging import (
     get_progress,
     import_recipients,
+    process_scheduled_bulk_messages,
     retry_failed,
     schedule_bulk_messages,
+)
+
+QUEUE_MESSAGES = (
+    "frappe_whatsapp.frappe_whatsapp.doctype.bulk_whatsapp_message"
+    ".bulk_whatsapp_message.BulkWhatsAppMessage.queue_messages"
 )
 
 
@@ -182,3 +189,87 @@ class TestBulkMessagingUtils(IntegrationTestCase):
         # This just ensures the function runs without error
         # when there are no queued bulk messages
         schedule_bulk_messages()
+
+    def _make_due_scheduled_message(self, title):
+        """Submit a scheduled campaign and back-date it so it is due.
+
+        scheduled_time has to be in the future to pass validation, so the
+        back-dating goes through db.set_value to bypass the controller.
+        """
+        doc = self._make_bulk_message(title=title)
+        doc.db_set("scheduled_time", add_to_date(now(), hours=1))
+        doc.submit()
+        self.assertEqual(doc.status, "Scheduled")
+        frappe.db.set_value(
+            "Bulk WhatsApp Message", doc.name,
+            "scheduled_time", add_to_date(now(), hours=-1),
+        )
+        return doc
+
+    @patch(QUEUE_MESSAGES)
+    def test_scheduled_campaign_gets_queued(self, mock_queue):
+        """A due campaign is flipped to Queued and its recipients enqueued."""
+        doc = self._make_due_scheduled_message("Test BulkUtil Due")
+
+        process_scheduled_bulk_messages()
+
+        self.assertEqual(mock_queue.call_count, 1)
+        self.assertEqual(
+            frappe.db.get_value("Bulk WhatsApp Message", doc.name, "status"),
+            "Queued",
+        )
+
+    @patch(QUEUE_MESSAGES)
+    def test_one_failing_campaign_does_not_block_the_others(self, mock_queue):
+        """A campaign that raises while enqueuing must not abort the tick.
+
+        Pre-fix the exception propagated out of the loop, so every campaign
+        after the failing one was skipped and the whole transaction rolled
+        back — while the already-enqueued jobs still went out, which is what
+        produced duplicate sends on the following tick.
+        """
+        self._make_due_scheduled_message("Test BulkUtil Fail A")
+        second = self._make_due_scheduled_message("Test BulkUtil Fail B")
+
+        # raise on the first campaign only, succeed for the rest
+        calls = []
+
+        def _dispatch(*args, **kwargs):
+            calls.append(True)
+            if len(calls) == 1:
+                raise Exception("enqueue blew up")
+
+        mock_queue.side_effect = _dispatch
+
+        process_scheduled_bulk_messages()
+
+        self.assertEqual(len(calls), 2, "second campaign was never processed")
+        self.assertEqual(
+            frappe.db.get_value("Bulk WhatsApp Message", second.name, "status"),
+            "Queued",
+        )
+
+    @patch(QUEUE_MESSAGES)
+    def test_failed_campaign_stays_claimed_and_is_logged(self, mock_queue):
+        """A partially-enqueued campaign must not revert to Scheduled.
+
+        If it did, the next tick would re-select it and enqueue every
+        recipient again, double-sending to everyone already dispatched.
+        """
+        doc = self._make_due_scheduled_message("Test BulkUtil Claim")
+        mock_queue.side_effect = Exception("enqueue blew up")
+
+        process_scheduled_bulk_messages()
+
+        self.assertNotEqual(
+            frappe.db.get_value("Bulk WhatsApp Message", doc.name, "status"),
+            "Scheduled",
+        )
+        self.assertTrue(
+            frappe.get_all(
+                "Error Log",
+                filters={"error": ["like", f"%{doc.name}%"]},
+                limit=1,
+            ),
+            "failure was swallowed without an Error Log entry",
+        )
