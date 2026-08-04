@@ -480,3 +480,67 @@ class TestWebhookEndpoint(IntegrationTestCase):
         # Should have created a notification log
         logs = frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"})
         self.assertTrue(len(logs) > 0)
+
+    def test_webhook_post_flow_reply_echoes_flow_token(self):
+        """Flow (nfm_reply) reply must echo the originating flow_token.
+
+        A client-only Flow reply carries no flow_token, so a sender cannot tell which
+        outbound Flow it answers. The webhook recovers the token from the outbound
+        message this reply is a context of and stores it on the incoming reply.
+        """
+        # Seed the outbound Flow message that carried the token.
+        origin = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112294",
+            "message": "Please complete the form",
+            "message_id": "wamid.webhook_ep_flow_origin",
+            "content_type": "flow",
+            "flow_token": "flow-token-abc123",
+            "whatsapp_account": "Test WA Webhook EP Account",
+        })
+        origin.flags.ignore_validate = True
+        origin.db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        mock_request = self._make_mock_request("POST")
+        payload = {
+            "entry": [{
+                "changes": [{
+                    "value": {
+                        "metadata": {"phone_number_id": "webhook_ep_phone_id"},
+                        "contacts": [{"profile": {"name": "Flow User"}}],
+                        "messages": [{
+                            "from": "919900112294",
+                            "id": "wamid.webhook_ep_flow_reply_1",
+                            "type": "interactive",
+                            "interactive": {
+                                "type": "nfm_reply",
+                                "nfm_reply": {
+                                    "name": "flow",
+                                    "response_json": '{"field_a": "value_a", "field_b": "value_b"}',
+                                },
+                            },
+                            "context": {"id": "wamid.webhook_ep_flow_origin"},
+                        }]
+                    }
+                }]
+            }]
+        }
+        frappe.local.form_dict = frappe._dict(payload)
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.request", mock_request):
+            from frappe_whatsapp.utils.webhook import webhook
+            webhook()
+
+        reply = frappe.get_doc(
+            "WhatsApp Message", {"message_id": "wamid.webhook_ep_flow_reply_1"}
+        )
+        self.assertEqual(reply.content_type, "flow")
+        self.assertEqual(reply.reply_to_message_id, "wamid.webhook_ep_flow_origin")
+        # the originating token is echoed onto the reply for correlation
+        self.assertEqual(reply.flow_token, "flow-token-abc123")
+        # the structured Flow response is preserved verbatim
+        self.assertEqual(
+            json.loads(reply.flow_response), {"field_a": "value_a", "field_b": "value_b"}
+        )
