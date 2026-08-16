@@ -264,14 +264,18 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             "content-type": "application/json",
         }
 
-    def on_trash(self):
-        self.get_settings()
-        url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
-        try:
-            make_request("DELETE", url, headers=self._headers)
         except Exception:
             res = frappe.flags.integration_request.json().get("error", {})
-            if res.get("error_user_title") == "Message Template Not Found":
+            # error_subcode 2593002 = "template name not found for this WABA".
+            # Meta localizes error_user_title/error_user_msg per account
+            # language (e.g. Spanish "No se encontró la plantilla de
+            # mensaje..."), so matching only the English title silently
+            # breaks graceful handling on non-English accounts. Match the
+            # stable numeric subcode too.
+            if (
+                res.get("error_subcode") == 2593002
+                or res.get("error_user_title") == "Message Template Not Found"
+            ):
                 frappe.msgprint(
                     "Deleted locally", res.get("error_user_title", "Error"), alert=True
                 )
@@ -280,7 +284,7 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
                     msg=res.get("error_user_msg"),
                     title=res.get("error_user_title", "Error"),
                 )
-
+                
     def get_header(self):
         """Get header format."""
         header = {"type": "header", "format": self.header_type}
