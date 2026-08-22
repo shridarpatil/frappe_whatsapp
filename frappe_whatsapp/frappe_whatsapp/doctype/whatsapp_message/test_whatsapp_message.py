@@ -437,12 +437,25 @@ class TestWhatsAppMessage(IntegrationTestCase):
             frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _local_pdf(self):
-        """A public File on this site, returned as its absolute URL."""
+        """A public File on this site, returned as its absolute URL.
+
+        Has to be a structurally valid PDF, not just bytes starting with %PDF —
+        File's insert runs pypdf over anything named .pdf and rejects a stub.
+        """
+        from io import BytesIO
+
+        from pypdf import PdfWriter
+
+        writer = PdfWriter()
+        writer.add_blank_page(width=72, height=72)
+        buffer = BytesIO()
+        writer.write(buffer)
+
         doc = frappe.get_doc({
             "doctype": "File",
             "file_name": "test-header-media.pdf",
             "is_private": 0,
-            "content": b"%PDF-1.4 test fixture",
+            "content": buffer.getvalue(),
         }).insert(ignore_permissions=True)
         self.addCleanup(
             lambda: frappe.delete_doc("File", doc.name, force=1, ignore_permissions=True)
