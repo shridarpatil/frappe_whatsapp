@@ -407,3 +407,129 @@ class TestWhatsAppMessage(IntegrationTestCase):
         self.assertNotIn("phone_number", sub_types)
         self.assertNotIn("url", sub_types)  # static URL button also excluded
         self.assertIn("quick_reply", sub_types)
+
+    # --- Template header media -------------------------------------------------
+    #
+    # A media header sent as a `link` requires Meta to fetch the URL itself, which
+    # silently fails for any site Meta cannot reach. Meta still returns a wamid, so
+    # the message looks sent and never arrives. These cover uploading the bytes and
+    # sending a media id instead, plus the fallbacks that keep a link where the
+    # bytes are not ours.
+
+    MEDIA_TEMPLATE = "test_doc_header_template-en"
+
+    def _ensure_document_template(self):
+        """An APPROVED template carrying a DOCUMENT header and no body params."""
+        if not frappe.db.exists("WhatsApp Templates", self.MEDIA_TEMPLATE):
+            frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "test_doc_header_template",
+                "actual_name": "test_doc_header_template",
+                "template": "Your invoice is attached.",
+                "category": "UTILITY",
+                "header_type": "DOCUMENT",
+                "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+                "language_code": "en",
+                "whatsapp_account": "Test WA Msg Account",
+                "status": "APPROVED",
+                "id": "test_doc_header_id_123",
+            }).db_insert()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+    def _local_pdf(self):
+        """A public File on this site, returned as its absolute URL."""
+        doc = frappe.get_doc({
+            "doctype": "File",
+            "file_name": "test-header-media.pdf",
+            "is_private": 0,
+            "content": b"%PDF-1.4 test fixture",
+        }).insert(ignore_permissions=True)
+        self.addCleanup(
+            lambda: frappe.delete_doc("File", doc.name, force=1, ignore_permissions=True)
+        )
+        return frappe.utils.get_url() + doc.file_url
+
+    def _header_of(self, mock_post):
+        call_args = mock_post.call_args
+        sent = json.loads(call_args.kwargs.get("data", call_args[1].get("data", "")))
+        headers = [c for c in sent["template"]["components"] if c["type"] == "header"]
+        self.assertEqual(len(headers), 1, "expected exactly one header component")
+        return headers[0]["parameters"][0]
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.requests")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_document_header_uploads_local_file_as_media_id(self, mock_post, mock_requests):
+        """A locally-hosted attachment is uploaded, and the id is sent instead of a link."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_doc_id"}]}
+        upload = MagicMock(status_code=200)
+        upload.json.return_value = {"id": "media_id_9876"}
+        mock_requests.post.return_value = upload
+
+        self._ensure_document_template()
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112290",
+            "template": self.MEDIA_TEMPLATE,
+            "attach": self._local_pdf(),
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        param = self._header_of(mock_post)
+        self.assertEqual(param["type"], "document")
+        self.assertEqual(param["document"]["id"], "media_id_9876")
+        self.assertNotIn("link", param["document"], "Meta must not be asked to fetch a URL")
+        # The real file name, not the old hardcoded "document.pdf".
+        self.assertEqual(param["document"]["filename"], "test-header-media.pdf")
+
+        # The upload itself went to the account's media endpoint as multipart.
+        self.assertIn("/media", mock_requests.post.call_args[0][0])
+        self.assertEqual(
+            mock_requests.post.call_args.kwargs["files"]["messaging_product"], (None, "whatsapp")
+        )
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.requests")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_document_header_keeps_link_for_foreign_url(self, mock_post, mock_requests):
+        """An attachment on somebody else's domain has no bytes for us to upload."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_doc_link"}]}
+
+        self._ensure_document_template()
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112291",
+            "template": self.MEDIA_TEMPLATE,
+            "attach": "https://example.com/statement.pdf",
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        param = self._header_of(mock_post)
+        self.assertEqual(param["document"]["link"], "https://example.com/statement.pdf")
+        self.assertNotIn("id", param["document"])
+        mock_requests.post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.requests")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_document_header_falls_back_to_link_when_upload_fails(self, mock_post, mock_requests):
+        """A refused upload must not cost us the send — the link still works
+        wherever the site is publicly reachable."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_doc_fallback"}]}
+        refused = MagicMock(status_code=400, text="upload refused")
+        refused.json.return_value = {"error": {"message": "upload refused"}}
+        mock_requests.post.return_value = refused
+
+        self._ensure_document_template()
+        url = self._local_pdf()
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112292",
+            "template": self.MEDIA_TEMPLATE,
+            "attach": url,
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        param = self._header_of(mock_post)
+        self.assertEqual(param["document"]["link"], url)
+        self.assertNotIn("id", param["document"])
