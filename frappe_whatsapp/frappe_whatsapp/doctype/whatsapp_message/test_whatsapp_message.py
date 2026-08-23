@@ -436,8 +436,8 @@ class TestWhatsAppMessage(IntegrationTestCase):
             }).db_insert()
             frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
-    def _local_pdf(self):
-        """A public File on this site, returned as its absolute URL.
+    def _local_pdf(self, is_private=0):
+        """A File on this site, returned as its absolute URL.
 
         Has to be a structurally valid PDF, not just bytes starting with %PDF —
         File's insert runs pypdf over anything named .pdf and rejects a stub.
@@ -454,7 +454,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
         doc = frappe.get_doc({
             "doctype": "File",
             "file_name": "test-header-media.pdf",
-            "is_private": 0,
+            "is_private": is_private,
             "content": buffer.getvalue(),
         }).insert(ignore_permissions=True)
         self.addCleanup(
@@ -479,7 +479,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
         mock_requests.post.return_value = upload
 
         self._ensure_document_template()
-        frappe.get_doc({
+        sent = frappe.get_doc({
             "doctype": "WhatsApp Message",
             "type": "Outgoing",
             "to": "919900112290",
@@ -487,6 +487,7 @@ class TestWhatsAppMessage(IntegrationTestCase):
             "attach": self._local_pdf(),
             "whatsapp_account": "Test WA Msg Account",
         }).insert(ignore_permissions=True)
+        self.assertEqual(sent.status, "Success", "template sends used to leave status NULL")
 
         param = self._header_of(mock_post)
         self.assertEqual(param["type"], "document")
@@ -546,3 +547,26 @@ class TestWhatsAppMessage(IntegrationTestCase):
         param = self._header_of(mock_post)
         self.assertEqual(param["document"]["link"], url)
         self.assertNotIn("id", param["document"])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.requests")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_document_header_raises_when_private_upload_fails(self, mock_post, mock_requests):
+        """A private File is not fetchable by Meta. Falling back to its URL
+        would look sent and arrive nowhere — the silent-loss this path exists
+        to prevent. Fail the send so the caller can retry."""
+        refused = MagicMock(status_code=400, text="upload refused")
+        refused.json.return_value = {"error": {"message": "upload refused"}}
+        mock_requests.post.return_value = refused
+
+        self._ensure_document_template()
+        with self.assertRaises(Exception):
+            frappe.get_doc({
+                "doctype": "WhatsApp Message",
+                "type": "Outgoing",
+                "to": "919900112293",
+                "template": self.MEDIA_TEMPLATE,
+                "attach": self._local_pdf(is_private=1),
+                "whatsapp_account": "Test WA Msg Account",
+            }).insert(ignore_permissions=True)
+
+        mock_post.assert_not_called()

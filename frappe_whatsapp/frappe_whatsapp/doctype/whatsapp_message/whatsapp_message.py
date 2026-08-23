@@ -69,8 +69,8 @@ class WhatsAppMessage(Document):
 
         Called from `before_insert` for first-time sends and from bulk
         retry for re-sending Failed messages. No-op for non-Outgoing docs.
-        On non-template sends, raises and sets status to Failed on error;
-        on template sends, `send_template` -> `notify` raises on error.
+        On both template and non-template sends, raises and sets status
+        to Failed on error. Template sends used to leave status NULL.
         """
         if self.type != "Outgoing":
             return
@@ -324,7 +324,12 @@ class WhatsAppMessage(Document):
             if button_parameters:
                 data['template']['components'].extend(button_parameters)
 
-        self.notify(data)
+        try:
+            self.notify(data)
+            self.status = "Success"
+        except Exception as e:
+            self.status = "Failed"
+            frappe.throw(f"Failed to send message {str(e)}")
 
     def get_header_media_parameter(self, header_type, url):
         """Build the header media parameter, preferring an uploaded media *id* over a link.
@@ -337,11 +342,12 @@ class WhatsAppMessage(Document):
         path entirely, so delivery no longer depends on the site being publicly reachable.
 
         Falls back to the link when the bytes are not ours to read (an attachment hosted
-        on someone else's domain) or when the upload fails, so this can only widen what
-        gets delivered, never narrow it.
+        on someone else's domain) or when a *public* file's upload fails. A private file
+        has no working link fallback — Meta would 403 — so a failed upload is re-raised
+        and the send does not look delivered.
         """
         kind = header_type.lower()
-        content, filename = self.get_local_attachment(url)
+        content, filename, is_private = self.get_local_attachment(url)
         media = None
 
         if content:
@@ -350,8 +356,10 @@ class WhatsAppMessage(Document):
                 mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
                 media = {"id": upload_media(account, content, filename, mime)}
             except Exception:
-                # Deliverability beats strictness: a failed upload leaves the original
-                # link behind, which still works wherever the site is publicly reachable.
+                if is_private:
+                    raise
+                # Deliverability beats strictness for a public File: the original
+                # link still works wherever the site is publicly reachable.
                 frappe.log_error(
                     frappe.get_traceback(),
                     f"WhatsApp media upload failed, falling back to link: {url}",
@@ -368,9 +376,10 @@ class WhatsAppMessage(Document):
         return {"type": kind, kind: media}
 
     def get_local_attachment(self, url):
-        """Return ``(bytes, filename)`` for a URL naming a File on this site, else ``(None, None)``.
+        """Return ``(bytes, filename, is_private)`` for a File on this site.
 
-        Reads with ``encodings=[]`` so the content comes back as raw bytes; the default
+        Foreign URLs and missing Files return ``(None, None, False)``. Reads with
+        ``encodings=[]`` so the content comes back as raw bytes; the default
         argument tries to decode to text first, which would corrupt a PDF or an image.
         """
         path = url
@@ -378,16 +387,20 @@ class WhatsAppMessage(Document):
         if path.startswith(site_url):
             path = path[len(site_url):]
         elif path.startswith("http"):
-            return None, None  # hosted elsewhere - we have no bytes to upload
+            return None, None, False  # hosted elsewhere - we have no bytes to upload
         if not path.startswith("/"):
             path = f"/{path}"
 
         name = frappe.db.get_value("File", {"file_url": path}, "name")
         if not name:
-            return None, None
+            return None, None, False
 
         file_doc = frappe.get_doc("File", name)
-        return file_doc.get_content(encodings=[]), (file_doc.file_name or path.rsplit("/", 1)[-1])
+        return (
+            file_doc.get_content(encodings=[]),
+            file_doc.file_name or path.rsplit("/", 1)[-1],
+            bool(file_doc.is_private),
+        )
 
     def notify(self, data):
         """Notify."""
