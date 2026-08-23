@@ -1,7 +1,10 @@
 # Copyright (c) 2022, Shridhar Patil and contributors
 # For license information, please see license.txt
 import json
+import mimetypes
+
 import frappe
+import requests
 from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
@@ -66,8 +69,8 @@ class WhatsAppMessage(Document):
 
         Called from `before_insert` for first-time sends and from bulk
         retry for re-sending Failed messages. No-op for non-Outgoing docs.
-        On non-template sends, raises and sets status to Failed on error;
-        on template sends, `send_template` -> `notify` raises on error.
+        On both template and non-template sends, raises and sets status
+        to Failed on error. Template sends used to leave status NULL.
         """
         if self.type != "Outgoing":
             return
@@ -246,27 +249,12 @@ class WhatsAppMessage(Document):
                     url = f'{self.attach}'
                 else:
                     url = f'{frappe.utils.get_url()}{self.attach}'
-                if template.header_type == 'IMAGE':
+                if template.header_type in ('IMAGE', 'DOCUMENT', 'VIDEO'):
                     data['template']['components'].append({
                         "type": "header",
-                        "parameters": [{
-                            "type": "image",
-                            "image": {
-                                "link": url
-                            }
-                        }]
-                    })
-
-                elif template.header_type == 'DOCUMENT':
-                    data['template']['components'].append({
-                        "type": "header",
-                        "parameters": [{
-                            "type": "document",
-                            "document": {
-                                "link": url,
-                                "filename": "document.pdf"  # should be configurable
-                            }
-                        }]
+                        "parameters": [self.get_header_media_parameter(
+                            template.header_type, url
+                        )]
                     })
 
             elif template.sample:
@@ -336,7 +324,83 @@ class WhatsAppMessage(Document):
             if button_parameters:
                 data['template']['components'].extend(button_parameters)
 
-        self.notify(data)
+        try:
+            self.notify(data)
+            self.status = "Success"
+        except Exception as e:
+            self.status = "Failed"
+            frappe.throw(f"Failed to send message {str(e)}")
+
+    def get_header_media_parameter(self, header_type, url):
+        """Build the header media parameter, preferring an uploaded media *id* over a link.
+
+        A `link` makes Meta's servers fetch the URL themselves, which fails for any site
+        they cannot reach — localhost, a VPN'd staging box, a firewalled VPS. The failure
+        is invisible from here: Meta accepts the send and returns a wamid regardless, the
+        message is recorded as sent, and it simply never arrives. Uploading the bytes to
+        /{phone_id}/media first and sending the returned id removes Meta's fetch from the
+        path entirely, so delivery no longer depends on the site being publicly reachable.
+
+        Falls back to the link when the bytes are not ours to read (an attachment hosted
+        on someone else's domain) or when a *public* file's upload fails. A private file
+        has no working link fallback — Meta would 403 — so a failed upload is re-raised
+        and the send does not look delivered.
+        """
+        kind = header_type.lower()
+        content, filename, is_private = self.get_local_attachment(url)
+        media = None
+
+        if content:
+            try:
+                account = frappe.get_doc("WhatsApp Account", self.whatsapp_account)
+                mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+                media = {"id": upload_media(account, content, filename, mime)}
+            except Exception:
+                if is_private:
+                    raise
+                # Deliverability beats strictness for a public File: the original
+                # link still works wherever the site is publicly reachable.
+                frappe.log_error(
+                    frappe.get_traceback(),
+                    f"WhatsApp media upload failed, falling back to link: {url}",
+                )
+
+        if media is None:
+            media = {"link": url}
+
+        if kind == "document":
+            # Meta shows this as the file name in the chat; it accepts it alongside
+            # either an id or a link.
+            media["filename"] = filename or "document.pdf"
+
+        return {"type": kind, kind: media}
+
+    def get_local_attachment(self, url):
+        """Return ``(bytes, filename, is_private)`` for a File on this site.
+
+        Foreign URLs and missing Files return ``(None, None, False)``. Reads with
+        ``encodings=[]`` so the content comes back as raw bytes; the default
+        argument tries to decode to text first, which would corrupt a PDF or an image.
+        """
+        path = url
+        site_url = frappe.utils.get_url()
+        if path.startswith(site_url):
+            path = path[len(site_url):]
+        elif path.startswith("http"):
+            return None, None, False  # hosted elsewhere - we have no bytes to upload
+        if not path.startswith("/"):
+            path = f"/{path}"
+
+        name = frappe.db.get_value("File", {"file_url": path}, "name")
+        if not name:
+            return None, None, False
+
+        file_doc = frappe.get_doc("File", name)
+        return (
+            file_doc.get_content(encodings=[]),
+            file_doc.file_name or path.rsplit("/", 1)[-1],
+            bool(file_doc.is_private),
+        )
 
     def notify(self, data):
         """Notify."""
@@ -436,3 +500,37 @@ def send_template(to, reference_doctype, reference_name, template):
         doc.save()
     except Exception as e:
         raise e
+
+
+def upload_media(account, content: bytes, filename: str, mimetype: str) -> str:
+    """Upload bytes to the WhatsApp media endpoint and return Meta's media id.
+
+    The id is valid for 30 days and may be sent to any recipient on the same phone
+    number, so it is safe to reuse; callers that re-send the same document within
+    that window can cache it rather than uploading twice.
+    """
+    url = f"{account.url}/{account.version}/{account.phone_id}/media"
+    headers = {"Authorization": f"Bearer {account.get_password('token')}"}
+    files = {
+        "file": (filename, content, mimetype),
+        "messaging_product": (None, "whatsapp"),
+        "type": (None, mimetype),
+    }
+
+    response = requests.post(url, headers=headers, files=files, timeout=60)
+    if response.status_code != 200:
+        error = {}
+        try:
+            error = response.json().get("error", {})
+        except ValueError:
+            pass
+        frappe.throw(
+            _("Media upload failed: {0}").format(
+                error.get("message") or response.text[:300]
+            )
+        )
+
+    media_id = response.json().get("id")
+    if not media_id:
+        frappe.throw(_("Media upload returned no id: {0}").format(response.text[:300]))
+    return media_id

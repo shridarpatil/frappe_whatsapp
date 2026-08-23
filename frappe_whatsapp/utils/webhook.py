@@ -299,9 +299,16 @@ def update_message_status(data):
 	status = data['statuses'][0]['status']
 	conversation = data['statuses'][0].get('conversation', {}).get('id')
 	name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
+	if not name:
+		# A status callback for a wamid we never recorded. get_doc(None) used
+		# to raise Guest PermissionError and 403 the webhook, which made the
+		# router log a tenant rejection. There is nothing to update.
+		return
 
-	doc = frappe.get_doc("WhatsApp Message", name)
-	doc.status = status
+	values = {"status": status}
 	if conversation:
-		doc.conversation_id = conversation
-	doc.save(ignore_permissions=True)
+		values["conversation_id"] = conversation
+	# Single UPDATE. Two callbacks for the same message in the same second
+	# used to deadlock on get_doc + save and drop one of them. Concurrent
+	# UPDATEs just last-write-wins on status.
+	frappe.db.set_value("WhatsApp Message", name, values)
