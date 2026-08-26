@@ -122,6 +122,16 @@ class TestWebhookHelpers(IntegrationTestCase):
         msg.reload()
         self.assertEqual(msg.status, "sent")
 
+    def test_update_message_status_unknown_wamid_is_a_no_op(self):
+        """A status callback for a wamid we never recorded used to 403 the
+        webhook via get_doc(None) → Guest PermissionError."""
+        update_message_status({
+            "statuses": [{
+                "id": "wamid.webhook_unknown",
+                "status": "delivered",
+            }]
+        })
+
     def test_update_template_status(self):
         """Test update_template_status updates template status via SQL."""
         # Create a template directly
