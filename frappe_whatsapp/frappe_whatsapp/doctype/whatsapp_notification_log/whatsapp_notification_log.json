@@ -7,6 +7,10 @@
  "engine": "InnoDB",
  "field_order": [
   "template",
+  "reference_message",
+  "status",
+  "error_code",
+  "error_message",
   "meta_data"
  ],
  "fields": [
@@ -14,6 +18,34 @@
    "fieldname": "template",
    "fieldtype": "Data",
    "label": "Template"
+  },
+  {
+   "description": "Outgoing WhatsApp Message this log entry relates to, when known.",
+   "fieldname": "reference_message",
+   "fieldtype": "Link",
+   "label": "WhatsApp Message",
+   "options": "WhatsApp Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Error Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message",
+   "read_only": 1
   },
   {
    "fieldname": "meta_data",

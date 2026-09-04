@@ -295,13 +295,57 @@ def update_template_status(data):
 
 def update_message_status(data):
 	"""Update message status."""
-	id = data['statuses'][0]['id']
-	status = data['statuses'][0]['status']
-	conversation = data['statuses'][0].get('conversation', {}).get('id')
+	status_data = data['statuses'][0]
+	id = status_data['id']
+	status = status_data['status']
+	conversation = status_data.get('conversation', {}).get('id')
 	name = frappe.db.get_value("WhatsApp Message", filters={"message_id": id})
+
+	# Meta sends the failure error code/reason only once, on the failed status
+	# callback. Persist it (mapped to the message) before touching the message,
+	# so the reason survives even if the referenced message no longer exists.
+	if status_data.get("errors"):
+		log_message_errors(status_data, name)
+
+	if not name:
+		return
 
 	doc = frappe.get_doc("WhatsApp Message", name)
 	doc.status = status
 	if conversation:
 		doc.conversation_id = conversation
 	doc.save(ignore_permissions=True)
+
+
+def log_message_errors(status_data, message_name=None):
+	"""Record Meta failure metadata in WhatsApp Notification Log.
+
+	Creates one log row per reported error, linked to the originating
+	WhatsApp Message. The full status object is kept in `meta_data` for audit.
+	"""
+	message_id = status_data.get("id")
+
+	# Map the failure to its originating WhatsApp Message so the error is
+	# auditable from the message itself.
+	if not message_name and message_id:
+		message_name = frappe.db.get_value(
+			"WhatsApp Message", filters={"message_id": message_id}
+		)
+
+	for error in status_data.get("errors", []):
+		error_data = error.get("error_data") or {}
+		error_message = error.get("message") or error.get("title")
+		details = error_data.get("details")
+		if details:
+			error_message = f"{error_message}: {details}" if error_message else details
+
+		frappe.get_doc({
+			"doctype": "WhatsApp Notification Log",
+			"template": "Message Failed",
+			"reference_message": message_name,
+			"status": status_data.get("status"),
+			"error_code": error.get("code"),
+			"error_message": error_message,
+			# Whole status object retained verbatim for audit.
+			"meta_data": json.dumps(status_data),
+		}).insert(ignore_permissions=True)
