@@ -277,9 +277,18 @@ def post():
 	return
 
 def update_status(data):
-	"""Update status hook."""
+	"""Update status hook.
+
+	An unrecognised `field` falls through silently, on purpose. The app's Meta
+	subscription is app-wide, so a newly ticked field goes live for every tenant at
+	once — including tenants still running an older image. An unhandled event has to
+	be a no-op, not an error log on every delivery across the fleet.
+	"""
 	if data.get("field") == "message_template_status_update":
 		update_template_status(data['value'])
+
+	elif data.get("field") == "template_category_update":
+		update_template_category(data['value'])
 
 	elif data.get("field") == "messages":
 		update_message_status(data['value'])
@@ -292,6 +301,68 @@ def update_template_status(data):
 		WHERE id = %(message_template_id)s""",
 		data
 	)
+
+def update_template_category(data):
+	"""Write Meta's category back onto the matching template row.
+
+	Meta owns `category`; our row is only a cache of it. Meta re-categorises both at
+	review time and on a recurring sweep over already-approved templates, so a value
+	captured at creation goes stale on its own. Observed live: `gym_renewal_reminder`
+	was submitted as UTILITY and re-categorised to MARKETING, and nothing noticed.
+
+	That matters for **consent**, not only cost. Marketing templates may only go to
+	members who have not opted out, so a row claiming UTILITY while Meta governs the
+	template as MARKETING is exactly the state in which a marketing message is sent to
+	an opted-out member in the belief that it is transactional.
+
+	Matching falls back to `actual_name` + `language_code` when `id` is empty, and that
+	fallback is a first-class path rather than defensive padding: rows seeded locally,
+	or created before a real Meta submission, carry no `id` at all and are unmatchable
+	by it.
+
+	Only `new_category` is written. The advance-notice variant of this event carries
+	`correct_category` — the category Meta intends to apply later — and writing that
+	would put a category into the row before it is in force, which is the same
+	wrong-by-one-state problem in the other direction.
+
+	The payload's field names come from Meta's documentation rather than from a
+	delivery we have seen. `post()` already records every webhook body verbatim in a
+	`WhatsApp Notification Log` row, so the first real delivery can be read back and
+	the shape confirmed there — no second log is needed for that. What is logged here
+	is the case where the expected key is absent, because that means the documented
+	shape was wrong and somebody has to look.
+	"""
+	template_id = data.get("message_template_id")
+	name = data.get("message_template_name")
+	language = data.get("message_template_language")
+	new_category = data.get("new_category")
+
+	if not new_category:
+		frappe.log_error(
+			message=json.dumps(data, default=str),
+			title="WhatsApp template_category_update without new_category",
+		)
+		return
+
+	row = None
+	if template_id:
+		row = frappe.db.get_value("WhatsApp Templates", {"id": template_id}, "name")
+	if not row and name:
+		filters = {"actual_name": name}
+		if language:
+			filters["language_code"] = language
+		row = frappe.db.get_value("WhatsApp Templates", filters, "name")
+
+	if not row:
+		# Never create a row from a webhook: a template we do not hold is one this site
+		# does not send, and inventing it would put a half-populated row in front of staff.
+		frappe.log_error(
+			message=json.dumps(data, default=str),
+			title="WhatsApp template_category_update for an unknown template",
+		)
+		return
+
+	frappe.db.set_value("WhatsApp Templates", row, "category", new_category)
 
 def update_message_status(data):
 	"""Update message status."""

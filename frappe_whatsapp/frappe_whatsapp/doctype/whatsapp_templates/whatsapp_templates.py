@@ -182,6 +182,17 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             )
             self.id = response["id"]  # nosemgrep: frappe-modifying-but-not-committing
             self.status = response["status"]  # nosemgrep: frappe-modifying-but-not-committing
+            # Meta decides the category; what we submitted above is a request, not the
+            # outcome. `fetch()` already treats Meta as authoritative here, so without
+            # this the pull path stays true while the create path drifts from birth.
+            #
+            # Conditional, and never `= response.get("category")`: it is not confirmed
+            # that Meta's create response carries `category` at all. If it does not,
+            # this is a harmless no-op and the row keeps the value we submitted until
+            # a `fetch()` or a `template_category_update` corrects it — whereas an
+            # unconditional write would replace a plausible value with None.
+            if response.get("category"):
+                self.category = response["category"]  # nosemgrep: frappe-modifying-but-not-committing
             self.db_update()
         except Exception as e:
             res = frappe.flags.integration_request.json().get("error", {})
@@ -234,11 +245,20 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
         try:
             # post template to meta for update
-            make_post_request(
+            response = make_post_request(
                 f"{self._url}/{self._version}/{self.id}",
                 headers=self._headers,
                 data=json.dumps(data),
             )
+            # This path discarded its response entirely. An edit can change how Meta
+            # reads the template's intent — which is how a renewal reminder becomes
+            # MARKETING — so the same conditional write-back applies here.
+            #
+            # No `db_update()`, unlike `after_insert`: this runs from `validate`, so the
+            # save that called it persists the field on its way out. Writing the row here
+            # would be doing it twice, once against a row that is not final yet.
+            if isinstance(response, dict) and response.get("category"):
+                self.category = response["category"]
         except Exception as e:
             raise e
             # res = frappe.flags.integration_request.json()['error']
