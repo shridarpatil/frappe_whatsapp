@@ -2,7 +2,7 @@ $(document).on('app_ready', function () {
 	// waiting for page to load completely
 	frappe.router.on("change", () => {
 		var route = frappe.get_route();
-		// all form's menu add the 'Send To Telegram' funcationality
+		// all form's menu add the 'Send To Whatsapp' functionality
 		if (route && route[0] == "Form") {
 			frappe.ui.form.on(route[1], {
 				refresh: function (frm) {
@@ -44,7 +44,7 @@ $(document).on('app_ready', function () {
 
 							],
 							'primary_action_label': 'Send',
-							'title': 'Send a Telegram Message',
+							'title': 'Send a Whatsapp Message',
 							primary_action: function () {
 								var values = dialog.get_values();
 								if (values) {
@@ -88,8 +88,17 @@ $(document).on('app_ready', function () {
 	                    if (template) {
 	                        // Dynamically set the get_query function for the user field
 	                        template.get_query = function() {
+	                            // for_doctype is an optional tag on WhatsApp Templates and
+	                            // is NULL (not empty string) on every template in practice --
+	                            // filtering strictly on for_doctype = <this form's doctype>
+	                            // meant SQL "IN ('', 'Sales Invoice')" never matched NULL,
+	                            // so the dropdown came back empty on every single form.
+	                            // Show any Meta-approved template regardless of tagging
+	                            // (Pending ones would fail at send time anyway); re-add a
+	                            // proper doctype filter later once templates are actually
+	                            // tagged with for_doctype.
 	                            return {
-	                                filters: { "for_doctype": frm.doc.doctype },
+	                                filters: { "status": "APPROVED" },
 	                                doctype: "WhatsApp Templates"
 	                            };
 	                        };
