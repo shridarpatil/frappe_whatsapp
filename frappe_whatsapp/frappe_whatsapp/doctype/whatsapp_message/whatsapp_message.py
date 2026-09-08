@@ -214,7 +214,26 @@ class WhatsAppMessage(Document):
             field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
 
             if self.body_param is not None:
-                params = list(json.loads(self.body_param).values())
+                # `body_param` is fieldtype JSON, so Frappe's ORM already
+                # deserializes it into a Python dict/list on read -- it is
+                # NOT a raw JSON string. Calling json.loads() on it (as this
+                # used to do unconditionally) broke two ways depending on
+                # what the caller sent: TypeError "must be str, bytes or
+                # bytearray, not list/dict" when it was already parsed, or
+                # AttributeError "'list' object has no attribute 'values'"
+                # when a JSON array string was passed instead of an object
+                # string. Accept a str (legacy callers may still pass one),
+                # a dict (keyed params, existing convention), or a list
+                # (already-ordered params) uniformly.
+                bp = self.body_param
+                if isinstance(bp, str):
+                    bp = json.loads(bp)
+                if isinstance(bp, dict):
+                    params = list(bp.values())
+                elif isinstance(bp, list):
+                    params = bp
+                else:
+                    params = []
                 for param in params:
                     parameters.append({"type": "text", "text": param})
                     template_parameters.append(param)
