@@ -6,11 +6,33 @@ import json
 import frappe
 import magic
 import requests
+from frappe import _, throw
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
 from frappe.desk.form.utils import get_pdf_link
 
 from frappe_whatsapp.utils import get_whatsapp_account
+
+def parse_list(val):
+    """Parse a JSON array string or comma-separated string into a list of strings."""
+    if not val:
+        return []
+    if isinstance(val, list):
+        return [str(v) for v in val]
+    if isinstance(val, str):
+        val = val.strip()
+        if not val:
+            return []
+        if val.startswith("[") and val.endswith("]"):
+            try:
+                parsed = json.loads(val)
+                if isinstance(parsed, list):
+                    return [str(v) for v in parsed]
+            except (ValueError, TypeError):
+                pass
+        return [v.strip() for v in val.split(",")]
+    return []
+
 
 class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-committing-other-method -- get_settings() sets self._token/_url/_version/_business_id/_app_id/_headers as in-memory scratch for the outbound Meta HTTP call; they are not DocType fields and must not be persisted
     """Create whatsapp template."""
@@ -21,21 +43,31 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
-        if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
+        # Media headers are uploaded to Meta up front (needs an account). Skip
+        # for a local draft — the sample URL is stored and uploaded on submit.
+        if (
+            self.header_type in ["IMAGE", "DOCUMENT"]
+            and self.sample
+            and not self.flags.get("skip_meta_submit")
+        ):
             self.get_session_id(self.sample)
             self.get_media_id(self.sample)
 
-        if not self.is_new():
+        # skip_meta_submit: keep a local draft in sync without pushing the edit
+        # to Meta (used by the Template Builder's "Save Draft" on an existing row).
+        if not self.is_new() and not self.flags.get("skip_meta_submit"):
             self.update_template()
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
         if not self.whatsapp_account:
-            default_whatsapp_account = get_whatsapp_account()
-            if not default_whatsapp_account:
-                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
-            else:
+            default_whatsapp_account = get_whatsapp_account(account_type="outgoing")
+            if default_whatsapp_account:
                 self.whatsapp_account = default_whatsapp_account.name
+            elif not self.flags.get("skip_meta_submit"):
+                # A local draft (skip_meta_submit) can be saved without an
+                # account; a real submit cannot — it needs Meta credentials.
+                throw(_("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
 
     def get_session_id(self, file):
         """Upload media."""
@@ -126,6 +158,14 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
         if self.template_name:
             self.actual_name = self.template_name.lower().replace(" ", "_")  # nosemgrep: frappe-modifying-but-not-committing
 
+        # Allow callers to persist a local draft without pushing to Meta
+        # (e.g. the Template Builder's "Save Draft"). The row is created with
+        # its default "Pending" status and can be submitted later.
+        if self.flags.get("skip_meta_submit"):
+            if self.template_name:
+                self.db_update()  # nosemgrep: frappe-modifying-but-not-committing
+            return
+
         self.get_settings()
         data = {
             "name": self.actual_name,
@@ -139,7 +179,7 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             "text": self.template,
         }
         if self.sample_values:
-            body.update({"example": {"body_text": [self.sample_values.split(",")]}})
+            body.update({"example": {"body_text": [parse_list(self.sample_values)]}})
 
         data["components"].append(body)
         if self.header_type:
@@ -193,6 +233,10 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
     def update_template(self):
         """Update template to meta."""
+        if not self.id:
+            # Never created on Meta (local draft) — nothing to update remotely.
+            # The Meta create happens through the after_insert path on submit.
+            return
         self.get_settings()
         data = {"components": []}
 
@@ -201,7 +245,7 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             "text": self.template,
         }
         if self.sample_values:
-            body.update({"example": {"body_text": [self.sample_values.split(",")]}})
+            body.update({"example": {"body_text": [parse_list(self.sample_values)]}})
         data["components"].append(body)
         if self.header_type:
             data["components"].append(self.get_header())
@@ -265,6 +309,9 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
         }
 
     def on_trash(self):
+        if not self.id:
+            # Local draft that never reached Meta — delete locally only.
+            return
         self.get_settings()
         url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
         try:
@@ -356,11 +403,13 @@ def fetch():
                     elif component["type"] == "BODY":
                         doc.template = component["text"]
                         if component.get("example"):
-    			            # Check if 'body_text' exists before trying to access it
+                            # Check if 'body_text' exists before trying to access it
                             if component["example"].get("body_text"):
-                                doc.sample_values = ",".join(
-            	                    component["example"]["body_text"][0]
-                    	        )
+                                samples = component["example"]["body_text"][0]
+                                if any("," in str(s) for s in samples):
+                                    doc.sample_values = json.dumps(samples)
+                                else:
+                                    doc.sample_values = ",".join(samples)
 
                     # Update buttons
                     elif component["type"] == "BUTTONS":

@@ -211,7 +211,8 @@ class WhatsAppMessage(Document):
         parameters = []
         template_parameters = []
         if template.sample_values:
-            field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
+            from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import parse_list
+            field_names = parse_list(template.field_names) if template.field_names else parse_list(template.sample_values)
 
             if self.body_param is not None:
                 params = list(json.loads(self.body_param).values())
