@@ -7,6 +7,8 @@ import hmac
 import frappe
 from frappe import _
 
+from frappe_whatsapp.utils.signature import forbidden, is_verified_meta_request
+
 
 @frappe.whitelist(allow_guest=True)
 def handle_flow_request():
@@ -25,7 +27,10 @@ def handle_flow_request():
             # Health check - WhatsApp pings this to verify endpoint
             return {"status": "ok"}
 
-        # POST request - actual flow data
+        # POST request - actual flow data. Refuse anything Meta did not sign
+        # before logging or saving any of it (this is a guest endpoint).
+        if not is_verified_meta_request():
+            return forbidden()
         data = frappe.request.get_json()
 
         if not data:
