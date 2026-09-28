@@ -187,6 +187,11 @@ class TestWebhookEndpoint(IntegrationTestCase):
             "is_default_outgoing": 1,
             "is_default_incoming": 1,
         })
+        # These tests exercise message handling; signature checking has its own tests
+        # in test_signature.py.
+        signature = patch("frappe_whatsapp.utils.webhook.is_verified_meta_request", return_value=True)
+        signature.start()
+        self.addCleanup(signature.stop)
 
     def tearDown(self):
         for name in frappe.get_all("WhatsApp Message", filters={"message_id": ["like", "wamid.webhook_ep_%"]}, pluck="name"):

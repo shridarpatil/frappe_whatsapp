@@ -8,6 +8,7 @@ from werkzeug.wrappers import Response
 import frappe.utils
 
 from frappe_whatsapp.utils import get_whatsapp_account
+from frappe_whatsapp.utils.signature import forbidden, is_verified_meta_request
 
 
 @frappe.whitelist(allow_guest=True)
@@ -37,6 +38,9 @@ def get():
 
 def post():
 	"""Post."""
+	# Guest endpoint: refuse anything Meta did not sign BEFORE writing a single row.
+	if not is_verified_meta_request():
+		return forbidden()
 	data = frappe.local.form_dict
 	frappe.get_doc({
 		"doctype": "WhatsApp Notification Log",
