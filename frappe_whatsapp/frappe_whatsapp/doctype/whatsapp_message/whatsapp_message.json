@@ -18,6 +18,7 @@
   "template_header_parameters",
   "column_break_5",
   "message",
+  "incoming_message_preview",
   "message_type",
   "message_id",
   "conversation_id",
@@ -114,10 +115,17 @@
   },
   {
    "allow_in_quick_entry": 1,
+   "depends_on": "eval:doc.type=='Outgoing'",
    "fieldname": "message",
    "fieldtype": "HTML Editor",
    "label": "Message",
    "set_only_once": 1
+  },
+  {
+   "depends_on": "eval:doc.type=='Incoming'",
+   "fieldname": "incoming_message_preview",
+   "fieldtype": "HTML",
+   "label": "Message"
   },
   {
    "allow_in_quick_entry": 1,

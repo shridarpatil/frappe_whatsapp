@@ -196,6 +196,8 @@ doc.set("_data_list", [
 ### Incoming Messages
 Messages received via webhook are automatically created as WhatsApp Message documents:
 
+The WhatsApp Message form displays incoming text as read-only, line-preserving content. Incoming images, videos, and audio are previewed in the form; documents remain available through an **Open attachment** link.
+
 ![Incoming Message](https://user-images.githubusercontent.com/11792643/211519625-a528abe2-ba24-46a4-bcbc-170f6b4e27fb.png)
 
 ## Multi-Account Support
