@@ -14,6 +14,63 @@ const WA_METHOD = "frappe_whatsapp.frappe_whatsapp.page.whatsapp_chat.whatsapp_c
 const WA_POLL_MS = 20000;
 const WA_SESSION_HOURS = 24;
 
+const WA_EMOJI = [
+	{
+		key: "smileys",
+		icon: "😀",
+		label: "Smileys & People",
+		emoji: "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 😚 😙 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🥵 🥶 🥴 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿 💀 💩 🤡 👻 👽 🤖 😺 😸 😹 😻 😼 😽 🙀 😿 😾",
+	},
+	{
+		key: "gestures",
+		icon: "👍",
+		label: "Gestures",
+		emoji: "👋 🤚 🖐️ ✋ 🖖 👌 🤌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 👀 👁️ 👅 👄 🧠 👶 🧒 👦 👧 🧑 👨 👩 🧓 👴 👵 🙋 🙆 🙅 🤷 🤦 🙇 💁 🧑‍💻 🧑‍💼 🧑‍🏫 🧑‍🍳 🧑‍🔧 👮 🕵️ 💂 👷 🤴 👸 👰 🤵 🎅 🏃 🚶 💃 🕺 👯 🧘 👪",
+	},
+	{
+		key: "hearts",
+		icon: "❤️",
+		label: "Hearts",
+		emoji: "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ♥️ 💋 💌 💐 🌹 🥀 💯 💢 💥 💫 💦 💨 🕳️ 💬 🗨️ 💭 💤",
+	},
+	{
+		key: "nature",
+		icon: "🐶",
+		label: "Animals & Nature",
+		emoji: "🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🙈 🙉 🙊 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐢 🐍 🦎 🐙 🦑 🦀 🐠 🐟 🐬 🐳 🦈 🐊 🐅 🐆 🦓 🦍 🐘 🦛 🦏 🐪 🦒 🦘 🐃 🐄 🐎 🐑 🐐 🐕 🐈 🐓 🦚 🦜 🌵 🎄 🌲 🌳 🌴 🌱 🌿 ☘️ 🍀 🍁 🍂 🍃 🌺 🌻 🌼 🌷 🌸 🌍 🌙 ⭐ 🌟 ✨ ⚡ 🔥 🌈 ☀️ ⛅ ☁️ 🌧️ ⛈️ ❄️ ☃️ 💧 🌊",
+	},
+	{
+		key: "food",
+		icon: "🍔",
+		label: "Food & Drink",
+		emoji: "🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🥑 🍆 🥔 🥕 🌽 🌶️ 🥒 🥬 🥦 🧄 🧅 🍄 🥜 🍞 🥐 🥖 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🥗 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🍤 🍚 🍙 🍘 🍥 🥮 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🥛 ☕ 🍵 🧃 🥤 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🍾 🧊",
+	},
+	{
+		key: "activities",
+		icon: "⚽",
+		label: "Activities",
+		emoji: "⚽ 🏀 🏈 ⚾ 🎾 🏐 🏉 🥏 🎱 🏓 🏸 🏒 🏑 🏏 🥅 ⛳ 🏹 🎣 🥊 🥋 🎽 🛹 ⛸️ 🎿 🏋️ 🤸 ⛹️ 🤺 🏊 🚴 🏆 🥇 🥈 🥉 🏅 🎖️ 🎗️ 🎫 🎟️ 🎪 🎭 🎨 🎬 🎤 🎧 🎼 🎹 🥁 🎷 🎺 🎸 🎻 🎲 ♟️ 🎯 🎳 🎮 🧩 🎉 🎊 🎈 🎁 🎀 🪅",
+	},
+	{
+		key: "travel",
+		icon: "🚗",
+		label: "Travel & Places",
+		emoji: "🚗 🚕 🚙 🚌 🚎 🏎️ 🚓 🚑 🚒 🚐 🛻 🚚 🚛 🚜 🛵 🏍️ 🚲 🛴 🚨 🚔 🚍 🚘 🚖 🚡 🚠 🚟 🚃 🚋 🚝 🚄 🚅 🚈 🚂 🚆 🚇 ✈️ 🛫 🛬 🚁 🚀 🛸 ⛵ 🚤 🛳️ ⛴️ 🚢 ⚓ ⛽ 🚧 🚦 🗺️ 🗽 🗼 🏰 🏯 🏟️ 🎡 🎢 ⛲ ⛱️ 🏖️ 🏝️ 🏜️ 🌋 ⛰️ 🏔️ 🏕️ 🏠 🏡 🏢 🏬 🏣 🏥 🏦 🏨 🏪 🏫 🏛️ ⛪ 🕌 🕍 🌅 🌄 🌇 🌆 🌃",
+	},
+	{
+		key: "objects",
+		icon: "💡",
+		label: "Objects",
+		emoji: "⌚ 📱 💻 ⌨️ 🖥️ 🖨️ 🖱️ 💾 💿 📷 📸 📹 🎥 📞 ☎️ 📺 📻 ⏰ ⏳ 📡 🔋 🔌 💡 🔦 🕯️ 💸 💵 💴 💶 💷 💰 💳 💎 ⚖️ 🔧 🔨 🛠️ ⚙️ 🔩 🧱 🔫 💣 🔪 🛡️ 🔮 💊 💉 🩺 🧬 🦠 🧪 🌡️ 🧹 🧺 🧻 🚽 🛁 🔑 🗝️ 🚪 🛋️ 🛏️ 🧸 🖼️ 🛍️ 🛒 🎁 ✉️ 📩 📨 📧 📦 📮 📝 📁 📂 📅 📆 📇 📈 📉 📊 📋 📌 📍 📎 🖇️ 📏 📐 ✂️ 🗑️ 🔒 🔓 🔏 🔐 🔍 🔎 📚 📖 🔖 🏷️ ✏️ 🖊️ 🖋️ 🖌️ 🖍️",
+	},
+	{
+		key: "symbols",
+		icon: "✅",
+		label: "Symbols",
+		emoji: "✅ ☑️ ✔️ ❌ ❎ ➕ ➖ ➗ ✖️ ♾️ ‼️ ⁉️ ❓ ❔ ❕ ❗ 〰️ 💲 ©️ ®️ ™️ 🔟 💯 🔢 🔠 🔡 🔤 🆗 🆕 🆓 🆒 🆙 🆘 ⛔ 🚫 📵 🔞 ☢️ ☣️ ⬆️ ↗️ ➡️ ↘️ ⬇️ ↙️ ⬅️ ↖️ ↕️ ↔️ ↩️ ↪️ 🔄 🔃 🔀 🔁 🔂 ▶️ ⏸️ ⏹️ ⏺️ ⏭️ ⏮️ ⏩ ⏪ 🔼 🔽 ℹ️ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🔳 🔲 ▪️ ▫️ ⭕ 🔔 🔕 📣 📢 ⚠️ 🚸 ♻️ 🔰 🌐 🏁 🚩 🎌 🏴 🏳️ 🇰🇪 🇺🇬 🇹🇿 🇷🇼 🇪🇹 🇳🇬 🇿🇦 🇬🇧 🇺🇸 🇮🇳 🇦🇪",
+	},
+];
+
 class WhatsAppChatPage {
 	constructor(wrapper) {
 		this.wrapper = wrapper;
@@ -265,6 +322,46 @@ class WhatsAppChatPage {
 				outline: none;
 				font-size: 14px;
 			}
+			.wa-emoji-panel {
+				display: none;
+				flex-direction: column;
+				height: 280px;
+				border-top: 1px solid var(--wa-border);
+				background: var(--wa-panel-soft);
+			}
+			.wa-emoji-panel.open { display: flex; }
+			.wa-emoji-tabs { display: flex; gap: 2px; padding: 6px 12px 0; border-bottom: 1px solid var(--wa-border); overflow-x: auto; }
+			.wa-emoji-tab {
+				border: 0;
+				background: transparent;
+				font-size: 20px;
+				padding: 4px 8px 6px;
+				cursor: pointer;
+				border-bottom: 3px solid transparent;
+				opacity: 0.6;
+			}
+			.wa-emoji-tab.active { border-bottom-color: var(--wa-green); opacity: 1; }
+			.wa-emoji-grid {
+				flex: 1;
+				overflow-y: auto;
+				padding: 8px 12px;
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+				align-content: start;
+			}
+			.wa-emoji {
+				border: 0;
+				background: transparent;
+				font-size: 26px;
+				line-height: 1;
+				height: 40px;
+				border-radius: 8px;
+				cursor: pointer;
+			}
+			.wa-emoji:hover { background: var(--wa-active); }
+			.wa-emoji-empty { grid-column: 1 / -1; text-align: center; color: var(--wa-muted); font-size: 13px; padding: 24px; }
+			.wa-emoji-btn.active { color: var(--wa-green); }
+			.wa-bubble.jumbo .wa-text { font-size: 36px; line-height: 1.2; }
 			.wa-send { background: var(--wa-green); color: #fff; }
 			.wa-send:hover { background: var(--wa-green-dark); color: #fff; }
 			.wa-empty {
@@ -492,7 +589,9 @@ class WhatsAppChatPage {
 			</div>
 			<div class="wa-messages"></div>
 			<div class="wa-notice" style="display:none"></div>
+			<div class="wa-emoji-panel"></div>
 			<div class="wa-composer">
+				<button class="wa-icon-btn wa-emoji-btn" title="${__("Emoji")}">${frappe.utils.icon("face-slightly-smiling", "md")}</button>
 				<button class="wa-icon-btn wa-attach" title="${__("Attach")}">${frappe.utils.icon("paperclip", "md")}</button>
 				<textarea rows="1" placeholder="${__("Type a message")}"></textarea>
 				<button class="wa-icon-btn wa-send" title="${__("Send")}">${frappe.utils.icon("send-horizontal", "md")}</button>
@@ -522,6 +621,11 @@ class WhatsAppChatPage {
 		});
 		this.$composer.find(".wa-send").on("click", submit);
 		this.$composer.find(".wa-attach").on("click", () => this.attach());
+		this.$emoji_panel = this.$chat.find(".wa-emoji-panel");
+		this.$composer.find(".wa-emoji-btn").on("click", () => this.toggle_emoji_panel());
+		$input.on("keydown", (e) => {
+			if (e.key === "Escape") this.toggle_emoji_panel(false);
+		});
 		this.$chat.find(".wa-back").on("click", () => {
 			this.$app.removeClass("chat-open");
 		});
@@ -638,11 +742,12 @@ class WhatsAppChatPage {
 			label = `<div class="wa-tag">${frappe.utils.escape_html(m.content_type)}</div>`;
 		}
 
+		const jumbo = !media && !label && this.is_only_emoji(m.message);
 		return `
-			<div class="wa-bubble ${out ? "out" : "in"} ${failed ? "failed" : ""}" title="${frappe.utils.escape_html(
+			<div class="wa-bubble ${out ? "out" : "in"} ${failed ? "failed" : ""} ${jumbo ? "jumbo" : ""}" title="${frappe.utils.escape_html(
 				frappe.datetime.str_to_user(m.creation)
 			)}">
-				${label}${media}${this.format_text(m.message)}
+				${label}${media}<span class="wa-text">${this.format_text(m.message)}</span>
 				<span class="wa-meta">${moment(m.creation).format("HH:mm")}${out ? this.ticks(m.status) : ""}</span>
 			</div>`;
 	}
@@ -659,6 +764,84 @@ class WhatsAppChatPage {
 				this.send(caption, file.file_url);
 			},
 		});
+	}
+
+	toggle_emoji_panel(open) {
+		open = open === undefined ? !this.$emoji_panel.hasClass("open") : open;
+		this.$emoji_panel.toggleClass("open", open);
+		this.$composer.find(".wa-emoji-btn").toggleClass("active", open);
+		if (open && !this.$emoji_panel.children().length) this.render_emoji_panel();
+		if (open) this.show_emoji_group(this.recent_emoji().length ? "recent" : WA_EMOJI[0].key);
+		this.$composer.find("textarea").trigger("focus");
+	}
+
+	render_emoji_panel() {
+		const groups = [{ key: "recent", icon: "🕘", label: __("Recent") }, ...WA_EMOJI];
+		this.$emoji_panel.html(`
+			<div class="wa-emoji-tabs">
+				${groups
+					.map(
+						(g) =>
+							`<button class="wa-emoji-tab" data-group="${g.key}" title="${__(g.label)}">${g.icon}</button>`
+					)
+					.join("")}
+			</div>
+			<div class="wa-emoji-grid"></div>
+		`);
+		this.$emoji_panel.on("click", ".wa-emoji-tab", (e) => {
+			this.show_emoji_group($(e.currentTarget).attr("data-group"));
+		});
+		// mousedown keeps the textarea's caret where it is.
+		this.$emoji_panel.on("mousedown", ".wa-emoji", (e) => {
+			e.preventDefault();
+			this.insert_emoji($(e.currentTarget).text());
+		});
+	}
+
+	show_emoji_group(key) {
+		this.$emoji_panel.find(".wa-emoji-tab").removeClass("active");
+		this.$emoji_panel.find(`.wa-emoji-tab[data-group="${key}"]`).addClass("active");
+		const emoji = key === "recent" ? this.recent_emoji() : WA_EMOJI.find((g) => g.key === key).emoji.split(" ");
+		this.$emoji_panel
+			.find(".wa-emoji-grid")
+			.html(
+				emoji.length
+					? emoji.map((e) => `<button class="wa-emoji">${e}</button>`).join("")
+					: `<div class="wa-emoji-empty">${__("Emoji you use will show up here")}</div>`
+			)
+			.scrollTop(0);
+	}
+
+	insert_emoji(emoji) {
+		const input = this.$composer.find("textarea")[0];
+		const start = input.selectionStart ?? input.value.length;
+		const end = input.selectionEnd ?? input.value.length;
+		input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
+		input.selectionStart = input.selectionEnd = start + emoji.length;
+		$(input).trigger("input").trigger("focus");
+
+		const recent = [emoji, ...this.recent_emoji().filter((e) => e !== emoji)].slice(0, 32);
+		try {
+			localStorage.setItem("wa_chat_recent_emoji", JSON.stringify(recent));
+		} catch (e) {
+			// Recents are a convenience; ignore storage being unavailable.
+		}
+	}
+
+	recent_emoji() {
+		try {
+			return JSON.parse(localStorage.getItem("wa_chat_recent_emoji")) || [];
+		} catch (e) {
+			return [];
+		}
+	}
+
+	is_only_emoji(text) {
+		if (!text) return false;
+		const trimmed = text.replace(/\s/g, "");
+		if (!trimmed || !/^(\p{Extended_Pictographic}|\p{Emoji_Component}|‍|️)+$/u.test(trimmed)) return false;
+		const count = [...new Intl.Segmenter().segment(trimmed)].length;
+		return !/^[\d#*]+$/.test(trimmed) && count <= 3;
 	}
 
 	open_profile() {
