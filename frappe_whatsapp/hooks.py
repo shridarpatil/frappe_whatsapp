@@ -7,6 +7,16 @@ app_description = "WhatsApp integration for frappe"
 app_email = "shridhar.p@zerodha.com"
 app_license = "MIT"
 
+add_to_apps_screen = [
+    {
+        "name": "frappe_whatsapp",
+        "logo": "/assets/frappe_whatsapp/images/whatsapp-logo.svg",
+        "title": "WhatsApp",
+        "route": "/app/whatsapp-message",
+        "has_permission": "frappe_whatsapp.utils.has_app_permission",
+    }
+]
+
 # Includes in <head>
 # ------------------
 

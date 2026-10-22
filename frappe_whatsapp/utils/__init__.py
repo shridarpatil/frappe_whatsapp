@@ -182,3 +182,14 @@ def format_number(number):
         number = number[1 : len(number)]
 
     return number
+
+
+def has_app_permission():
+    """Show the app on the apps screen to users who can read WhatsApp messages."""
+    if frappe.session.user == "Administrator":
+        return True
+
+    return any(
+        frappe.has_permission(doctype, "read")
+        for doctype in ("WhatsApp Message", "Bulk WhatsApp Message")
+    )
