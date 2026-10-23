@@ -75,13 +75,19 @@ def post():
 	if messages:
 		for message in messages:
 			message_type = message['type']
+			# Meta omits `from` when the sender hides their phone number; the
+			# Business-Scoped User ID in `from_user_id` is then the only identifier.
+			sender = message.get('from') or message.get('from_user_id')
+			if not sender:
+				frappe.log_error(title="WhatsApp webhook: message without sender", message=json.dumps(message))
+				continue
 			is_reply = True if message.get('context') and 'forwarded' not in message.get('context') else False
 			reply_to_message_id = message['context']['id'] if is_reply else None
 			if message_type == 'text':
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
-					"from": message['from'],
+					"from": sender,
 					"message": message['text']['body'],
 					"message_id": message['id'],
 					"reply_to_message_id": reply_to_message_id,
@@ -94,7 +100,7 @@ def post():
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
-					"from": message['from'],
+					"from": sender,
 					"message": message['reaction']['emoji'],
 					"reply_to_message_id": message['reaction']['message_id'],
 					"message_id": message['id'],
@@ -111,7 +117,7 @@ def post():
 					frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
-						"from": message['from'],
+						"from": sender,
 						"message": interactive_data['button_reply']['id'],
 						"message_id": message['id'],
 						"reply_to_message_id": reply_to_message_id,
@@ -125,7 +131,7 @@ def post():
 					frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
-						"from": message['from'],
+						"from": sender,
 						"message": interactive_data['list_reply']['id'],
 						"message_id": message['id'],
 						"reply_to_message_id": reply_to_message_id,
@@ -155,7 +161,7 @@ def post():
 					msg_doc = frappe.get_doc({
 						"doctype": "WhatsApp Message",
 						"type": "Incoming",
-						"from": message['from'],
+						"from": sender,
 						"message": summary_message,
 						"message_id": message['id'],
 						"reply_to_message_id": reply_to_message_id,
@@ -170,7 +176,7 @@ def post():
 					frappe.publish_realtime(  # nosemgrep: frappe-realtime-pick-room -- intentional site-wide fan-out for chat UIs (whatsapp_chat companion app) listening for inbound flow responses
 						"whatsapp_flow_response",
 						{
-							"phone": message['from'],
+							"phone": sender,
 							"message_id": message['id'],
 							"flow_response": flow_response,
 							"whatsapp_account": whatsapp_account.name
@@ -184,7 +190,7 @@ def post():
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
-					"from": message['from'],
+					"from": sender,
 					"message": _("New Order Received via WhatsApp"),
 					"message_id": message['id'],
 					"content_type": "order",
@@ -218,7 +224,7 @@ def post():
 						message_doc = frappe.get_doc({
 							"doctype": "WhatsApp Message",
 							"type": "Incoming",
-							"from": message['from'],
+							"from": sender,
 							"message_id": message['id'],
 							"reply_to_message_id": reply_to_message_id,
 							"is_reply": is_reply,
@@ -246,7 +252,7 @@ def post():
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
-					"from": message['from'],
+					"from": sender,
 					"message": message['button']['text'],
 					"message_id": message['id'],
 					"reply_to_message_id": reply_to_message_id,
@@ -259,7 +265,7 @@ def post():
 				frappe.get_doc({
 					"doctype": "WhatsApp Message",
 					"type": "Incoming",
-					"from": message['from'],
+					"from": sender,
 					"message_id": message['id'],
 					"message": message[message_type].get(message_type),
 					"content_type" : message_type,
