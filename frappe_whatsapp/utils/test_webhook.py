@@ -263,6 +263,42 @@ class TestWebhookEndpoint(IntegrationTestCase):
         self.assertEqual(msg.message, "Hello from webhook test")
         self.assertEqual(msg.content_type, "text")
 
+    def test_webhook_post_message_without_from_uses_bsuid(self):
+        """A sender who hides their phone number arrives with from_user_id and no from.
+
+        Meta's Business-Scoped User IDs (BSUID): when the user has not shared
+        their number with this business, `messages[].from` and `contacts[].wa_id`
+        are omitted and only the BSUID identifies them. The webhook must store
+        the message under that id rather than raise KeyError, which makes Meta
+        retry the delivery for days.
+        """
+        mock_request = self._make_mock_request("POST")
+        payload = {
+            "entry": [{
+                "changes": [{
+                    "value": {
+                        "metadata": {"phone_number_id": "webhook_ep_phone_id"},
+                        "contacts": [{"profile": {"name": "Hidden Number"}, "user_id": "KE.1607003141051214"}],
+                        "messages": [{
+                            "from_user_id": "KE.1607003141051214",
+                            "id": "wamid.webhook_ep_bsuid_1",
+                            "type": "text",
+                            "text": {"body": "Hello without a phone number"},
+                        }]
+                    }
+                }]
+            }]
+        }
+        frappe.local.form_dict = frappe._dict(payload)
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.request", mock_request):
+            from frappe_whatsapp.utils.webhook import webhook
+            webhook()
+
+        msg = frappe.get_doc("WhatsApp Message", {"message_id": "wamid.webhook_ep_bsuid_1"})
+        self.assertEqual(msg.get("from"), "KE.1607003141051214")
+        self.assertEqual(msg.message, "Hello without a phone number")
+
     def test_webhook_post_reaction_message(self):
         """Test POST webhook with reaction message."""
         mock_request = self._make_mock_request("POST")
