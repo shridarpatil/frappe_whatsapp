@@ -324,17 +324,15 @@ def fetch():
         headers = {"authorization": f"Bearer {token}", "content-type": "application/json"}
 
         try:
-            response = make_request(
-                "GET",
-                f"{url}/{version}/{business_id}/message_templates",
-                headers=headers,
-            )
-
-            for template in response["data"]:
+            for template in get_templates_from_meta(
+                f"{url}/{version}/{business_id}/message_templates", headers
+            ):
                 # set flag to insert or update
                 flags = 1
-                if frappe.db.exists("WhatsApp Templates", {"actual_name": template["name"]}):
-                    doc = frappe.get_doc("WhatsApp Templates", {"actual_name": template["name"]})
+                # Meta keeps each language of a template separately, so match on both
+                template_filters = {"actual_name": template["name"], "language_code": template["language"]}
+                if frappe.db.exists("WhatsApp Templates", template_filters):
+                    doc = frappe.get_doc("WhatsApp Templates", template_filters)
                 else:
                     flags = 0
                     doc = frappe.new_doc("WhatsApp Templates")
@@ -413,8 +411,6 @@ def fetch():
 
                 upsert_doc_without_hooks(doc, "WhatsApp Button", "buttons")
 
-            return "Successfully fetched templates from meta"
-
         except Exception as e:
             # Check if frappe.flags.integration_request is set and has a .json() method
             if hasattr(frappe.flags.integration_request, 'json'):
@@ -431,6 +427,15 @@ def fetch():
             else:
                 # Handle cases where frappe.flags.integration_request doesn't exist or isn't a proper response object
                 frappe.throw(f"An unexpected server error occurred: {e}")
+
+    return "Successfully fetched templates from meta"
+
+def get_templates_from_meta(url, headers):
+    """Yield every template from Meta, following paging.next until the last page."""
+    while url:
+        response = make_request("GET", url, headers=headers)
+        yield from response["data"]
+        url = response.get("paging", {}).get("next")
 
 def upsert_doc_without_hooks(doc, child_dt, child_field):
     """Insert or update a parent document and its children without hooks."""
