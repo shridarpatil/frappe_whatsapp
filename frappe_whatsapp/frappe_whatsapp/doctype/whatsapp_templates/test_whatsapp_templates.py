@@ -91,6 +91,46 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         doc.validate()
         self.assertTrue(len(doc.language_code) > 0)
 
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_new_template_name_includes_language_code(self, mock_post):
+        """A template saved from the form (language_code not filled yet) is named {template_name}-{language_code}."""
+        mock_post.return_value = {"id": "tmpl_name_lang_id", "status": "PENDING"}
+
+        doc = frappe.get_doc({
+            "doctype": "WhatsApp Templates",
+            "template_name": "test_tmpl_name_lang",
+            "template": "Hello",
+            "category": "UTILITY",
+            "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+            "whatsapp_account": "Test WA Tmpl Account",
+        })
+        doc.insert(ignore_permissions=True)
+
+        self.assertEqual(doc.language_code, "en")
+        self.assertEqual(doc.name, "test_tmpl_name_lang-en")
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_same_template_name_in_two_languages(self, mock_post):
+        """The same Template Label can be created once per language."""
+        mock_post.return_value = {"id": "tmpl_two_lang_id", "status": "PENDING"}
+
+        names = []
+        for code in ("en", "hi"):
+            doc = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "test_tmpl_two_lang",
+                "template": "Hello",
+                "category": "UTILITY",
+                "language": frappe.db.get_value("Language", {"language_code": code}) or code,
+                "whatsapp_account": "Test WA Tmpl Account",
+            })
+            doc.insert(ignore_permissions=True)
+            names.append(doc.name)
+
+        self.assertEqual(names, ["test_tmpl_two_lang-en", "test_tmpl_two_lang-hi"])
+        sent = [json.loads(c.kwargs["data"]) for c in mock_post.call_args_list]
+        self.assertEqual([(d["name"], d["language"]) for d in sent], [("test_tmpl_two_lang", "en"), ("test_tmpl_two_lang", "hi")])
+
     def test_set_whatsapp_account_default(self):
         """Test whatsapp_account is set to default if missing."""
         doc = self._make_template_without_hooks(

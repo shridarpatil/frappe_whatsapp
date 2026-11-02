@@ -15,11 +15,14 @@ from frappe_whatsapp.utils import get_whatsapp_account
 class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-committing-other-method -- get_settings() sets self._token/_url/_version/_business_id/_app_id/_headers as in-memory scratch for the outbound Meta HTTP call; they are not DocType fields and must not be persisted
     """Create whatsapp template."""
 
+    def before_insert(self):
+        # language_code is part of the name ({template_name}-{language_code}) and
+        # Frappe sets the name before validate(), so it must be filled here.
+        self.set_language_code()
+
     def validate(self):
         self.set_whatsapp_account()
-        if not self.language_code or self.has_value_changed("language"):
-            lang_code = frappe.db.get_value("Language", self.language) or "en"
-            self.language_code = lang_code.replace("-", "_")
+        self.set_language_code()
 
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
             self.get_session_id(self.sample)
@@ -36,6 +39,12 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
                 frappe.throw(frappe._("Please set a default outgoing WhatsApp Account or Select available WhatsApp Account"))
             else:
                 self.whatsapp_account = default_whatsapp_account.name
+
+    def set_language_code(self):
+        """Set language_code (Meta's format, e.g. en_US) from the selected Language."""
+        if not self.language_code or self.has_value_changed("language"):
+            lang_code = frappe.db.get_value("Language", self.language) or "en"
+            self.language_code = lang_code.replace("-", "_")
 
     def get_session_id(self, file):
         """Upload media."""
