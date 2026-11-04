@@ -9,8 +9,11 @@
   "label",
   "type",
   "status",
+  "failure_reason",
   "to",
+  "to_normalized",
   "from",
+  "from_normalized",
   "profile_name",
   "use_template",
   "template",
@@ -42,7 +45,8 @@
   "reference_doctype",
   "bulk_message_reference",
   "column_break_efrb",
-  "reference_name"
+  "reference_name",
+  "template_button_parameters"
  ],
  "fields": [
   {
@@ -58,7 +62,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Type",
-   "options": "Outgoing\nIncoming"
+   "options": "Outgoing\nIncoming",
+   "set_only_once": 1
   },
   {
    "fieldname": "status",
@@ -68,18 +73,28 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.failure_reason",
+   "description": "Meta delivery-failure code + title (e.g. '131049 - This message was not delivered to maintain healthy ecosystem engagement.')",
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Failure Reason",
+   "read_only": 1
+  },
+  {
    "allow_in_quick_entry": 1,
    "depends_on": "eval:(doc.type==\"Outgoing\");",
    "description": "Mobile number with country code",
    "fieldname": "to",
    "fieldtype": "Data",
-   "label": "TO "
+   "label": "TO ",
+   "set_only_once": 1
   },
   {
    "depends_on": "eval:(doc.type==\"Incoming\");",
    "fieldname": "from",
    "fieldtype": "Data",
-   "label": "From"
+   "label": "From",
+   "set_only_once": 1
   },
   {
    "default": "0",
@@ -92,6 +107,7 @@
    "fieldname": "template",
    "fieldtype": "Link",
    "label": "Template",
+   "mandatory_depends_on": "eval:doc.use_template == 1",
    "options": "WhatsApp Templates"
   },
   {
@@ -129,7 +145,8 @@
    "fieldname": "message_id",
    "fieldtype": "Data",
    "label": "Message ID",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "conversation_id",
@@ -142,7 +159,7 @@
    "fieldname": "content_type",
    "fieldtype": "Select",
    "label": "Content Type",
-   "options": "text\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton\ninteractive\norder",
+   "options": "text\ndocument\nimage\nvideo\naudio\nflow\nreaction\nlocation\ncontact\nbutton\ninteractive\norder\nunsupported",
    "reqd": 1
   },
   {
@@ -276,11 +293,31 @@
    "fieldtype": "JSON",
    "label": "Product Catalog",
    "set_only_once": 1
+  },
+  {
+   "fieldname": "template_button_parameters",
+   "fieldtype": "Small Text",
+   "label": "Template Button Parameters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "to_normalized",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "To Normalized",
+   "search_index": 1
+  },
+  {
+   "fieldname": "from_normalized",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "From Normalized",
+   "search_index": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-11 00:34:02.455955",
+ "modified": "2026-06-23 20:15:47.187524",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

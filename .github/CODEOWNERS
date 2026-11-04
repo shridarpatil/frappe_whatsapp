@@ -1,0 +1,8 @@
+# Code owners for ptstdm/frappe_whatsapp
+#
+# Each line is a file pattern followed by one or more owners. The last
+# matching pattern wins, so more specific rules must come after general ones.
+# Owners are requested for review automatically on every pull request.
+
+# Default owner for everything in the repo.
+*   @suryansh-Chaudhary @idmlabhishek

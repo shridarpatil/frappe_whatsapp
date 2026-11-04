@@ -146,6 +146,17 @@ scheduler_events = {
     ],
 }
 
+# Log Clearing
+# ------------
+# Register doctypes with Frappe's Log Settings so the daily `run_log_clean_up`
+# job auto-trims them. Numbers below are the default retention (days); admins can
+# change them under Log Settings. Deletion is implemented in each doctype's
+# `clear_old_logs` (WhatsAppMessage / WhatsAppNotificationLog).
+default_log_clearing_doctypes = {
+    "WhatsApp Message": 90,
+    "WhatsApp Notification Log": 90,
+}
+
 # Testing
 # -------
 
