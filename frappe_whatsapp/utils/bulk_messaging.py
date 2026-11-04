@@ -61,8 +61,14 @@ def process_scheduled_bulk_messages():
             # Roll back so a DB-level failure doesn't poison the transaction for
             # the remaining campaigns (and so log_error can write).
             frappe.db.rollback()
+            # Put the campaign name in the message (error body), not only the
+            # title: log_error stores the title in `method`, so relying on the
+            # traceback to carry `name` into `error` breaks on Python 3.14, where
+            # get_traceback no longer embeds frame locals.
             frappe.log_error(
-                title=f"Bulk WhatsApp Message scheduling failed: {name}"
+                message=f"Bulk WhatsApp Message {name} failed during scheduling.\n\n"
+                + frappe.get_traceback(with_context=True),
+                title=f"Bulk WhatsApp Message scheduling failed: {name}",
             )
 
 
