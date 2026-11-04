@@ -26,6 +26,7 @@
   "header_type",
   "header",
   "sample",
+  "header_media_handle",
   "column_break_tbvf",
   "footer",
   "section_break_wu2vp",
@@ -112,6 +113,14 @@
    "label": "Sample"
   },
   {
+   "fieldname": "header_media_handle",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Header Media Handle",
+   "read_only": 1
+  },
+  {
+   "description": "One value per variable, on a single line, separated by commas. No commas inside a value. Example: Ravi,10 AM,04 Oct 2026 07:24 PM",
    "fieldname": "sample_values",
    "fieldtype": "Small Text",
    "label": "Sample Values"
