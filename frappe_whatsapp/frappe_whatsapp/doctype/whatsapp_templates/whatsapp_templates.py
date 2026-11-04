@@ -3,30 +3,151 @@
 # Copyright (c) 2022, Shridhar Patil and contributors
 # For license information, please see license.txt
 import json
+import re
 import frappe
 import magic
 import requests
+from frappe import _
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request, make_request
-from frappe.desk.form.utils import get_pdf_link
+from requests.exceptions import HTTPError, RequestException
 
 from frappe_whatsapp.utils import get_whatsapp_account
+
+# Fields Meta actually stores on a template. Editing anything else (for_doctype /
+# field_names are internal to this app) must NOT trigger a Meta edit + re-review.
+# See SRO-2026-10-00228.
+META_STORED_FIELDS = (
+    "template",
+    "sample_values",
+    "header_type",
+    "header",
+    "sample",
+    "footer",
+    "buttons",
+)
 
 class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-committing-other-method -- get_settings() sets self._token/_url/_version/_business_id/_app_id/_headers as in-memory scratch for the outbound Meta HTTP call; they are not DocType fields and must not be persisted
     """Create whatsapp template."""
 
     def validate(self):
         self.set_whatsapp_account()
+
+        # Pre-Meta validations: block bad input before any Meta call so the user
+        # gets a clear, fixable message instead of an opaque Meta rejection.
+        self.validate_sample_values()
+        self.validate_media_header()
+
         if not self.language_code or self.has_value_changed("language"):
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
+        # Upload the header sample to Meta only when it is new or has changed (not
+        # on every save), and persist the returned handle so later edits that leave
+        # the sample untouched can still build the header component.
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
-            self.get_session_id(self.sample)
-            self.get_media_id(self.sample)
+            if self.is_new() or self.has_value_changed("sample") or not self.header_media_handle:
+                self.get_session_id(self.sample)
+                self.get_media_id(self.sample)
+                self.header_media_handle = self._media_id
+            else:
+                self._media_id = self.header_media_handle
 
-        if not self.is_new():
+        # On update, call Meta only when a field Meta stores has changed, so
+        # editing internal-only fields (for_doctype / field_names) or re-saving
+        # with no change does not trigger a needless edit + re-review.
+        if not self.is_new() and any(self.has_value_changed(f) for f in META_STORED_FIELDS):
             self.update_template()
+
+    def validate_sample_values(self):
+        """Block malformed BODY sample values before they reach Meta.
+
+        Meta builds the BODY example from a comma-separated ``sample_values`` list
+        that must match the ``{{n}}`` placeholders in the body. Values on separate
+        lines, a comma inside a value, or a count mismatch were previously sent as-is
+        and rejected by Meta with an opaque error (SRO-2026-08-00159).
+        """
+        body = self.template or ""
+        distinct = sorted({int(x) for x in re.findall(r"\{\{\s*(\d+)\s*\}\}", body)})
+        n = len(distinct)
+        example = "Ravi,10 AM,04 Oct 2026 07:24 PM"
+
+        # Placeholders must be numbered 1..n with no gaps.
+        if distinct and distinct != list(range(1, n + 1)):
+            found = ", ".join("{{" + str(d) + "}}" for d in distinct)
+            frappe.throw(
+                _("Template variables must be numbered sequentially starting at {{1}} with no gaps.")
+                + " " + _("Found: {0}").format(found)
+            )
+
+        raw = self.sample_values or ""
+
+        # No variables -> Sample Values must be empty.
+        if n == 0:
+            if raw.strip():
+                frappe.throw(_("The template body has no variables, so Sample Values must be empty."))
+            return
+
+        # Sample Values must be a single comma-separated line.
+        if "\n" in raw or "\r" in raw:
+            frappe.throw(
+                _("Sample Values must be on a single line.")
+                + " " + _("Write one value per variable, separated by commas. Example: {0}").format(example)
+            )
+
+        values = [v.strip() for v in raw.split(",")]
+
+        # Count must match the number of variables, with no empty values.
+        if not raw.strip() or len(values) != n or any(v == "" for v in values):
+            got = len(values) if raw.strip() else 0
+            frappe.throw(
+                _("The template has {0} variable(s) but Sample Values has {1}.").format(n, got)
+                + " " + _(
+                    "Write one value per variable on one line, separated by commas "
+                    "(no comma inside a value). Example: {0}"
+                ).format(example)
+            )
+
+        # Trim and canonicalise so the stored value matches what is sent to Meta.
+        self.sample_values = ",".join(values)
+
+    def validate_media_header(self):
+        """A DOCUMENT/IMAGE header needs a sample file.
+
+        Meta reviews that sample and it yields the media handle used to build the
+        header component. Without it ``get_header()`` raised
+        ``AttributeError: ... '_media_id'`` (SRO-2026-10-00227); show a clear,
+        fixable message instead.
+        """
+        if self.header_type in ["IMAGE", "DOCUMENT"] and not self.sample:
+            frappe.throw(
+                _("Header Type {0} needs a sample file for Meta review. Attach one in Sample.").format(
+                    self.header_type
+                )
+            )
+
+    def _raise_meta_error(self, exc):
+        """Surface Meta's real error on both create and edit; never hide it.
+
+        A 4xx/5xx leaves the response on ``frappe.flags.integration_request`` (so we
+        can read Meta's ``error_user_*``); a connection/timeout raises before the
+        flag is set, so report that as an unreachable-Meta message rather than
+        crashing with ``'NoneType' object has no attribute 'json'``
+        (SRO-2026-10-00228).
+        """
+        if isinstance(exc, HTTPError) and frappe.flags.integration_request is not None:
+            try:
+                res = (frappe.flags.integration_request.json() or {}).get("error", {})
+            except Exception:
+                res = {}
+            if res:
+                frappe.throw(
+                    msg=res.get("error_user_msg") or res.get("message") or str(exc),
+                    title=res.get("error_user_title") or _("WhatsApp Error"),
+                )
+        if isinstance(exc, RequestException):
+            frappe.throw(_("Could not reach Meta: {0}. Nothing was saved.").format(str(exc)))
+        raise exc
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
@@ -184,12 +305,7 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             self.status = response["status"]  # nosemgrep: frappe-modifying-but-not-committing
             self.db_update()
         except Exception as e:
-            res = frappe.flags.integration_request.json().get("error", {})
-            error_message = res.get("error_user_msg", res.get("message"))
-            frappe.throw(
-                msg=error_message,
-                title=res.get("error_user_title", "Error"),
-            )
+            self._raise_meta_error(e)
 
     def update_template(self):
         """Update template to meta."""
@@ -240,12 +356,7 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
                 data=json.dumps(data),
             )
         except Exception as e:
-            raise e
-            # res = frappe.flags.integration_request.json()['error']
-            # frappe.throw(
-            #     msg=res.get('error_user_msg', res.get("message")),
-            #     title=res.get("error_user_title", "Error"),
-            # )
+            self._raise_meta_error(e)
 
     def get_settings(self):
         """Get whatsapp settings."""
@@ -290,12 +401,8 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
                 samples = self.sample.split(", ")
                 header.update({"example": {"header_text": samples}})
         else:
-            pdf_link = ''
-            if not self.sample:
-                key = frappe.get_doc(self.doctype, self.name).get_document_share_key()
-                link = get_pdf_link(self.doctype, self.name)
-                pdf_link = f"{frappe.utils.get_url()}{link}&key={key}"
-            header.update({"example": {"header_handle": [self._media_id]}})
+            media_handle = getattr(self, "_media_id", None) or self.header_media_handle
+            header.update({"example": {"header_handle": [media_handle]}})
 
         return header
 
