@@ -52,37 +52,60 @@ class BulkWhatsAppMessage(Document):
             self.db_set("status", "Queued")
             self.queue_messages()
     
-    def queue_messages(self):
-        """Queue messages for sending"""
+    def get_recipients(self):
+        """Return the recipients for this campaign (from the list or the grid)."""
         if self.recipient_type == 'Recipient List' and self.recipient_list:
-            # Fetch recipients from the recipient list
-            recipients = frappe.get_all(
-                "WhatsApp Recipient", 
+            return frappe.get_all(
+                "WhatsApp Recipient",
                 filters={"parent": self.recipient_list},
                 fields=["mobile_number", "name", "recipient_name", "recipient_data"]
             )
-            
-            for recipient in recipients:
-                frappe.enqueue_doc(
-                    self.doctype, self.name,
-                    "create_single_message",
-                    "long", 4000,
-                    recipient=recipient
-                )
-        else:
-            # Use recipients from the current document
-            for recipient in self.recipients:
-                frappe.enqueue_doc(
-                    self.doctype, self.name,
-                    "create_single_message",
-                    "long", 4000,
-                    recipient=recipient
-                )
-    
+        return self.recipients
+
+    def queue_messages(self):
+        """Enqueue a create_single_message job for each recipient without one yet.
+
+        Idempotent and resumable: a recipient that already has a WhatsApp Message
+        row for this campaign is skipped. So if a previous run died partway (e.g.
+        redis was briefly unavailable, leaving the campaign Queued with only some
+        recipients dispatched), re-running this — e.g. via Retry Failed Messages —
+        enqueues only the missing recipients and never resends the ones already
+        dispatched. The WhatsApp Message row is the durable per-recipient progress
+        marker (Copilot review).
+        """
+        already_dispatched = set(frappe.get_all(
+            "WhatsApp Message",
+            filters={"bulk_message_reference": self.name},
+            pluck="to",
+        ))
+
+        for recipient in self.get_recipients():
+            if recipient.get("mobile_number") in already_dispatched:
+                continue
+            frappe.enqueue_doc(
+                self.doctype, self.name,
+                "create_single_message",
+                "long", 4000,
+                recipient=recipient
+            )
+
     def create_single_message(self, recipient):
-        """Create a single message in the queue"""
+        """Create a single message in the queue.
+
+        Idempotent: if a message already exists for this recipient on this
+        campaign, do nothing. A create_single_message job can legitimately be
+        enqueued more than once (a resumed or retried campaign), and this guard
+        stops the same recipient being messaged twice (Copilot review).
+        """
+        to_number = recipient.get("mobile_number")
+        if to_number and frappe.db.exists("WhatsApp Message", {
+            "bulk_message_reference": self.name,
+            "to": to_number,
+        }):
+            return
+
         # message_content = self.message_content
-        
+
         # Replace variables in the message if any
         self.status == "In Progress"
         if recipient.get("recipient_data"):
@@ -136,13 +159,23 @@ class BulkWhatsAppMessage(Document):
             self.db_set("status", "Completed")
 
     def retry_failed(self):
-        """Retry failed messages by re-sending to Meta.
+        """Resume incomplete recipients and re-send failed messages.
 
-        The original send lives in WhatsAppMessage.before_insert, which only
-        fires on first creation. For an existing Failed row we call
-        send_outgoing() explicitly — queued on the "long" worker the same
-        way queue_messages does, so large batches don't block the request.
+        Two things can leave a campaign incomplete:
+          1. Recipients that never got a message row — stranded by a failed or
+             partial enqueue (e.g. redis was down). queue_messages() is
+             idempotent, so calling it here dispatches only those missing
+             recipients, without touching the ones already sent.
+          2. Existing Failed rows. The original send lives in
+             WhatsAppMessage.before_insert, which only fires on first creation,
+             so for an existing Failed row we call send_outgoing() explicitly —
+             queued on the "long" worker the same way queue_messages does, so
+             large batches don't block the request.
         """
+        # 1) Resume any recipients that were never dispatched.
+        self.queue_messages()
+
+        # 2) Re-send existing Failed rows.
         failed_messages = frappe.get_all(
             "WhatsApp Message",
             filters={
@@ -160,7 +193,11 @@ class BulkWhatsAppMessage(Document):
                 message_name=msg.name,
             )
 
-        frappe.msgprint(_("{0} message(s) requeued for sending").format(len(failed_messages)))
+        frappe.msgprint(
+            _("{0} failed message(s) requeued; any undispatched recipients were also re-queued.").format(
+                len(failed_messages)
+            )
+        )
 
     def resend_single_message(self, message_name):
         """Worker entry: re-send a single failed WhatsApp Message."""

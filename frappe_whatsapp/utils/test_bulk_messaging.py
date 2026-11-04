@@ -250,6 +250,31 @@ class TestBulkMessagingUtils(IntegrationTestCase):
         )
 
     @patch(QUEUE_MESSAGES)
+    def test_claim_skips_campaign_cancelled_after_selection(self, mock_queue):
+        """A campaign cancelled between selection and the claim is not dispatched.
+
+        get_all is forced to still return the name (simulating it was due when
+        selected), but the doc is now docstatus=2, so the atomic claim matches
+        zero rows and we skip it — queue_messages is never called and the status
+        is not flipped to Queued.
+        """
+        doc = self._make_due_scheduled_message("Test BulkUtil Race")
+        frappe.db.set_value("Bulk WhatsApp Message", doc.name, "docstatus", 2)
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        with patch(
+            "frappe_whatsapp.utils.bulk_messaging.frappe.get_all",
+            return_value=[doc.name],
+        ):
+            process_scheduled_bulk_messages()
+
+        mock_queue.assert_not_called()
+        self.assertNotEqual(
+            frappe.db.get_value("Bulk WhatsApp Message", doc.name, "status"),
+            "Queued",
+        )
+
+    @patch(QUEUE_MESSAGES)
     def test_failed_campaign_stays_claimed_and_is_logged(self, mock_queue):
         """A partially-enqueued campaign must not revert to Scheduled.
 
