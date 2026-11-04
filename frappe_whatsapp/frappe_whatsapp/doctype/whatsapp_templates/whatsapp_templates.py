@@ -48,21 +48,28 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             self.language_code = lang_code.replace("-", "_")
         self.set_language_code()
 
-        # Upload the header sample to Meta only when it is new or has changed (not
-        # on every save), and persist the returned handle so later edits that leave
-        # the sample untouched can still build the header component.
+        # Decide once whether this save changes anything Meta stores (scalar
+        # fields + the buttons child table). This drives both the sample upload
+        # and the update_template call so an internal-only edit (for_doctype /
+        # field_names) hits Meta zero times. New docs push via after_insert(),
+        # so this flag is for edits only.
+        meta_changed = not self.is_new() and self._meta_fields_changed()
+
+        # Upload the header sample to Meta only when it is actually needed: a new
+        # template, a changed sample, or an edit that will be pushed to Meta but
+        # has no stored handle yet. Persist the returned handle so later edits
+        # that leave the sample untouched can still build the header component,
+        # and so an internal-only edit of a media template uploads nothing.
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
-            if self.is_new() or self.has_value_changed("sample") or not self.header_media_handle:
+            if self.is_new() or self.has_value_changed("sample") or (meta_changed and not self.header_media_handle):
                 self.get_session_id(self.sample)
                 self.get_media_id(self.sample)
                 self.header_media_handle = self._media_id
-            else:
+            elif self.header_media_handle:
                 self._media_id = self.header_media_handle
 
-        # On update, call Meta only when a field Meta stores has changed, so
-        # editing internal-only fields (for_doctype / field_names) or re-saving
-        # with no change does not trigger a needless edit + re-review.
-        if not self.is_new() and any(self.has_value_changed(f) for f in META_STORED_FIELDS):
+        # On update, call Meta only when a Meta-stored field changed.
+        if meta_changed:
             self.update_template()
 
     def validate_sample_values(self):
@@ -88,10 +95,13 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
         raw = self.sample_values or ""
 
-        # No variables -> Sample Values must be empty.
+        # No variables -> Sample Values must be empty. Normalise whitespace-only
+        # input to "" so after_insert/update_template don't treat it as truthy
+        # and send an invalid BODY example.
         if n == 0:
             if raw.strip():
                 frappe.throw(_("The template body has no variables, so Sample Values must be empty."))
+            self.sample_values = ""
             return
 
         # Sample Values must be a single comma-separated line.
@@ -131,6 +141,41 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
                     self.header_type
                 )
             )
+
+    @staticmethod
+    def _button_signature(buttons):
+        """Return the Meta-relevant values of each button, order-sensitive.
+
+        ``has_value_changed`` cannot be used on the ``buttons`` child table: it
+        compares freshly-loaded child Document instances by identity (no value
+        ``__eq__``), so it reports a change on every save. Compare these values
+        instead.
+        """
+        return [
+            (
+                b.button_type,
+                b.button_label,
+                b.url_type,
+                b.website_url,
+                b.example_url,
+                b.phone_number,
+            )
+            for b in (buttons or [])
+        ]
+
+    def _meta_fields_changed(self):
+        """True if any field Meta stores changed vs the last saved version.
+
+        Scalar fields use ``has_value_changed``; the ``buttons`` child table is
+        compared by value so a no-op or internal-only save of a template that has
+        buttons does not trigger a needless Meta edit + re-review
+        (SRO-2026-10-00228).
+        """
+        if any(self.has_value_changed(f) for f in META_STORED_FIELDS if f != "buttons"):
+            return True
+        before = self.get_doc_before_save()
+        before_buttons = before.buttons if before else []
+        return self._button_signature(self.buttons) != self._button_signature(before_buttons)
 
     def _raise_meta_error(self, exc):
         """Surface Meta's real error on both create and edit; never hide it.

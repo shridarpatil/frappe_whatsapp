@@ -117,7 +117,7 @@
   },
   {
    "fieldname": "header_media_handle",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "hidden": 1,
    "label": "Header Media Handle",
    "read_only": 1

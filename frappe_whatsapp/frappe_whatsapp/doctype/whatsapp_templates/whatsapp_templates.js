@@ -30,6 +30,8 @@ frappe.ui.form.on('WhatsApp Templates', {
 			if (raw.trim()) {
 				frappe.throw(__("The template body has no variables, so Sample Values must be empty."));
 			}
+			// Normalise whitespace-only input to empty, matching the server.
+			frm.doc.sample_values = "";
 			return;
 		}
 		if (/[\r\n]/.test(raw)) {

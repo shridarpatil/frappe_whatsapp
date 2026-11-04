@@ -71,6 +71,11 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         # Use SQL-level delete to avoid triggering on_trash (which calls get_settings)
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_tmpl_%"]})
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_msg_template%"]})
+        # Also delete child button rows: deleting the parent above does not cascade,
+        # so without this they linger as orphans and get re-loaded when a later test
+        # recreates a template with the same (reused) name.
+        frappe.db.delete("WhatsApp Button", {"parent": ["like", "test_tmpl_%"]})
+        frappe.db.delete("WhatsApp Button", {"parent": ["like", "test_msg_template%"]})
         frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_template_without_hooks(self, **kwargs):
@@ -692,3 +697,94 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         with self.assertRaises(frappe.ValidationError) as cm:
             doc.save(ignore_permissions=True)
         self.assertIn("Could not reach Meta", str(cm.exception))
+
+    # ------------------------------------------------------------------
+    # Copilot review follow-ups (buttons comparison, upload gating, blank sample)
+    # ------------------------------------------------------------------
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_no_meta_call_on_internal_change_with_buttons(self, mock_post):
+        """A template WITH buttons: an internal-only edit still sends nothing to Meta.
+
+        Guards against has_value_changed("buttons") (identity compare on fresh
+        child instances) reporting a change on every save.
+        """
+        mock_post.return_value = {"id": "btn_gate_id", "status": "PENDING"}
+        doc = self._new_template_doc(
+            template_name="test_tmpl_btn_gate",
+            template="Click below",  # no variables
+        )
+        doc.append("buttons", {"button_type": "Quick Reply", "button_label": "Yes"})
+        doc.append("buttons", {
+            "button_type": "Visit Website",
+            "button_label": "Visit",
+            "website_url": "https://example.com",
+            "url_type": "Static",
+        })
+        doc.insert(ignore_permissions=True)
+        self.assertTrue(mock_post.called)  # creation hit Meta
+
+        mock_post.reset_mock()
+        doc.reload()
+        doc.for_doctype = "User"  # internal-only field
+        doc.save(ignore_permissions=True)
+        mock_post.assert_not_called()  # buttons unchanged -> no Meta edit
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_meta_call_on_button_value_change(self, mock_post):
+        """Changing a button value is a real Meta change and does hit Meta."""
+        mock_post.return_value = {"id": "btn_chg_id", "status": "PENDING"}
+        doc = self._new_template_doc(
+            template_name="test_tmpl_btn_chg",
+            template="Click below",
+        )
+        doc.append("buttons", {"button_type": "Quick Reply", "button_label": "Yes"})
+        doc.insert(ignore_permissions=True)
+
+        mock_post.reset_mock()
+        doc.reload()
+        doc.buttons[0].button_label = "Confirm"
+        doc.save(ignore_permissions=True)
+        self.assertTrue(mock_post.called)
+
+    def test_internal_edit_of_media_template_without_handle_does_not_upload(self):
+        """An internal-only edit of a media template with no stored handle uploads nothing.
+
+        Previously `not self.header_media_handle` forced an upload on any save of a
+        pre-existing media template; now the upload is tied to a real Meta change.
+        """
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import (
+            WhatsAppTemplates,
+        )
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_media_internal",
+            template="Your document is ready",
+            category="MARKETING",
+            header_type="DOCUMENT",
+        )
+        # Media template with a sample but NO stored handle yet (pre-existing row).
+        frappe.db.set_value(
+            "WhatsApp Templates", doc.name,
+            {"sample": "/files/doc.pdf", "header_media_handle": ""},
+        )
+        doc.reload()
+
+        with patch.object(WhatsAppTemplates, "get_session_id") as m_session, \
+             patch.object(WhatsAppTemplates, "get_media_id") as m_media, \
+             patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request") as mock_post:
+            mock_post.return_value = {}
+            doc.for_doctype = "User"  # internal-only field
+            doc.save(ignore_permissions=True)
+            m_session.assert_not_called()
+            m_media.assert_not_called()
+            mock_post.assert_not_called()
+
+    def test_blank_sample_cleared_for_variable_free_body(self):
+        """A whitespace-only Sample Values on a no-variable body is normalised to ''."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_ws_sample",
+            template="Order update",  # no variables
+            sample_values="   ",
+        )
+        doc.validate_sample_values()
+        self.assertEqual(doc.sample_values, "")
