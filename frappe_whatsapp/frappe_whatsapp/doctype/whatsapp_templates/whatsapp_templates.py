@@ -27,7 +27,7 @@ META_STORED_FIELDS = (
     "buttons",
 )
 
-class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-committing-other-method -- get_settings() sets self._token/_url/_version/_business_id/_app_id/_headers as in-memory scratch for the outbound Meta HTTP call; they are not DocType fields and must not be persisted
+class WhatsAppTemplates(Document): 
     """Create whatsapp template."""
 
     def before_insert(self):
@@ -37,9 +37,6 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
     def validate(self):
         self.set_whatsapp_account()
-
-        # Pre-Meta validations: block bad input before any Meta call so the user
-        # gets a clear, fixable message instead of an opaque Meta rejection.
         self.validate_sample_values()
         self.validate_media_header()
 
@@ -48,18 +45,9 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             self.language_code = lang_code.replace("-", "_")
         self.set_language_code()
 
-        # Decide once whether this save changes anything Meta stores (scalar
-        # fields + the buttons child table). This drives both the sample upload
-        # and the update_template call so an internal-only edit (for_doctype /
-        # field_names) hits Meta zero times. New docs push via after_insert(),
-        # so this flag is for edits only.
         meta_changed = not self.is_new() and self._meta_fields_changed()
 
-        # Upload the header sample to Meta only when it is actually needed: a new
-        # template, a changed sample, or an edit that will be pushed to Meta but
-        # has no stored handle yet. Persist the returned handle so later edits
-        # that leave the sample untouched can still build the header component,
-        # and so an internal-only edit of a media template uploads nothing.
+        # Upload the header sample to Meta only when it is actually needed
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
             if self.is_new() or self.has_value_changed("sample") or (meta_changed and not self.header_media_handle):
                 self.get_session_id(self.sample)
