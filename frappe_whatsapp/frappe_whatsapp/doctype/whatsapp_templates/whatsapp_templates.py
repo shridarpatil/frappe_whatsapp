@@ -23,9 +23,6 @@ from frappe.utils import (
 
 from frappe_whatsapp.utils import get_whatsapp_account
 
-# Fields sent to Meta by update_template; others are only used in our system.
-META_FIELDS = ("template", "sample_values", "header_type", "header", "sample", "footer")
-META_BUTTON_FIELDS = ("button_type", "button_label", "website_url", "url_type", "example_url", "phone_number")
 # Meta's limit for approved templates: 1 edit per 24 hours, 10 per 30 days.
 META_EDITS_PER_30_DAYS = 10
 
@@ -38,15 +35,6 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             lang_code = frappe.db.get_value("Language", self.language) or "en"
             self.language_code = lang_code.replace("-", "_")
 
-        if not self.is_new():
-            # Lock is read from the saved copy so a request cannot bypass it by sending its own edit history.
-            lock = (self.get_doc_before_save() or self).get_meta_edit_lock()
-            if lock.locked:
-                if self.meta_fields_changed():
-                    frappe.throw(lock.message, title=frappe._("Meta Edit Limit"))
-                # Only fields used in our system changed, so nothing is sent to Meta.
-                return
-
         if self.header_type in ["IMAGE", "DOCUMENT"] and self.sample:
             self.get_session_id(self.sample)
             self.get_media_id(self.sample)
@@ -55,30 +43,15 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             self.update_template()
 
     def onload(self):
-        self.set_onload("meta_edit_lock", self.get_meta_edit_lock())
+        self.set_onload("meta_edit_status", self.get_meta_edit_status())
 
-    def meta_fields_changed(self):
-        """Return True if a field sent to Meta changed since the last save."""
-        before = self.get_doc_before_save()
-        if not before:
-            return True
-
-        def meta_values(doc):
-            return (
-                [cstr(doc.get(f)) for f in META_FIELDS],
-                [[cstr(b.get(f)) for f in META_BUTTON_FIELDS] for b in doc.buttons],
-            )
-
-        return meta_values(self) != meta_values(before)
-
-    def get_meta_edit_lock(self):
+    def get_meta_edit_status(self):
         """Return Meta's edit-limit state for this template as a form note."""
         status = cstr(self.status).upper()
         if status in ("REJECTED", "PAUSED"):
-            return frappe._dict(locked=False, color="blue", message=frappe._("This template can be edited any number of times."))
+            return frappe._dict(color="blue", message=frappe._("This template can be edited any number of times."))
         if status != "APPROVED":
             return frappe._dict(
-                locked=True,
                 color="orange",
                 message=frappe._("Meta is reviewing this template. It cannot be edited until the review is finished."),
             )
@@ -98,20 +71,20 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             message = frappe._("{0} of {0} edits used in the last 30 days. Next edit allowed after {1}.").format(
                 META_EDITS_PER_30_DAYS, _user_time(next_allowed)
             )
-            return _locked_until(next_allowed, "red", message)
+            return frappe._dict(color="red", message=message, next_allowed=next_allowed)
 
         if last_edit and last_edit > add_to_date(now, hours=-24):
             next_allowed = add_to_date(last_edit, hours=24)
             message = frappe._("This template was edited at Meta on {0}. Next edit allowed after {1}.").format(
                 _user_time(last_edit), _user_time(next_allowed)
             )
-            return _locked_until(next_allowed, "orange", message)
+            return frappe._dict(color="orange", message=message, next_allowed=next_allowed)
 
         message = frappe._("Meta allows editing an approved template once in 24 hours and 10 times in 30 days.")
         # Edits before tracking started are unknown, so the count is shown only once history exists.
         if self.meta_edits:
             message += " " + frappe._("Edits used in the last 30 days: {0} of {1}.").format(len(edits), META_EDITS_PER_30_DAYS)
-        return frappe._dict(locked=False, color="blue", message=message)
+        return frappe._dict(color="blue", message=message)
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
@@ -385,17 +358,12 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
 
         return header
 
-def _locked_until(next_allowed, color, message):
-    """Build a locked edit state with the short title indicator."""
-    indicator = frappe._("Edit locked till {0}").format(_user_time(next_allowed, "d MMM, h:mm a"))
-    return frappe._dict(locked=True, color=color, message=message, next_allowed=next_allowed, indicator=indicator)
-
-def _user_time(value, format_string="d MMM yyyy, h:mm a"):
-    """Format a system-time datetime in the session user's time zone."""
-    system_tz = pytz.timezone(get_system_timezone())
-    user_tz = frappe.db.get_value("User", frappe.session.user, "time_zone") or system_tz.zone
-    local = system_tz.localize(get_datetime(value)).astimezone(pytz.timezone(user_tz))
-    return format_datetime(local.replace(tzinfo=None), format_string)
+def _user_time(value):
+    """Format a system-time datetime in the user's time zone."""
+    system_tz = get_system_timezone()
+    user_tz = frappe.db.get_value("User", frappe.session.user, "time_zone") or system_tz
+    value = pytz.timezone(system_tz).localize(get_datetime(value)).astimezone(pytz.timezone(user_tz))
+    return format_datetime(value.replace(tzinfo=None), "d MMM yyyy, h:mm a")
 
 def _meta_time_to_system(value):
     """Convert Meta's UTC timestamp to a system-time datetime."""

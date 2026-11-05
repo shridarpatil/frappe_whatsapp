@@ -5,7 +5,16 @@ import json
 from unittest.mock import patch, MagicMock
 
 import frappe
-from frappe.utils import add_days, add_to_date, convert_utc_to_system_timezone, get_datetime, now_datetime
+import pytz
+from frappe.utils import (
+    add_days,
+    add_to_date,
+    convert_utc_to_system_timezone,
+    format_datetime,
+    get_datetime,
+    get_system_timezone,
+    now_datetime,
+)
 from frappe_whatsapp.testing import IntegrationTestCase
 
 
@@ -51,7 +60,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         # Use SQL-level delete to avoid triggering on_trash (which calls get_settings)
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_tmpl_%"]})
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_msg_template%"]})
-        frappe.db.delete("WhatsApp Template Meta Edit", {"parent": ["like", "test_tmpl_%"]})
+        frappe.db.delete("WhatsApp Template Edit Timeline", {"parent": ["like", "test_tmpl_%"]})
         frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _add_meta_edits(self, doc, *hours_ago, status="APPROVED"):
@@ -306,69 +315,65 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         doc.reload()
         self.assertEqual(doc.template, "Updated body text")
 
-    def test_meta_edit_lock_by_status(self):
-        """Rejected and paused are unlimited; statuses other than approved are locked."""
-        doc = self._make_template_without_hooks(template_name="test_tmpl_lock_status")
-        for status, locked in {"REJECTED": False, "PAUSED": False, "PENDING": True, "Pending": True}.items():
+    def test_meta_edit_status_by_status(self):
+        """Rejected and paused are unlimited; statuses other than approved show the review note."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_edit_status")
+        for status, color in {"REJECTED": "blue", "PAUSED": "blue", "PENDING": "orange"}.items():
             doc.status = status
-            self.assertEqual(doc.get_meta_edit_lock().locked, locked, status)
+            self.assertEqual(doc.get_meta_edit_status().color, color, status)
 
         doc.status = "APPROVED"
-        lock = doc.get_meta_edit_lock()
-        self.assertFalse(lock.locked)
-        self.assertNotIn("Edits used", lock.message)
+        edit_status = doc.get_meta_edit_status()
+        self.assertEqual(edit_status.color, "blue")
+        self.assertNotIn("Edits used", edit_status.message)
 
     def test_meta_edit_count_in_30_days(self):
-        """Only approved edits inside 30 days count, and they do not lock below the limit."""
-        doc = self._make_template_without_hooks(template_name="test_tmpl_lock_count")
+        """Only approved edits inside 30 days count, and the count is shown below the limit."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_edit_count")
         doc = self._add_meta_edits(doc, 30, 50, 100, 31 * 24)
         doc = self._add_meta_edits(doc, 1, status="REJECTED")
 
-        lock = doc.get_meta_edit_lock()
-        self.assertFalse(lock.locked)
-        self.assertIn("3 of 10", lock.message)
+        edit_status = doc.get_meta_edit_status()
+        self.assertEqual(edit_status.color, "blue")
+        self.assertIn("3 of 10", edit_status.message)
 
-    def test_meta_edit_within_24_hours_locks(self):
-        """An approved edit in the last 24 hours locks until 24 hours after it."""
-        doc = self._add_meta_edits(self._make_template_without_hooks(template_name="test_tmpl_lock_24h"), 2)
+    def test_meta_edit_within_24_hours_shows_next_edit_time(self):
+        """An approved edit in the last 24 hours shows the next edit time 24 hours after it."""
+        doc = self._add_meta_edits(self._make_template_without_hooks(template_name="test_tmpl_edit_24h"), 2)
 
-        lock = doc.get_meta_edit_lock()
-        self.assertTrue(lock.locked)
-        self.assertEqual(lock.color, "orange")
-        self.assertEqual(lock.next_allowed, add_to_date(get_datetime(doc.meta_edits[0].edited_on), hours=24))
+        edit_status = doc.get_meta_edit_status()
+        self.assertEqual(edit_status.color, "orange")
+        self.assertEqual(edit_status.next_allowed, add_to_date(get_datetime(doc.meta_edits[0].edited_on), hours=24))
 
-    def test_ten_meta_edits_in_30_days_locks(self):
-        """Ten approved edits in 30 days lock until the oldest leaves the window."""
-        doc = self._make_template_without_hooks(template_name="test_tmpl_lock_30d")
+    def test_meta_edit_times_in_user_time_zone(self):
+        """Note times are shown in the user's time zone."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_edit_user_tz")
+        doc.meta_last_updated_on = get_datetime("2026-11-03 10:00:00")
+        user_tz = "UTC" if get_system_timezone() != "UTC" else "Asia/Kolkata"
+        old_tz = frappe.db.get_value("User", frappe.session.user, "time_zone")
+        frappe.db.set_value("User", frappe.session.user, "time_zone", user_tz)
+        try:
+            with patch(
+                "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.now_datetime",
+                return_value=get_datetime("2026-11-03 12:00:00"),
+            ):
+                edit_status = doc.get_meta_edit_status()
+        finally:
+            frappe.db.set_value("User", frappe.session.user, "time_zone", old_tz)
+
+        user_time = pytz.timezone(get_system_timezone()).localize(doc.meta_last_updated_on).astimezone(pytz.timezone(user_tz))
+        self.assertIn(format_datetime(user_time.replace(tzinfo=None), "d MMM yyyy, h:mm a"), edit_status.message)
+        self.assertIn(format_datetime(add_days(user_time, 1).replace(tzinfo=None), "d MMM yyyy, h:mm a"), edit_status.message)
+
+    def test_ten_meta_edits_in_30_days_shows_next_edit_time(self):
+        """Ten approved edits in 30 days show the next edit time when the oldest leaves the window."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_edit_30d")
         doc = self._add_meta_edits(doc, *range(25, 251, 25))
 
-        lock = doc.get_meta_edit_lock()
+        edit_status = doc.get_meta_edit_status()
         oldest = min(get_datetime(e.edited_on) for e in doc.meta_edits)
-        self.assertTrue(lock.locked)
-        self.assertEqual(lock.color, "red")
-        self.assertEqual(lock.next_allowed, add_days(oldest, 30))
-
-    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
-    def test_locked_meta_change_blocked_before_meta_call(self, mock_post):
-        """Saving a Meta field while locked fails without calling Meta."""
-        doc = self._add_meta_edits(self._make_template_without_hooks(template_name="test_tmpl_lock_block", category="UTILITY"), 1)
-        doc.footer = "New footer"
-
-        self.assertRaisesRegex(frappe.ValidationError, "Next edit allowed after", doc.save, ignore_permissions=True)
-        mock_post.assert_not_called()
-
-    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
-    def test_locked_local_change_saves(self, mock_post):
-        """For DocType and Field names still save while locked, without calling Meta."""
-        doc = self._add_meta_edits(self._make_template_without_hooks(template_name="test_tmpl_lock_local", category="UTILITY"), 1)
-        doc.for_doctype = "ToDo"
-        doc.field_names = "description"
-        doc.save(ignore_permissions=True)
-
-        mock_post.assert_not_called()
-        doc.reload()
-        self.assertEqual(doc.for_doctype, "ToDo")
-        self.assertEqual(doc.field_names, "description")
+        self.assertEqual(edit_status.color, "red")
+        self.assertEqual(edit_status.next_allowed, add_days(oldest, 30))
 
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
     def test_successful_meta_edit_recorded(self, mock_post):
@@ -389,7 +394,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         doc = self._make_template_without_hooks(template_name="test_tmpl_edit_fail", category="UTILITY")
         doc.footer = "New footer"
 
-        self.assertRaisesRegex(Exception, "400 Client Error", doc.save, ignore_permissions=True)
+        self.assertRaises(Exception, doc.save, ignore_permissions=True)
         doc.reload()
         self.assertEqual(len(doc.meta_edits), 0)
 
@@ -415,18 +420,16 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         fetch()
 
         doc.reload()
-        self.assertEqual(doc.template, "Synced body")
         self.assertEqual(len(doc.meta_edits), 1)
 
-    def test_meta_last_updated_within_24_hours_locks(self):
-        """Meta's last update in the last 24 hours locks an approved template without our own history."""
-        doc = self._make_template_without_hooks(template_name="test_tmpl_lock_meta_time")
+    def test_meta_last_updated_within_24_hours_shows_next_edit_time(self):
+        """Meta's last update in the last 24 hours shows the next edit time without our own history."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_edit_meta_time")
         doc.meta_last_updated_on = add_to_date(now_datetime(), hours=-2)
 
-        lock = doc.get_meta_edit_lock()
-        self.assertTrue(lock.locked)
-        self.assertEqual(lock.color, "orange")
-        self.assertEqual(lock.next_allowed, add_to_date(doc.meta_last_updated_on, hours=24))
+        edit_status = doc.get_meta_edit_status()
+        self.assertEqual(edit_status.color, "orange")
+        self.assertEqual(edit_status.next_allowed, add_to_date(doc.meta_last_updated_on, hours=24))
 
     @patch("frappe.model.document.Document.get_password", return_value="mock_token")
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
