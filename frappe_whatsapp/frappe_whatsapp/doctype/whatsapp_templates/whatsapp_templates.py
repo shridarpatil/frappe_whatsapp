@@ -14,9 +14,7 @@ from requests.exceptions import HTTPError, RequestException
 
 from frappe_whatsapp.utils import get_whatsapp_account
 
-# Fields Meta actually stores on a template. Editing anything else (for_doctype /
-# field_names are internal to this app) must NOT trigger a Meta edit + re-review.
-# See SRO-2026-10-00228.
+
 META_STORED_FIELDS = (
     "template",
     "sample_values",
