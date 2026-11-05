@@ -1,16 +1,25 @@
 """Notification."""
 
 import json
+
 import frappe
 
-from frappe import _dict, _
-from frappe.model.document import Document
-from frappe.utils.safe_exec import get_safe_globals, safe_exec
-from frappe.integrations.utils import make_post_request
+import frappe
+from frappe import _
 from frappe.desk.form.utils import get_pdf_link
-from frappe.utils import add_to_date, nowdate, datetime
+from frappe.integrations.utils import make_post_request
+from frappe.model.document import Document
+from frappe.utils import add_to_date, datetime, nowdate
+from frappe.utils.safe_exec import get_safe_globals, safe_exec
 
 from frappe_whatsapp.utils import get_whatsapp_account
+
+
+# Scheduled sends fan out onto the long queue in chunks so a single large notification
+# can't pin one worker with serial Meta calls (and the scheduler tick returns at once).
+NOTIFICATION_SEND_QUEUE = "long"
+NOTIFICATION_CHUNK_SIZE = 50
+NOTIFICATION_CHUNK_TIMEOUT = 1500
 
 
 class WhatsAppNotification(Document):
@@ -23,71 +32,127 @@ class WhatsAppNotification(Document):
             fields += frappe.get_all(
                 "Custom Field",
                 filters={"dt": self.reference_doctype},
-                fields=["fieldname"]
+                fields=["fieldname"],
             )
-            if not any(field.fieldname == self.field_name for field in fields): # noqa
-                frappe.throw(_("Field name {0} does not exists").format(self.field_name))
+            if not any(field.fieldname == self.field_name for field in fields):  # noqa
+                frappe.throw(
+                    _("Field name {0} does not exists").format(self.field_name)
+                )
         if self.custom_attachment:
             if not self.attach and not self.attach_from_field:
-                frappe.throw(_("Either {0} a file or add a {1} to send attachemt").format(
-                    frappe.bold(_("Attach")),
-                    frappe.bold(_("Attach from field")),
-                ))
+                frappe.throw(
+                    _("Either {0} a file or add a {1} to send attachemt").format(
+                        frappe.bold(_("Attach")),
+                        frappe.bold(_("Attach from field")),
+                    )
+                )
 
         if self.set_property_after_alert:
             meta = frappe.get_meta(self.reference_doctype)
             if not meta.get_field(self.set_property_after_alert):
-                frappe.throw(_("Field {0} not found on DocType {1}").format(
-                    self.set_property_after_alert,
-                    self.reference_doctype,
-                ))
-
+                frappe.throw(
+                    _("Field {0} not found on DocType {1}").format(
+                        self.set_property_after_alert,
+                        self.reference_doctype,
+                    )
+                )
 
     def send_scheduled_message(self) -> dict:
         """Specific to API endpoint Server Scripts."""
-        safe_exec(  # nosemgrep: frappe-codeinjection-eval -- safe_exec is Frappe's sandboxed eval; condition is admin-write-gated
-            self.condition, get_safe_globals(), dict(doc=self)
-        )
+        # The condition is an admin-authored script; it evaluates with doc=self (this
+        # notification) and is expected to populate _contact_list / _data_list. If it raises
+        # (e.g. a mis-authored condition that references reference-doc fields), log it and
+        # bail for this notification only — don't crash the enqueued job / re-fail every tick.
+        try:
+            safe_exec(  # nosemgrep: frappe-codeinjection-eval -- safe_exec is Frappe's sandboxed eval; condition is admin-write-gated
+                self.condition, get_safe_globals(), dict(doc=self)
+            )
+        except Exception:
+            frappe.log_error(
+                title=f"WhatsApp scheduled notification condition failed: {self.name}",
+                message=frappe.get_traceback(),
+            )
+            return
 
         template = frappe.db.get_value(
-            "WhatsApp Templates", self.template,
-            fieldname='*'
+            "WhatsApp Templates", self.template, fieldname="*"
         )
+        if not (template and template.language_code):
+            return
 
-        if template and template.language_code:
-            if self.get("_contact_list"):
-                # send simple template without a doc to get field data.
-                self.send_simple_template(template)
-            elif self.get("_data_list"):
-                # allow send a dynamic template using schedule event config
-                # _doc_list shoud be [{"name": "xxx", "phone_no": "123"}]
-                for data in self._data_list:
-                    doc = frappe.get_doc(self.reference_doctype, data.get("name"))
+        # Fan the actual Meta sends out onto the long queue in chunks (see
+        # _enqueue_send_chunks) instead of looping them synchronously here, so a large
+        # recipient list can't pin the worker running this notification.
+        if self.get("_contact_list"):
+            # send simple template without a doc to get field data.
+            self._enqueue_send_chunks("send_simple_template", self._contact_list)
+        elif self.get("_data_list"):
+            # send a dynamic template using schedule event config;
+            # _data_list should be [{"name": "xxx", "phone_no": "123"}]
+            self._enqueue_send_chunks("send_data_templates", self._data_list)
 
-                    self.send_template_message(doc, data.get("phone_no"), template, True)
-        # return _globals.frappe.flags
+    def _enqueue_send_chunks(self, method, items):
+        """Enqueue `method` on the long queue once per chunk of `items`, so the
+        per-recipient Meta calls are spread across workers instead of blocking one.
+        Each chunk re-fetches the template itself, so nothing large is serialised."""
+        items = list(items or [])
+        for start in range(0, len(items), NOTIFICATION_CHUNK_SIZE):
+            frappe.enqueue_doc(
+                self.doctype,
+                self.name,
+                method,
+                queue=NOTIFICATION_SEND_QUEUE,
+                timeout=NOTIFICATION_CHUNK_TIMEOUT,
+                items=items[start:start + NOTIFICATION_CHUNK_SIZE],
+            )
 
+    def send_simple_template(self, template=None, items=None):
+        """Send a doc-less template to each contact.
 
-    def send_simple_template(self, template):
-        """ send simple template without a doc to get field data """
-        for contact in self._contact_list:
+        Chunk-worker entry point: when enqueued, `items` is the chunk of contacts and
+        `template` is re-fetched here; called directly it falls back to `_contact_list`.
+        """
+        if template is None:
+            template = frappe.db.get_value(
+                "WhatsApp Templates", self.template, fieldname="*"
+            )
+        contacts = items if items is not None else (self.get("_contact_list") or [])
+        for contact in contacts:
             data = {
                 "messaging_product": "whatsapp",
                 "to": self.format_number(contact),
                 "type": "template",
                 "template": {
                     "name": template.actual_name,
-                    "language": {
-                        "code": template.language_code
-                    },
-                    "components": []
-                }
+                    "language": {"code": template.language_code},
+                    "components": [],
+                },
             }
             self.content_type = template.get("header_type", "text").lower()
             self.notify(data)
 
+    def send_data_templates(self, template=None, items=None):
+        """Send a dynamic (doc-backed) template to each {name, phone_no} entry.
 
-    def send_template_message(self, doc: Document, phone_no=None, default_template=None, ignore_condition=False):
+        Chunk-worker entry point: when enqueued, `items` is the chunk and `template` is
+        re-fetched here; called directly it falls back to `_data_list`.
+        """
+        if template is None:
+            template = frappe.db.get_value(
+                "WhatsApp Templates", self.template, fieldname="*"
+            )
+        data_list = items if items is not None else (self.get("_data_list") or [])
+        for data in data_list:
+            doc = frappe.get_doc(self.reference_doctype, data.get("name"))
+            self.send_template_message(doc, data.get("phone_no"), template, True)
+
+    def send_template_message(
+        self,
+        doc: Document,
+        phone_no=None,
+        default_template=None,
+        ignore_condition=False,
+    ):
         """Specific to Document Event triggered Server Scripts."""
         if self.disabled:
             return
@@ -114,11 +179,9 @@ class WhatsAppNotification(Document):
                 "type": "template",
                 "template": {
                     "name": template.actual_name,
-                    "language": {
-                        "code": template.language_code
-                    },
-                    "components": []
-                }
+                    "language": {"code": template.language_code},
+                    "components": [],
+                },
             }
 
             # Pass parameter values
@@ -128,25 +191,48 @@ class WhatsAppNotification(Document):
                     if isinstance(doc, Document):
                         # get field with prettier value.
                         value = doc.get_formatted(field.field_name)
-                    else: 
+                    else:
                         value = doc_data[field.field_name]
-                        if isinstance(doc_data[field.field_name], (datetime.date, datetime.datetime)):
+                        if isinstance(
+                            doc_data[field.field_name],
+                            (datetime.date, datetime.datetime),
+                        ):
                             value = str(doc_data[field.field_name])
 
-                    parameters.append({
-                        "type": "text",
-                        "text": value
-                    })
+                    parameters.append({"type": "text", "text": value})
 
-                data['template']["components"] = [{
-                    "type": "body",
-                    "parameters": parameters
-                }]
+                data["template"]["components"] = [
+                    {"type": "body", "parameters": parameters}
+                ]
 
+            if self.button_urls and self.button_url_fields:
+                import urllib.parse
+
+                button_field_names = [
+                    field.field_name for field in self.button_url_fields
+                ]
+                button_parameters = []
+
+                for field_name in button_field_names:
+                    value = doc.get_formatted(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+
+                data["template"]["components"].append(
+                    {
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": 0,
+                        "parameters": button_parameters,
+                    }
+                )
+
+            url = None
+            filename = None
             if self.attach_document_print:
                 key = doc.get_document_share_key()  # noqa
                 print_format = "Standard"
-                doctype = frappe.get_doc("DocType", doc_data['doctype'])
+                doctype = frappe.get_doc("DocType", doc_data["doctype"])
                 if doctype.custom:
                     if doctype.default_print_format:
                         print_format = doctype.default_print_format
@@ -154,20 +240,20 @@ class WhatsAppNotification(Document):
                     default_print_format = frappe.db.get_value(
                         "Property Setter",
                         filters={
-                            "doc_type": doc_data['doctype'],
-                            "property": "default_print_format"
+                            "doc_type": doc_data["doctype"],
+                            "property": "default_print_format",
                         },
-                        fieldname="value"
+                        fieldname="value",
                     )
-                    print_format = default_print_format if default_print_format else print_format
+                    print_format = (
+                        default_print_format if default_print_format else print_format
+                    )
                 link = get_pdf_link(
-                    doc_data['doctype'],
-                    doc_data['name'],
-                    print_format=print_format
+                    doc_data["doctype"], doc_data["name"], print_format=print_format
                 )
 
-                filename = f'{doc_data["name"]}.pdf'
-                url = f'{frappe.utils.get_url()}{link}&key={key}'
+                filename = f"{doc_data['name']}.pdf"
+                url = f"{frappe.utils.get_url()}{link}&key={key}"
 
             elif self.custom_attachment:
                 filename = self.file_name
@@ -177,14 +263,14 @@ class WhatsAppNotification(Document):
                     if not file_url.startswith("http"):
                         # get share key so that private files can be sent
                         key = doc.get_document_share_key()
-                        file_url = f'{frappe.utils.get_url()}{file_url}&key={key}'
+                        file_url = f"{frappe.utils.get_url()}{file_url}&key={key}"
                 else:
                     file_url = self.attach
 
                 if file_url.startswith("http"):
-                    url = f'{file_url}'
+                    url = f"{file_url}"
                 else:
-                    url = f'{frappe.utils.get_url()}{file_url}'
+                    url = f"{frappe.utils.get_url()}{file_url}"
 
             if template.header_type == 'DOCUMENT':
                 data['template']['components'].append({
@@ -210,16 +296,25 @@ class WhatsAppNotification(Document):
             self.content_type = template.header_type.lower() if template.header_type else None
 
             if template.buttons:
+                # Local import so `quote` is always bound in this scope regardless of
+                # module-level imports (avoids UnboundLocalError seen in the field).
+                from urllib.parse import quote
+
                 button_fields = self.button_fields.split(",") if self.button_fields else []
                 for idx, btn in enumerate(template.buttons):
                     if btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
                         if button_fields:
+                            btn_value = doc.get(button_fields.pop(0))
                             data['template']['components'].append({
                                 "type": "button",
                                 "sub_type": "url",
                                 "index": str(idx),
                                 "parameters": [
-                                    {"type": "text", "text": doc.get(button_fields.pop(0))}
+                                    # URL-encode the dynamic URL parameter: a raw value containing a
+                                    # space/special char (e.g. a lead named "Deepak Pawar-2026-...")
+                                    # produces an invalid URL that Meta rejects with a 400. Mirrors the
+                                    # encoding already done on the WhatsApp Message send path.
+                                    {"type": "text", "text": quote(str(btn_value)) if btn_value else btn_value}
                                 ]
                             })
                     elif btn.button_type == "Multi-Product Message":
@@ -244,7 +339,6 @@ class WhatsAppNotification(Document):
                                 ]
                             })
 
-
             self.notify(data, doc_data)
 
     def notify(self, data, doc_data=None):
@@ -262,42 +356,63 @@ class WhatsAppNotification(Document):
 
         headers = {
             "authorization": f"Bearer {token}",
-            "content-type": "application/json"
+            "content-type": "application/json",
         }
+        success = False
+        error_message = None
         try:
-            success = False
             response = make_post_request(
                 f"{whatsapp_account.url}/{whatsapp_account.version}/{whatsapp_account.phone_id}/messages",
                 headers=headers, data=json.dumps(data)
             )
 
             if not self.get("content_type"):
-                self.content_type = 'text'
+                self.content_type = "text"
 
             parameters = None
-            if data["template"]["components"]:
-                parameters = [param["text"] for param in data["template"]["components"][0]["parameters"]]
-                parameters = frappe.json.dumps(parameters, default=str)
+            button_parameters = None
+            raw_parameters = []
 
+            if data["template"]["components"]:
+                raw_parameters = [
+                    param["text"]
+                    for param in data["template"]["components"][0]["parameters"]
+                ]
+                parameters = frappe.json.dumps(raw_parameters, default=str)
+
+            if data["template"]["components"] and any(
+                component["type"] == "button"
+                for component in data["template"]["components"]
+            ):
+                button_parameters = [
+                    param["text"]
+                    for param in data["template"]["components"][1]["parameters"]
+                ]
+                button_parameters = frappe.json.dumps(button_parameters, default=str)
+
+            rendered_message = self._render_template_text(raw_parameters, data)
             new_doc = {
                 "doctype": "WhatsApp Message",
                 "type": "Outgoing",
-                "message": str(data['template']),
-                "to": data['to'],
+                "message": rendered_message,
+                "to": data["to"],
                 "message_type": "Template",
-                "message_id": response['messages'][0]['id'],
+                "message_id": response["messages"][0]["id"],
                 "content_type": self.content_type,
                 "use_template": 1,
                 "template": self.template,
                 "template_parameters": parameters,
+                "template_button_parameters": button_parameters,
                 "whatsapp_account": whatsapp_account.name,
             }
 
             if doc_data:
-                new_doc.update({
-                    "reference_doctype": doc_data.doctype,
-                    "reference_name": doc_data.name,
-                })
+                new_doc.update(
+                    {
+                        "reference_doctype": doc_data.doctype,
+                        "reference_name": doc_data.name,
+                    }
+                )
 
             frappe.get_doc(new_doc).save(ignore_permissions=True)
 
@@ -311,7 +426,12 @@ class WhatsAppNotification(Document):
                         if df.fieldtype in frappe.model.numeric_fieldtypes:
                             value = frappe.utils.cint(value)
 
-                        frappe.db.set_value(doc_data.get("doctype"), doc_data.get("name"), fieldname, value)
+                        frappe.db.set_value(
+                            doc_data.get("doctype"),
+                            doc_data.get("name"),
+                            fieldname,
+                            value,
+                        )
 
             frappe.msgprint("WhatsApp Message Triggered", indicator="green", alert=True)
             success = True
@@ -326,24 +446,38 @@ class WhatsAppNotification(Document):
             frappe.msgprint(
                 f"Failed to trigger whatsapp message: {error_message}",
                 indicator="red",
-                alert=True
+                alert=True,
             )
         finally:
             if not success:
                 meta = {"error": error_message}
             else:
                 meta = frappe.flags.integration_request.json()
-            frappe.get_doc({
-                "doctype": "WhatsApp Notification Log",
-                "template": self.template,
-                "meta_data": meta
-            }).insert(ignore_permissions=True)
+            frappe.get_doc(
+                {
+                    "doctype": "WhatsApp Notification Log",
+                    "template": self.template,
+                    "meta_data": meta,
+                }
+            ).insert(ignore_permissions=True)
 
+    def _render_template_text(self, parameter_values, data):
+        """Return the template body with {{n}} placeholders replaced."""
+        template_body = frappe.db.get_value(
+            "WhatsApp Templates", self.template, "template"
+        )
+        if not template_body:
+            return str(data["template"])
+
+        rendered = template_body
+        for idx, value in enumerate(parameter_values, start=1):
+            rendered = rendered.replace(f"{{{{{idx}}}}}", value or "")
+
+        return rendered
 
     def on_trash(self):
         """On delete remove from schedule."""
         frappe.cache().delete_value("whatsapp_notification_map")
-
 
     def format_number(self, number):
         """Format number."""
@@ -355,9 +489,8 @@ class WhatsAppNotification(Document):
         return number
 
     def get_documents_for_today(self):
-        """get list of documents that will be triggered today"""
-        docs = []
-
+        """Enqueue today's due reference documents for sending, in chunks on the long
+        queue, so a doctype with many matching rows can't block one worker."""
         diff_days = self.days_in_advance
         if self.doctype_event == "Days After":
             diff_days = -diff_days
@@ -375,10 +508,13 @@ class WhatsAppNotification(Document):
             ],
         )
 
-        for d in doc_list:
-            doc = frappe.get_doc(self.reference_doctype, d.name)
+        self._enqueue_send_chunks("send_today_documents", [d.name for d in doc_list])
+
+    def send_today_documents(self, items=None):
+        """Chunk-worker: send the notification template for each reference document name."""
+        for name in items or []:
+            doc = frappe.get_doc(self.reference_doctype, name)
             self.send_template_message(doc)
-            # print(doc.name)
 
 
 @frappe.whitelist()
@@ -386,12 +522,13 @@ def call_trigger_notifications():
     """Trigger notifications."""
     try:
         # Directly call the trigger_notifications function
-        trigger_notifications()  
+        trigger_notifications()
     except Exception as e:
         # Log the error but do not show any popup or alert
         frappe.log_error(frappe.get_traceback(), "Error in call_trigger_notifications")
         # Optionally, you could raise the exception to be handled elsewhere if needed
         raise e
+
 
 def trigger_notifications(method="daily"):
     if frappe.flags.in_import or frappe.flags.in_patch:
@@ -400,9 +537,19 @@ def trigger_notifications(method="daily"):
 
     if method == "daily":
         doc_list = frappe.get_all(
-            "WhatsApp Notification", filters={"doctype_event": ("in", ("Days Before", "Days After")), "disabled": 0}
+            "WhatsApp Notification",
+            filters={
+                "doctype_event": ("in", ("Days Before", "Days After")),
+                "disabled": 0,
+            },
         )
         for d in doc_list:
-            alert = frappe.get_doc("WhatsApp Notification", d.name)
-            alert.get_documents_for_today()
-           
+            # Enqueue per notification so the scheduler tick returns immediately and each
+            # notification's document scan + sends run off the scheduler worker.
+            frappe.enqueue_doc(
+                "WhatsApp Notification",
+                d.name,
+                "get_documents_for_today",
+                queue="long",
+                timeout=1500,
+            )

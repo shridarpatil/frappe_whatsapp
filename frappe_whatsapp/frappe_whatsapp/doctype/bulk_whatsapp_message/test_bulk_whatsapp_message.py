@@ -168,7 +168,12 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
 
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
     def test_retry_failed(self, mock_post):
-        """Test retry_failed enqueues each failed message for re-send."""
+        """retry_failed re-sends failed rows AND resumes undispatched recipients.
+
+        The bulk has two recipients (no rows yet) plus one Failed row, so retry
+        should enqueue a resend for the failed row and a create for each of the
+        two recipients that were never dispatched.
+        """
         doc = self._make_bulk_message(title="Test Bulk Retry")
         # Create a failed message referencing this bulk
         failed_msg = frappe.get_doc({
@@ -191,9 +196,82 @@ class TestBulkWhatsAppMessage(IntegrationTestCase):
             "frappe_whatsapp.frappe_whatsapp.doctype.bulk_whatsapp_message.bulk_whatsapp_message.frappe.enqueue_doc"
         ) as mock_enqueue:
             doc.retry_failed()
-            mock_enqueue.assert_called_once()
-            call_kwargs = mock_enqueue.call_args.kwargs
-            self.assertEqual(call_kwargs.get("message_name"), failed_msg.name)
+            methods = [c.args[2] for c in mock_enqueue.call_args_list]
+            # one resend for the failed row, one create for each undispatched recipient
+            self.assertEqual(methods.count("resend_single_message"), 1)
+            self.assertEqual(methods.count("create_single_message"), 2)
+            resend_call = next(
+                c for c in mock_enqueue.call_args_list if c.args[2] == "resend_single_message"
+            )
+            self.assertEqual(resend_call.kwargs.get("message_name"), failed_msg.name)
+
+    def test_create_single_message_is_idempotent(self):
+        """A duplicate create job for an already-dispatched recipient is a no-op.
+
+        The guard runs before any insert, so this is independent of the send
+        path: a recipient that already has a row for this campaign is skipped,
+        leaving exactly one row.
+        """
+        doc = self._make_bulk_message(title="Test Bulk Idem")
+        existing = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900119999",
+            "message": "already dispatched",
+            "message_type": "Manual",
+            "content_type": "text",
+            "status": "Queued",
+            "bulk_message_reference": doc.name,
+            "whatsapp_account": "Test WA Bulk Account",
+        })
+        existing.flags.ignore_validate = True
+        existing.db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        # Duplicate create job for the same recipient -> skipped, no second row.
+        doc.create_single_message({"mobile_number": "919900119999", "recipient_name": "Idem"})
+
+        self.assertEqual(
+            frappe.db.count("WhatsApp Message", {
+                "bulk_message_reference": doc.name,
+                "to": "919900119999",
+            }),
+            1,
+        )
+
+    def test_queue_messages_skips_already_dispatched(self):
+        """queue_messages enqueues only recipients without a message row yet."""
+        doc = self._make_bulk_message(
+            title="Test Bulk Resume",
+            recipients=[
+                {"mobile_number": "919900220001", "recipient_name": "A"},
+                {"mobile_number": "919900220002", "recipient_name": "B"},
+            ],
+        )
+        # A was already dispatched on a previous (partial) run.
+        already = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900220001",
+            "message": "already",
+            "message_type": "Manual",
+            "content_type": "text",
+            "status": "Queued",
+            "bulk_message_reference": doc.name,
+            "whatsapp_account": "Test WA Bulk Account",
+        })
+        already.flags.ignore_validate = True
+        already.db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+        with patch(
+            "frappe_whatsapp.frappe_whatsapp.doctype.bulk_whatsapp_message.bulk_whatsapp_message.frappe.enqueue_doc"
+        ) as mock_enqueue:
+            doc.queue_messages()
+
+        mock_enqueue.assert_called_once()
+        enqueued = mock_enqueue.call_args.kwargs.get("recipient")
+        self.assertEqual(enqueued.get("mobile_number"), "919900220002")
 
     @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
     def test_resend_single_message(self, mock_post):

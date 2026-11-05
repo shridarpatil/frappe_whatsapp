@@ -64,10 +64,10 @@ frappe.ui.form.on('Bulk WhatsApp Message', {
         }
     },
     validate: function(frm) {
-        if(frm.doc.scheduled_time && new Date(frm.doc.scheduled_time) <= new Date()) {
-            frappe.throw(__('Scheduled time must be in the future'));
-            return false;
-        }
+        // scheduled_time is a timezone-less datetime; comparing it with the
+        // browser clock (new Date()) rejects valid future times when the browser
+        // and the site are in different timezones. The server validates it in the
+        // site timezone (validate_scheduled_time), so leave that check there.
 
         if(frm.doc.recipient_type == 'Individual' && (!frm.doc.recipients || frm.doc.recipients.length === 0)) {
             frappe.throw(__('Please add at least one recipient'));

@@ -3,8 +3,10 @@
 import json
 import frappe
 from frappe import _, throw
+from frappe.utils import cint, add_to_date, now_datetime
 from frappe.model.document import Document
 from frappe.integrations.utils import make_post_request
+import urllib.parse
 
 from frappe_whatsapp.utils import get_whatsapp_account, format_number
 
@@ -31,14 +33,34 @@ class WhatsAppMessage(Document):
             frappe.db.set_value("WhatsApp Profiles", profile_id, "profile_name", self.profile_name)
 
     def create_whatsapp_profile(self):
-        number = format_number(self.get("from") or self.to)
-        if not frappe.db.exists("WhatsApp Profiles", {"number": number}):
+        # Opt-out switch in WhatsApp Settings. An absent single value casts to 0, which
+        # coincides with the default (create), so existing/fresh sites keep current
+        # behaviour; only an explicit 1 ("Disable WhatsApp Profile Creation") skips it.
+        if cint(frappe.db.get_single_value("WhatsApp Settings", "disable_whatsapp_profiles")):
+            return
+
+        raw_number = self.get("from") or self.to
+        if not raw_number:
+            return
+        number = format_number(raw_number)
+        if frappe.db.exists("WhatsApp Profiles", {"number": number}):
+            return
+
+        # `number` is unique: two concurrent messages from the same new number can both
+        # pass the exists() check above, so the loser of the race hits the unique index.
+        # Contain that failure in a savepoint so it can never abort the parent WhatsApp
+        # Message insert.
+        savepoint = "create_whatsapp_profile"
+        try:
+            frappe.db.savepoint(savepoint)
             frappe.get_doc({
                 "doctype": "WhatsApp Profiles",
                 "profile_name": self.profile_name,
                 "number": number,
                 "whatsapp_account": self.whatsapp_account
             }).insert(ignore_permissions=True)
+        except (frappe.UniqueValidationError, frappe.DuplicateEntryError):
+            frappe.db.rollback(save_point=savepoint)
 
     def set_whatsapp_account(self):
         """Set whatsapp account to default if missing"""
@@ -234,6 +256,13 @@ class WhatsAppMessage(Document):
 
             self.template_parameters = json.dumps(template_parameters)
 
+        # Populate `message` with the rendered template body so the conversation panel
+        # (and anything else that reads `message`) shows real text instead of an empty
+        # bubble. Only when the caller hasn't already supplied a display body — template
+        # sends via `send_template` otherwise leave `message` blank.
+        if not self.message:
+            self.message = self._render_template_body(template, template_parameters)
+
         # Always add the body component, even if parameters list is empty
         data["template"]["components"].append({
             "type": "body",
@@ -285,6 +314,32 @@ class WhatsAppMessage(Document):
                         }]
                     })
 
+        if template.need_dynamic_button_url_parameter:
+            button_field_names = template.field_name_for_button_parameter.split(",")
+            button_parameters = []
+            template_button_parameters = []
+            if self.flags.custom_ref_doc:
+                custom_values = self.flags.custom_ref_doc
+                for field_name in button_field_names:
+                    value = custom_values.get(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+                    template_button_parameters.append(value)
+            else:
+                ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
+                for field_name in button_field_names:
+                    value = ref_doc.get_formatted(field_name.strip())
+                    encoded_value = urllib.parse.quote(value) if value else value
+                    button_parameters.append({"type": "text", "text": encoded_value})
+                    template_button_parameters.append(value)
+            self.template_button_parameters = json.dumps(template_button_parameters)
+            data["template"]["components"].append({
+                "type": "button",
+                "sub_type": "url",
+                "index": 0,
+                "parameters": button_parameters
+            })
+
         # We check this before standard buttons because MPM is an interactive action
         has_mpm = False
         if self.product_catalog_json:
@@ -324,6 +379,13 @@ class WhatsAppMessage(Document):
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
                 elif btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
+                    # ptstdm dynamic-URL model takes precedence: when
+                    # need_dynamic_button_url_parameter is set, the URL button
+                    # param is built above from field_name_for_button_parameter.
+                    # Skip here to avoid an empty param (Meta 400) and a
+                    # duplicate index-0 button component.
+                    if template.need_dynamic_button_url_parameter:
+                        continue
                     ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
                     url = ref_doc.get_formatted(btn.website_url)
                     button_parameters.append({
@@ -337,6 +399,15 @@ class WhatsAppMessage(Document):
                 data['template']['components'].extend(button_parameters)
 
         self.notify(data)
+
+    def _render_template_body(self, template, template_parameters):
+        """Build a human-readable body from a WhatsApp template + its ordered parameters,
+        substituting {{1}}, {{2}}, ... placeholders. Display-only (chat panel / list view);
+        the actual send uses the structured `components` payload, not this string."""
+        body = template.template or ""
+        for index, value in enumerate(template_parameters, start=1):
+            body = body.replace("{{%d}}" % index, "" if value is None else str(value))
+        return body.strip()
 
     def notify(self, data):
         """Notify."""
@@ -413,6 +484,35 @@ class WhatsAppMessage(Document):
             res = frappe.flags.integration_request.json().get("error", {})
             error_message = res.get("Error", res.get("message"))
             frappe.log_error("WhatsApp API Error", f"{error_message}\n{res}")
+
+    @staticmethod
+    def clear_old_logs(days=90):
+        """Delete WhatsApp Messages older than `days`.
+
+        Registered with Frappe's Log Settings via the `default_log_clearing_doctypes`
+        hook, so the daily log-cleanup job trims old incoming/outgoing messages
+        (default 90 days, editable under Log Settings). Keyed on `creation` so it
+        means "message is older than N days" regardless of later status webhooks
+        bumping `modified`. Deleted in batches because this table grows into the
+        hundreds of thousands of rows and a single unbounded DELETE would hold a
+        long table lock and bloat the transaction.
+        """
+        cutoff = add_to_date(now_datetime(), days=-cint(days))
+        while True:
+            names = frappe.get_all(
+                "WhatsApp Message",
+                filters={"creation": ["<", cutoff]},
+                pluck="name",
+                order_by="creation asc",
+                limit=10000,
+            )
+            if not names:
+                break
+            frappe.db.delete("WhatsApp Message", {"name": ["in", names]})
+            # nosemgrep: frappe-manual-commit -- batched cleanup runs inside the scheduled
+            # log-clean-up job (outside request scope); commit each batch so table locks and
+            # the undo log don't grow unbounded while deleting large backlogs.
+            frappe.db.commit()
 
 
 def on_doctype_update():

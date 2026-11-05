@@ -7,8 +7,18 @@
  "engine": "InnoDB",
  "field_order": [
   "default_incoming_account",
-  "column_break_xsuw",
-  "default_outgoing_account"
+  "default_outgoing_account",
+  "enabled",
+  "allow_auto_read_receipt",
+  "disable_whatsapp_profiles",
+  "token",
+  "url",
+  "version",
+  "phone_id",
+  "business_id",
+  "app_id",
+  "webhook_verify_token",
+  "column_break_skjo"
  ],
  "fields": [
   {
@@ -26,6 +36,63 @@
   {
    "fieldname": "column_break_skjo",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Password",
+   "label": "Token",
+   "length": 250
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL"
+  },
+  {
+   "fieldname": "version",
+   "fieldtype": "Data",
+   "label": "Version"
+  },
+  {
+   "fieldname": "phone_id",
+   "fieldtype": "Data",
+   "label": "Phone ID"
+  },
+  {
+   "fieldname": "business_id",
+   "fieldtype": "Data",
+   "label": "Business ID"
+  },
+  {
+   "default": "secret",
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Password",
+   "label": "Webhook Verify Token",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "app_id",
+   "fieldtype": "Data",
+   "label": "App ID"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_auto_read_receipt",
+   "fieldtype": "Check",
+   "label": "Allow Auto Read Receipt"
+  },
+  {
+   "default": "0",
+   "description": "When checked, a WhatsApp Profiles record is NOT auto-created per phone number on each message. Enable this if you rely on WhatsApp Contact / Leads instead.",
+   "fieldname": "disable_whatsapp_profiles",
+   "fieldtype": "Check",
+   "label": "Disable WhatsApp Profile Creation"
   }
  ],
  "grid_page_length": 50,

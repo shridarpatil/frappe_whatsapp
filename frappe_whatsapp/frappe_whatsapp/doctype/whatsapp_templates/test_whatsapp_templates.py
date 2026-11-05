@@ -15,6 +15,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls._ensure_test_account()
+        cls._ensure_second_test_account()
 
     @classmethod
     def _ensure_test_account(cls):
@@ -35,6 +36,24 @@ class TestWhatsAppTemplates(IntegrationTestCase):
             account.insert(ignore_permissions=True)
             frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
+    @classmethod
+    def _ensure_second_test_account(cls):
+        """A second active account on its own WhatsApp Business Account, for multi-account sync."""
+        if not frappe.db.exists("WhatsApp Account", "Test WA Tmpl Account 2"):
+            account = frappe.get_doc({
+                "doctype": "WhatsApp Account",
+                "account_name": "Test WA Tmpl Account 2",
+                "status": "Active",
+                "url": "https://graph.facebook.com",
+                "version": "v17.0",
+                "phone_id": "tmpl_test_phone_id_2",
+                "business_id": "tmpl_test_business_id_2",
+                "app_id": "tmpl_test_app_id_2",
+                "webhook_verify_token": "tmpl_test_verify_token_2",
+            })
+            account.insert(ignore_permissions=True)
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
     def setUp(self):
         # Set password within each test's transaction scope
         from frappe.utils.password import set_encrypted_password
@@ -47,9 +66,16 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         })
 
     def tearDown(self):
+        # Reset the request-scoped flag set by the Meta error-surfacing tests.
+        frappe.flags.integration_request = None
         # Use SQL-level delete to avoid triggering on_trash (which calls get_settings)
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_tmpl_%"]})
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_msg_template%"]})
+        # Also delete child button rows: deleting the parent above does not cascade,
+        # so without this they linger as orphans and get re-loaded when a later test
+        # recreates a template with the same (reused) name.
+        frappe.db.delete("WhatsApp Button", {"parent": ["like", "test_tmpl_%"]})
+        frappe.db.delete("WhatsApp Button", {"parent": ["like", "test_msg_template%"]})
         frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
     def _make_template_without_hooks(self, **kwargs):
@@ -85,11 +111,52 @@ class TestWhatsAppTemplates(IntegrationTestCase):
     def test_language_code_set_on_validate(self, mock_post):
         """Test language_code is derived from language field on validate."""
         mock_post.return_value = {}
-        doc = self._make_template_without_hooks(template_name="test_tmpl_langcode")
+        # Body has one variable, so give it one sample value (validate_sample_values).
+        doc = self._make_template_without_hooks(template_name="test_tmpl_langcode", sample_values="John")
         doc.language_code = ""
         doc.language = frappe.db.get_value("Language", {"language_code": "en"}) or "en"
         doc.validate()
         self.assertTrue(len(doc.language_code) > 0)
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_new_template_name_includes_language_code(self, mock_post):
+        """A template saved from the form (language_code not filled yet) is named {template_name}-{language_code}."""
+        mock_post.return_value = {"id": "tmpl_name_lang_id", "status": "PENDING"}
+
+        doc = frappe.get_doc({
+            "doctype": "WhatsApp Templates",
+            "template_name": "test_tmpl_name_lang",
+            "template": "Hello",
+            "category": "UTILITY",
+            "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+            "whatsapp_account": "Test WA Tmpl Account",
+        })
+        doc.insert(ignore_permissions=True)
+
+        self.assertEqual(doc.language_code, "en")
+        self.assertEqual(doc.name, "test_tmpl_name_lang-en")
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_same_template_name_in_two_languages(self, mock_post):
+        """The same Template Label can be created once per language."""
+        mock_post.return_value = {"id": "tmpl_two_lang_id", "status": "PENDING"}
+
+        names = []
+        for code in ("en", "hi"):
+            doc = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": "test_tmpl_two_lang",
+                "template": "Hello",
+                "category": "UTILITY",
+                "language": frappe.db.get_value("Language", {"language_code": code}) or code,
+                "whatsapp_account": "Test WA Tmpl Account",
+            })
+            doc.insert(ignore_permissions=True)
+            names.append(doc.name)
+
+        self.assertEqual(names, ["test_tmpl_two_lang-en", "test_tmpl_two_lang-hi"])
+        sent = [json.loads(c.kwargs["data"]) for c in mock_post.call_args_list]
+        self.assertEqual([(d["name"], d["language"]) for d in sent], [("test_tmpl_two_lang", "en"), ("test_tmpl_two_lang", "hi")])
 
     def test_set_whatsapp_account_default(self):
         """Test whatsapp_account is set to default if missing."""
@@ -284,6 +351,116 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         result = fetch()
         self.assertEqual(result, "Successfully fetched templates from meta")
 
+    def _templates_url(self, account_name):
+        """message_templates endpoint fetch() calls for this account."""
+        account = frappe.get_doc("WhatsApp Account", account_name)
+        return f"{account.url}/{account.version}/{account.business_id}/message_templates"
+
+    def _meta_template(self, name, language="en", body="Hello {{1}}", template_id=None):
+        """One template in the shape Meta's message_templates API returns."""
+        return {
+            "name": name,
+            "status": "APPROVED",
+            "language": language,
+            "category": "UTILITY",
+            "id": template_id or f"meta_id_{name}_{language}",
+            "components": [{"type": "BODY", "text": body}],
+        }
+
+    def _serve_meta_pages(self, mock_request, pages_by_url):
+        """Answer each mocked GET with its page; other active accounts on the site get no templates."""
+        mock_request.side_effect = lambda method, url, **kwargs: pages_by_url.get(url, {"data": []})
+
+    @patch("frappe.model.document.Document.get_password", return_value="mock_token")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_fetch_syncs_every_active_account(self, mock_request, mock_get_password):
+        """fetch() syncs all active accounts, not only the first one."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import fetch
+
+        self._serve_meta_pages(mock_request, {
+            self._templates_url("Test WA Tmpl Account"): {"data": [self._meta_template("test_tmpl_acct_one")]},
+            self._templates_url("Test WA Tmpl Account 2"): {"data": [self._meta_template("test_tmpl_acct_two")]},
+        })
+
+        fetch()
+
+        self.assertEqual(
+            frappe.db.get_value("WhatsApp Templates", {"actual_name": "test_tmpl_acct_one"}, "whatsapp_account"),
+            "Test WA Tmpl Account",
+        )
+        self.assertEqual(
+            frappe.db.get_value("WhatsApp Templates", {"actual_name": "test_tmpl_acct_two"}, "whatsapp_account"),
+            "Test WA Tmpl Account 2",
+        )
+
+    @patch("frappe.model.document.Document.get_password", return_value="mock_token")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_fetch_follows_paging_next(self, mock_request, mock_get_password):
+        """fetch() reads every page Meta returns, following paging.next until it is absent."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import fetch
+
+        first_page_url = self._templates_url("Test WA Tmpl Account")
+        next_page_url = f"{first_page_url}?limit=1&after=cursor_page_2"
+        self._serve_meta_pages(mock_request, {
+            first_page_url: {
+                "data": [self._meta_template("test_tmpl_page_one")],
+                "paging": {"cursors": {"before": "cursor_page_1", "after": "cursor_page_2"}, "next": next_page_url},
+            },
+            next_page_url: {
+                "data": [self._meta_template("test_tmpl_page_two")],
+                "paging": {"cursors": {"before": "cursor_page_2", "after": "cursor_page_3"}},
+            },
+        })
+
+        fetch()
+
+        self.assertTrue(frappe.db.exists("WhatsApp Templates", {"actual_name": "test_tmpl_page_one"}))
+        self.assertTrue(frappe.db.exists("WhatsApp Templates", {"actual_name": "test_tmpl_page_two"}))
+        next_page_calls = [c for c in mock_request.call_args_list if c.args[1] == next_page_url]
+        self.assertEqual(len(next_page_calls), 1)
+        self.assertEqual(next_page_calls[0].kwargs["headers"]["authorization"], "Bearer mock_token")
+
+    @patch("frappe.model.document.Document.get_password", return_value="mock_token")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_fetch_keeps_each_language_as_its_own_record(self, mock_request, mock_get_password):
+        """Two languages of one Meta template stay two records, and a re-sync updates each in place."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import fetch
+
+        english = self._meta_template("test_tmpl_multi_lang", language="en", body="Your order is ready")
+        hindi = self._meta_template("test_tmpl_multi_lang", language="hi", body="Aapka order taiyaar hai")
+        self._serve_meta_pages(mock_request, {
+            self._templates_url("Test WA Tmpl Account"): {"data": [english, hindi]},
+        })
+
+        def synced_languages():
+            return frappe.get_all(
+                "WhatsApp Templates",
+                filters={"actual_name": "test_tmpl_multi_lang"},
+                fields=["name", "language_code", "id", "template"],
+                order_by="language_code asc",
+            )
+
+        fetch()
+        first_sync = synced_languages()
+        self.assertEqual(
+            [(t.name, t.language_code, t.id, t.template) for t in first_sync],
+            [
+                ("test_tmpl_multi_lang-en", "en", english["id"], "Your order is ready"),
+                ("test_tmpl_multi_lang-hi", "hi", hindi["id"], "Aapka order taiyaar hai"),
+            ],
+        )
+
+        hindi["components"][0]["text"] = "Aapka order bhej diya gaya hai"
+        fetch()
+        second_sync = synced_languages()
+        self.assertEqual(
+            [(t.name, t.template) for t in second_sync],
+            [
+                ("test_tmpl_multi_lang-en", "Your order is ready"),
+                ("test_tmpl_multi_lang-hi", "Aapka order bhej diya gaya hai"),
+            ],
+        )
+
     def test_upsert_doc_without_hooks(self):
         """Test upsert_doc_without_hooks inserts and updates correctly."""
         from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import upsert_doc_without_hooks
@@ -296,3 +473,318 @@ class TestWhatsAppTemplates(IntegrationTestCase):
 
         doc.reload()
         self.assertEqual(doc.template, "Updated body text")
+
+    # ------------------------------------------------------------------
+    # Open Point 1 — Sample Values validation
+    # ------------------------------------------------------------------
+    def _new_template_doc(self, **kwargs):
+        """Build (not insert) a template doc with required fields defaulted."""
+        data = {
+            "doctype": "WhatsApp Templates",
+            "template_name": kwargs.pop("template_name", "test_tmpl_op1"),
+            "template": kwargs.pop("template", "Hello {{1}}"),
+            "sample_values": kwargs.pop("sample_values", ""),
+            # MARKETING is valid for both the base Select and leanerp_whatsapp's
+            # custom_internal_category Select on v15.localhost.
+            "category": kwargs.pop("category", "MARKETING"),
+            "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+            "language_code": "en",
+            "whatsapp_account": "Test WA Tmpl Account",
+        }
+        data.update(kwargs)
+        return frappe.get_doc(data)
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_sample_values_count_mismatch_blocks(self, mock_post):
+        """3 variables but 2 values -> blocked, nothing sent to Meta."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_op1_count",
+            template="Hi {{1}} {{2}} {{3}}",
+            sample_values="a,b",
+        )
+        with self.assertRaises(frappe.ValidationError):
+            doc.insert(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_sample_values_newline_blocks(self, mock_post):
+        """Values on separate lines -> blocked."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_op1_nl",
+            template="Hi {{1}} {{2}} {{3}}",
+            sample_values="a\nb\nc",
+        )
+        with self.assertRaises(frappe.ValidationError):
+            doc.insert(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_sample_values_gap_blocks(self, mock_post):
+        """Only {{1}} and {{3}} (gap) -> blocked."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_op1_gap",
+            template="Hi {{1}} {{3}}",
+            sample_values="a,b",
+        )
+        with self.assertRaises(frappe.ValidationError):
+            doc.insert(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_sample_values_empty_but_vars_blocks(self, mock_post):
+        """Variables present but Sample Values empty -> blocked (timesheet_reminder case)."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_op1_empty",
+            template="Hi {{1}} {{2}}",
+            sample_values="",
+        )
+        with self.assertRaises(frappe.ValidationError):
+            doc.insert(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_sample_values_trimmed_on_save(self, mock_post):
+        """3 variables, 3 values with extra spaces -> saves, values trimmed."""
+        mock_post.return_value = {"id": "op1_ok", "status": "PENDING"}
+        doc = self._new_template_doc(
+            template_name="test_tmpl_op1_trim",
+            template="Hi {{1}} {{2}} {{3}}",
+            sample_values=" a , b , c ",
+        )
+        doc.insert(ignore_permissions=True)
+        self.assertTrue(mock_post.called)
+        self.assertEqual(doc.sample_values, "a,b,c")
+
+    # ------------------------------------------------------------------
+    # SRO-2026-10-00227 — media header (DOCUMENT/IMAGE) crash
+    # ------------------------------------------------------------------
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_media_header_without_sample_blocks(self, mock_post):
+        """DOCUMENT header without a sample -> clear message, no crash, nothing sent."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_media_nosample",
+            template="Your document is ready",
+            header_type="DOCUMENT",
+            sample="",
+        )
+        with self.assertRaises(frappe.ValidationError):
+            doc.insert(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    def test_sample_not_reuploaded_when_unchanged(self):
+        """Editing a media template without touching the sample does not re-upload."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import (
+            WhatsAppTemplates,
+        )
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_media_gate",
+            template="Your document is ready",
+            category="MARKETING",
+            header_type="DOCUMENT",
+        )
+        frappe.db.set_value(
+            "WhatsApp Templates", doc.name,
+            {"sample": "/files/doc.pdf", "header_media_handle": "H_OLD"},
+        )
+        doc.reload()
+
+        with patch.object(WhatsAppTemplates, "get_session_id") as m_session, \
+             patch.object(WhatsAppTemplates, "get_media_id") as m_media, \
+             patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request") as mock_post:
+            mock_post.return_value = {}
+            doc.footer = "New footer"  # a Meta field changed, but the sample did not
+            doc.save(ignore_permissions=True)
+            m_session.assert_not_called()
+            m_media.assert_not_called()
+            self.assertTrue(mock_post.called)  # update ran, reusing the stored handle
+
+    def test_sample_reuploaded_when_changed(self):
+        """Changing the sample re-uploads it and refreshes the stored handle."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import (
+            WhatsAppTemplates,
+        )
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_media_change",
+            template="Your document is ready",
+            category="MARKETING",
+            header_type="DOCUMENT",
+        )
+        frappe.db.set_value(
+            "WhatsApp Templates", doc.name,
+            {"sample": "/files/old.pdf", "header_media_handle": "H_OLD"},
+        )
+        doc.reload()
+
+        def _fake_media(file):
+            doc._media_id = "H_NEW"
+
+        with patch.object(WhatsAppTemplates, "get_session_id") as m_session, \
+             patch.object(WhatsAppTemplates, "get_media_id", side_effect=_fake_media) as m_media, \
+             patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request") as mock_post:
+            mock_post.return_value = {}
+            doc.sample = "/files/new.pdf"
+            doc.save(ignore_permissions=True)
+            m_session.assert_called_once()
+            m_media.assert_called_once()
+        self.assertEqual(doc.header_media_handle, "H_NEW")
+
+    # ------------------------------------------------------------------
+    # SRO-2026-10-00228 — call Meta only on real changes + surface the error
+    # ------------------------------------------------------------------
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_no_meta_call_on_internal_field_change(self, mock_post):
+        """Editing only an internal field (for_doctype) sends nothing to Meta."""
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_internal",
+            template="Order update",  # no variables
+            category="MARKETING",
+        )
+        doc.for_doctype = "User"
+        doc.save(ignore_permissions=True)
+        mock_post.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_meta_call_on_body_change(self, mock_post):
+        """Editing the body (a Meta-stored field) does call Meta."""
+        mock_post.return_value = {}
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_bodychg",
+            template="Order update",
+            category="MARKETING",
+        )
+        doc.template = "Order update v2"
+        doc.save(ignore_permissions=True)
+        self.assertTrue(mock_post.called)
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_edit_error_shows_meta_message(self, mock_post):
+        """On an edit error, Meta's real message is surfaced (not the raw 400)."""
+        from requests.exceptions import HTTPError
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_err",
+            template="Order update",
+            category="MARKETING",
+        )
+        resp = MagicMock()
+        resp.json.return_value = {
+            "error": {"error_user_msg": "Real Meta reason", "error_user_title": "Oops"}
+        }
+        frappe.flags.integration_request = resp
+        mock_post.side_effect = HTTPError("400 Client Error: Bad Request")
+
+        doc.template = "Order update v2"
+        with self.assertRaises(frappe.ValidationError) as cm:
+            doc.save(ignore_permissions=True)
+        self.assertIn("Real Meta reason", str(cm.exception))
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_network_error_shows_readable_message(self, mock_post):
+        """A connection error gives a readable message, not 'NoneType ... json'."""
+        from requests.exceptions import ConnectionError as ReqConnectionError
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_net",
+            template="Order update",
+            category="MARKETING",
+        )
+        frappe.flags.integration_request = None
+        mock_post.side_effect = ReqConnectionError("Failed to establish a new connection")
+
+        doc.template = "Order update v2"
+        with self.assertRaises(frappe.ValidationError) as cm:
+            doc.save(ignore_permissions=True)
+        self.assertIn("Could not reach Meta", str(cm.exception))
+
+    # ------------------------------------------------------------------
+    # Copilot review follow-ups (buttons comparison, upload gating, blank sample)
+    # ------------------------------------------------------------------
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_no_meta_call_on_internal_change_with_buttons(self, mock_post):
+        """A template WITH buttons: an internal-only edit still sends nothing to Meta.
+
+        Guards against has_value_changed("buttons") (identity compare on fresh
+        child instances) reporting a change on every save.
+        """
+        mock_post.return_value = {"id": "btn_gate_id", "status": "PENDING"}
+        doc = self._new_template_doc(
+            template_name="test_tmpl_btn_gate",
+            template="Click below",  # no variables
+        )
+        doc.append("buttons", {"button_type": "Quick Reply", "button_label": "Yes"})
+        doc.append("buttons", {
+            "button_type": "Visit Website",
+            "button_label": "Visit",
+            "website_url": "https://example.com",
+            "url_type": "Static",
+        })
+        doc.insert(ignore_permissions=True)
+        self.assertTrue(mock_post.called)  # creation hit Meta
+
+        mock_post.reset_mock()
+        doc.reload()
+        doc.for_doctype = "User"  # internal-only field
+        doc.save(ignore_permissions=True)
+        mock_post.assert_not_called()  # buttons unchanged -> no Meta edit
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_meta_call_on_button_value_change(self, mock_post):
+        """Changing a button value is a real Meta change and does hit Meta."""
+        mock_post.return_value = {"id": "btn_chg_id", "status": "PENDING"}
+        doc = self._new_template_doc(
+            template_name="test_tmpl_btn_chg",
+            template="Click below",
+        )
+        doc.append("buttons", {"button_type": "Quick Reply", "button_label": "Yes"})
+        doc.insert(ignore_permissions=True)
+
+        mock_post.reset_mock()
+        doc.reload()
+        doc.buttons[0].button_label = "Confirm"
+        doc.save(ignore_permissions=True)
+        self.assertTrue(mock_post.called)
+
+    def test_internal_edit_of_media_template_without_handle_does_not_upload(self):
+        """An internal-only edit of a media template with no stored handle uploads nothing.
+
+        Previously `not self.header_media_handle` forced an upload on any save of a
+        pre-existing media template; now the upload is tied to a real Meta change.
+        """
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import (
+            WhatsAppTemplates,
+        )
+
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_media_internal",
+            template="Your document is ready",
+            category="MARKETING",
+            header_type="DOCUMENT",
+        )
+        # Media template with a sample but NO stored handle yet (pre-existing row).
+        frappe.db.set_value(
+            "WhatsApp Templates", doc.name,
+            {"sample": "/files/doc.pdf", "header_media_handle": ""},
+        )
+        doc.reload()
+
+        with patch.object(WhatsAppTemplates, "get_session_id") as m_session, \
+             patch.object(WhatsAppTemplates, "get_media_id") as m_media, \
+             patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request") as mock_post:
+            mock_post.return_value = {}
+            doc.for_doctype = "User"  # internal-only field
+            doc.save(ignore_permissions=True)
+            m_session.assert_not_called()
+            m_media.assert_not_called()
+            mock_post.assert_not_called()
+
+    def test_blank_sample_cleared_for_variable_free_body(self):
+        """A whitespace-only Sample Values on a no-variable body is normalised to ''."""
+        doc = self._new_template_doc(
+            template_name="test_tmpl_ws_sample",
+            template="Order update",  # no variables
+            sample_values="   ",
+        )
+        doc.validate_sample_values()
+        self.assertEqual(doc.sample_values, "")
