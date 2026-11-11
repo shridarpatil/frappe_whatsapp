@@ -1050,6 +1050,16 @@ Data Fields: ["customer_name", "territory"]</code></pre>
             <h3>Creating Templates</h3>
             <p>Navigate to <strong>WhatsApp Templates</strong> to create and manage templates:</p>
 
+            <div class="warning-box">
+                <p><strong>Templates are linked to Meta in both directions:</strong></p>
+                <ul>
+                    <li><strong>Saving</strong> a template here submits the edit to Meta, where it is reviewed again. You are asked to confirm first.</li>
+                    <li><strong>Deleting</strong> a template from its form asks whether to delete it on Meta too, or only remove the local copy. Deleting from the list view or the API always deletes it on Meta as well.</li>
+                    <li><strong>Sync from Meta</strong> overwrites the local copy with what is on Meta, including removing a header, footer or buttons that were removed there.</li>
+                </ul>
+                <p>To re-import a template, choose "Delete local copy only" and then run Sync from Meta.</p>
+            </div>
+
             <h4>Template Components</h4>
             <table>
                 <thead>
