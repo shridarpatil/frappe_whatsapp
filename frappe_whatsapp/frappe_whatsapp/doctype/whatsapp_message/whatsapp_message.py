@@ -312,6 +312,8 @@ class WhatsAppMessage(Document):
             # "sub_type must be one of {...}" errors since Meta no longer
             # accepts `phone_number`. See issue #188.
             button_parameters = []
+            # Values for dynamic link buttons, consumed in button order.
+            button_values = self.get_button_values(template)
             for idx, btn in enumerate(template.buttons):
                 # Shift index if MPM was added at index 0
                 current_idx = str(idx + 1) if has_mpm else str(idx)
@@ -324,19 +326,53 @@ class WhatsAppMessage(Document):
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
                 elif btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
-                    ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-                    url = ref_doc.get_formatted(btn.website_url)
+                    value = button_values.pop(0) if button_values else None
+                    if value in (None, ""):
+                        frappe.throw(
+                            _(
+                                "Template {0} has a dynamic link button '{1}' but no value "
+                                "was provided for it. Set Button Param on the message, or "
+                                "Button field names on the template."
+                            ).format(template.name, btn.button_label)
+                        )
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "url",
                         "index": current_idx,
-                        "parameters": [{"type": "text", "text": url}]
+                        "parameters": [{"type": "text", "text": str(value)}]
                     })
 
             if button_parameters:
                 data['template']['components'].extend(button_parameters)
 
         self.notify(data)
+
+    def get_button_values(self, template):
+        """Return the values for the template's dynamic link buttons, in button order.
+
+        `button_param` on the message wins (bulk sends and direct API sends).
+        Otherwise the values are read from the reference document using the
+        template's `button_field_names`. Each value is only the variable part
+        of the link; Meta substitutes it into the approved button URL.
+        """
+        button_param = self.button_param
+        if isinstance(button_param, str):
+            button_param = json.loads(button_param) if button_param.strip() else None
+
+        if button_param:
+            if isinstance(button_param, dict):
+                return list(button_param.values())
+            return list(button_param)
+
+        if template.button_field_names and self.reference_doctype and self.reference_name:
+            ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
+            return [
+                ref_doc.get_formatted(field_name.strip())
+                for field_name in template.button_field_names.split(",")
+                if field_name.strip()
+            ]
+
+        return []
 
     def notify(self, data):
         """Notify."""

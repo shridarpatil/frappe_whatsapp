@@ -26,6 +26,7 @@
   "attach",
   "buttons",
   "body_param",
+  "button_param",
   "whatsapp_account",
   "section_break_flow",
   "flow",
@@ -213,6 +214,12 @@
    "label": "Body Param"
   },
   {
+   "description": "JSON values for the template's dynamic link buttons, in button order. Only the variable part of each link is needed, e.g. INV-0042 for https://example.com/pay/{{1}}.",
+   "fieldname": "button_param",
+   "fieldtype": "JSON",
+   "label": "Button Param"
+  },
+  {
    "fieldname": "whatsapp_account",
    "fieldtype": "Link",
    "label": "WhatsApp Account",
@@ -280,7 +287,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-11 00:34:02.455955",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

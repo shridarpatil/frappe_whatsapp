@@ -407,3 +407,147 @@ class TestWhatsAppMessage(IntegrationTestCase):
         self.assertNotIn("phone_number", sub_types)
         self.assertNotIn("url", sub_types)  # static URL button also excluded
         self.assertIn("quick_reply", sub_types)
+
+    def _ensure_button_template(self, base_name, buttons, **fields):
+        """Create an approved template with the given button rows (no Meta calls)."""
+        template_name = f"{base_name}-en"
+        if frappe.db.exists("WhatsApp Templates", template_name):
+            return template_name
+        tmpl = frappe.get_doc({
+            "doctype": "WhatsApp Templates",
+            "template_name": base_name,
+            "actual_name": base_name,
+            "template": "Hello",
+            "category": "TRANSACTIONAL",
+            "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+            "language_code": "en",
+            "whatsapp_account": "Test WA Msg Account",
+            "status": "APPROVED",
+            "id": f"{base_name}_id",
+            "name": template_name,
+            **fields,
+        })
+        tmpl.flags.ignore_validate = True
+        tmpl.db_insert()
+        for idx, data in enumerate(buttons, start=1):
+            frappe.get_doc({
+                "doctype": "WhatsApp Button",
+                "parent": template_name,
+                "parenttype": "WhatsApp Templates",
+                "parentfield": "buttons",
+                "idx": idx,
+                **data,
+            }).db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+        return template_name
+
+    def _send_template_message(self, template, to, **fields):
+        doc = frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": to,
+            "message_type": "Template",
+            "content_type": "text",
+            "template": template,
+            "whatsapp_account": "Test WA Msg Account",
+            **fields,
+        })
+        doc.insert(ignore_permissions=True)
+        return doc
+
+    @staticmethod
+    def _button_components(mock_post):
+        sent_data = json.loads(mock_post.call_args.kwargs["data"])
+        return [c for c in sent_data["template"]["components"] if c.get("type") == "button"]
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_dynamic_url_button_from_button_param(self, mock_post):
+        """A dynamic link button is filled from button_param when the message
+        has no reference document (bulk sends and direct API sends)."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_dyn_param"}]}
+        template = self._ensure_button_template(
+            "test_msg_dyn_one", [{"button_type": "Visit Website", "button_label": "Pay", "website_url": "https://example.com/pay/{{1}}", "url_type": "Dynamic"}], button_field_names="name"
+        )
+
+        self._send_template_message(
+            template, "919900112265", button_param=json.dumps({"pay_link": "INV-0042"})
+        )
+
+        self.assertEqual(self._button_components(mock_post), [{
+            "type": "button",
+            "sub_type": "url",
+            "index": "0",
+            "parameters": [{"type": "text", "text": "INV-0042"}],
+        }])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_multiple_dynamic_url_buttons_keep_order_and_index(self, mock_post):
+        """Values are assigned to dynamic link buttons in button order, and each
+        keeps its own position index even with other buttons in between."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_dyn_multi"}]}
+        template = self._ensure_button_template(
+            "test_msg_dyn_multi",
+            [
+                {"button_type": "Visit Website", "button_label": "Pay", "website_url": "https://example.com/pay/{{1}}", "url_type": "Dynamic"},
+                {"button_type": "Quick Reply", "button_label": "Yes"},
+                {"button_type": "Visit Website", "button_label": "Track", "website_url": "https://example.com/track/{{1}}", "url_type": "Dynamic"},
+            ],
+            template="Hello {{1}}",
+            sample_values="User",
+        )
+
+        self._send_template_message(
+            template,
+            "919900112266",
+            body_param=json.dumps({"name": "Asha"}),
+            button_param=json.dumps({"pay_link": "INV-0042", "track_link": "TRK-981"}),
+        )
+
+        buttons = {c["index"]: c for c in self._button_components(mock_post)}
+        self.assertEqual(buttons["0"]["sub_type"], "url")
+        self.assertEqual(buttons["0"]["parameters"], [{"type": "text", "text": "INV-0042"}])
+        self.assertEqual(buttons["1"]["sub_type"], "quick_reply")
+        self.assertEqual(buttons["2"]["sub_type"], "url")
+        self.assertEqual(buttons["2"]["parameters"], [{"type": "text", "text": "TRK-981"}])
+
+        # Button values must not leak into the body parameters
+        sent_data = json.loads(mock_post.call_args.kwargs["data"])
+        body = [c for c in sent_data["template"]["components"] if c["type"] == "body"][0]
+        self.assertEqual(body["parameters"], [{"type": "text", "text": "Asha"}])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_dynamic_url_button_from_reference_doc(self, mock_post):
+        """Without button_param, the value comes from the reference document
+        via the template's button_field_names."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_dyn_ref"}]}
+        template = self._ensure_button_template(
+            "test_msg_dyn_one", [{"button_type": "Visit Website", "button_label": "Pay", "website_url": "https://example.com/pay/{{1}}", "url_type": "Dynamic"}], button_field_names="name"
+        )
+
+        self._send_template_message(
+            template,
+            "919900112267",
+            reference_doctype="User",
+            reference_name="Administrator",
+        )
+
+        buttons = self._button_components(mock_post)
+        self.assertEqual(len(buttons), 1)
+        self.assertEqual(buttons[0]["parameters"], [{"type": "text", "text": "Administrator"}])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_dynamic_url_button_without_value_is_rejected(self, mock_post):
+        """A missing value fails with a clear error before anything is sent."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_dyn_missing"}]}
+        template = self._ensure_button_template(
+            "test_msg_dyn_one", [{"button_type": "Visit Website", "button_label": "Pay", "website_url": "https://example.com/pay/{{1}}", "url_type": "Dynamic"}], button_field_names="name"
+        )
+
+        with self.assertRaises(frappe.ValidationError):
+            self._send_template_message(template, "919900112268")
+        with self.assertRaises(frappe.ValidationError):
+            self._send_template_message(
+                template, "919900112268", button_param=json.dumps({"pay_link": ""})
+            )
+
+        mock_post.assert_not_called()

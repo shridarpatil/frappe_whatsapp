@@ -273,3 +273,27 @@ class TestBulkMessagingUtils(IntegrationTestCase):
             ),
             "failure was swallowed without an Error Log entry",
         )
+
+    def test_import_recipients_with_string_button_data_fields(self):
+        """import_recipients accepts button_data_fields as the JSON string the form sends."""
+        rec_list = frappe.get_doc({
+            "doctype": "WhatsApp Recipient List",
+            "list_name": "Test BulkUtil Import Btn",
+        })
+        rec_list.append("recipients", {"mobile_number": "placeholder"})
+        rec_list.insert(ignore_permissions=True)
+
+        count = import_recipients(
+            list_name=rec_list.name,
+            doctype="User",
+            mobile_field="mobile_no",
+            filters='{"name": "Administrator"}',
+            button_data_fields='["email"]',
+        )
+        self.assertEqual(count, 1)
+
+        rec_list.reload()
+        self.assertEqual(
+            json.loads(rec_list.recipients[0].button_data),
+            {"email": frappe.db.get_value("User", "Administrator", "email")},
+        )

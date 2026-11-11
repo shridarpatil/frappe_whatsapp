@@ -17,6 +17,7 @@
   "sample_values",
   "for_doctype",
   "field_names",
+  "button_field_names",
   "column_break_6",
   "category",
   "language",
@@ -151,6 +152,12 @@
    "label": "Field names"
   },
   {
+   "description": "Field names on the reference document that supply the values for dynamic link buttons, comma-separated, in button order",
+   "fieldname": "button_field_names",
+   "fieldtype": "Small Text",
+   "label": "Button field names"
+  },
+  {
    "fieldname": "buttons",
    "fieldtype": "Table",
    "label": "Buttons",
@@ -170,7 +177,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-03 20:39:48.979892",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",

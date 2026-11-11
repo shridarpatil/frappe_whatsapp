@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "autoname": "field:list_name",
  "creation": "2023-05-10 12:00:00",
  "doctype": "DocType",
@@ -17,6 +18,7 @@
   "name_field",
   "import_filters",
   "data_fields",
+  "button_data_fields",
   "import_limit",
   "import_button"
  ],
@@ -40,6 +42,7 @@
    "label": "Recipients"
   },
   {
+   "allow_bulk_edit": 1,
    "fieldname": "recipients",
    "fieldtype": "Table",
    "label": "Recipients",
@@ -106,11 +109,19 @@
    "fieldtype": "Code",
    "label": "Data fields",
    "options": "JSON"
+  },
+  {
+   "depends_on": "eval:doc.import_from_doctype==1",
+   "description": "JSON fields to import as dynamic link button values, in button order (optional) [\"invoice_id\"]",
+   "fieldname": "button_data_fields",
+   "fieldtype": "Code",
+   "label": "Button data fields",
+   "options": "JSON"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-03 12:41:13.610865",
+ "modified": "2026-11-11 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Recipient List",
