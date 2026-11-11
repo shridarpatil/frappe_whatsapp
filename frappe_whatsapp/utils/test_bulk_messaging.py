@@ -268,7 +268,13 @@ class TestBulkMessagingUtils(IntegrationTestCase):
         self.assertTrue(
             frappe.get_all(
                 "Error Log",
-                filters={"error": ["like", f"%{doc.name}%"]},
+                # Match on the linked document, not the traceback text: Frappe
+                # v15+ only includes local variables in the traceback when
+                # developer_mode is on, so the name is not reliably in `error`.
+                filters={
+                    "reference_doctype": "Bulk WhatsApp Message",
+                    "reference_name": doc.name,
+                },
                 limit=1,
             ),
             "failure was swallowed without an Error Log entry",
