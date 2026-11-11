@@ -1004,6 +1004,87 @@ Data Fields: ["customer_name", "territory"]</code></pre>
 }</code></pre>
             </div>
 
+            <h3>Dynamic Link Buttons</h3>
+            <p>A template can have "Visit Website" buttons whose URL ends in a variable, for example <code>https://example.com/pay/{{1}}</code>. Each message must supply the value for that variable. Button values are kept in their own JSON, separate from the body variables.</p>
+
+            <div class="warning-box">
+                <p><strong>Value, not URL:</strong> Supply only the variable part of the link (<code>INV-0042</code>), not the full URL. WhatsApp inserts it into the approved button URL.</p>
+            </div>
+
+            <h4>Where to put the values</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable Type</th>
+                        <th>Field</th>
+                        <th>Applies to</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Unique</code></td>
+                        <td><code>Button Data</code> on each recipient</td>
+                        <td>A different link per recipient (invoices, orders, tracking)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Common</code></td>
+                        <td><code>Button Variables</code> on the Bulk WhatsApp Message</td>
+                        <td>The same link for everyone (a campaign or offer page)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Give one value per dynamic link button, in the order the buttons appear on the template. The key names are only labels for your own reference. For a template with a "Pay" button followed by a "Track" button:</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code>Recipient Data: {"customer_name": "John Doe", "amount": "1,200"}
+Button Data:    {"pay_link": "INV-0042", "track_link": "TRK-981"}</code></pre>
+            </div>
+
+            <h4>Step by step</h4>
+            <ol>
+                <li>Create or sync a template that has a "Visit Website" button with <code>URL Type</code> set to "Dynamic".</li>
+                <li>Create a <strong>Bulk WhatsApp Message</strong>, tick "Use Template" and select the template.</li>
+                <li>Set <code>Variable Type</code> to "Unique" or "Common".</li>
+                <li>Fill <code>Button Data</code> on every recipient (Unique), or <code>Button Variables</code> on the bulk message (Common).</li>
+                <li>Save. If any recipient is missing a value, the save is blocked with a message naming that recipient.</li>
+                <li>Submit to send.</li>
+            </ol>
+
+            <h4>Importing button values from a DocType</h4>
+            <p>When importing a recipient list from a DocType, list the source fields in <code>Button data fields</code>. They are imported into each recipient's <code>Button Data</code>, in the order given:</p>
+            <div class="code-block">
+                <pre><code>Example: Payment reminders for unpaid invoices
+DocType: Sales Invoice
+Phone Field: contact_mobile
+Name Field: customer_name
+Filters: {"status": "Unpaid"}
+Data Fields: ["customer_name", "outstanding_amount"]
+Button data fields: ["name"]</code></pre>
+            </div>
+
+            <h4>Uploading recipients from Excel or CSV</h4>
+            <ol>
+                <li>Open a <strong>WhatsApp Recipient List</strong> (or the Recipients table on a Bulk WhatsApp Message).</li>
+                <li>Use "Download" on the Recipients table to get a sheet with the right columns.</li>
+                <li>Fill one row per recipient: <code>Mobile Number</code>, <code>Recipient Name</code>, <code>Recipient Data</code> and <code>Button Data</code>. The last two are JSON, as in the example above.</li>
+                <li>Use "Upload" on the Recipients table and save.</li>
+            </ol>
+            <p>For large lists, <strong>Data Import</strong> also accepts WhatsApp Recipient List.</p>
+
+            <h4>Direct and document-based sends</h4>
+            <ul>
+                <li>When creating a <strong>WhatsApp Message</strong> through the API, pass the values in <code>button_param</code>, alongside <code>body_param</code>.</li>
+                <li>When sending a template for a document (for example with <code>send_template</code>), set <code>Button field names</code> on the template to the fields of that document that hold the values, comma-separated.</li>
+            </ul>
+
+            <h4>Troubleshooting</h4>
+            <ul>
+                <li><strong>"needs N dynamic link button value(s)"</strong> on save - a recipient's Button Data, or the Button Variables, has fewer values than the template has dynamic link buttons. Blank values do not count.</li>
+                <li><strong>Status "Partially Failed"</strong> - open <strong>Error Log</strong> and look for "WhatsApp bulk send failed" to see which recipient failed and why.</li>
+                <li><strong>The link opens the wrong page</strong> - check that the value is only the variable part, and that the values are in the same order as the buttons.</li>
+            </ul>
+
             <h3>Message Workflow</h3>
             <ol>
                 <li><strong>Draft</strong> - Configure recipients and template</li>

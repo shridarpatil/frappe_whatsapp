@@ -108,6 +108,18 @@ Send WhatsApp messages to multiple recipients at once.
 1. **Common** - Same values for all recipients
 2. **Unique** - Different values per recipient (from recipient data)
 
+**Dynamic Link Buttons:**
+
+If the template has "Visit Website" buttons with a dynamic URL (e.g. `https://example.com/pay/{{1}}`), supply one value per button, in button order, as a separate JSON from the body variables:
+
+- **Unique** - set **Button Data** on each recipient, e.g. `{"pay_link": "INV-0042"}`
+- **Common** - set **Button Variables** on the Bulk WhatsApp Message
+- When importing a recipient list from a DocType, list the source fields in **Button data fields**
+
+Only the variable part of the link is needed (`INV-0042`, not the full URL). Recipients can be uploaded from Excel/CSV through the Recipients table or Data Import; Button Data is a column in the sheet.
+
+See the [Bulk Messaging documentation](https://shridarpatil.github.io/frappe_whatsapp/#bulk-messaging) for a step-by-step guide, Excel upload and troubleshooting.
+
 ### Direct Messaging
 
 Send messages without templates (within 24-hour window):

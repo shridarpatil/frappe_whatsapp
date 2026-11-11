@@ -25,7 +25,8 @@ frappe.ui.form.on('WhatsApp Recipient List', {
                     name_field: frm.doc.name_field,
                     filters: filters,
                     limit: frm.doc.import_limit,
-                    data_fields: frm.doc.data_fields
+                    data_fields: frm.doc.data_fields,
+                    button_data_fields: frm.doc.button_data_fields
                 },
                 callback: function(r) {
                     if(r.message) {

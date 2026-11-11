@@ -17,16 +17,19 @@ def retry_failed(name):
     return True
 
 @frappe.whitelist()
-def import_recipients(list_name, doctype, mobile_field, name_field=None, filters=None, limit=None, data_fields=None):
+def import_recipients(list_name, doctype, mobile_field, name_field=None, filters=None, limit=None, data_fields=None, button_data_fields=None):
     """Import recipients from a DocType"""
     if filters and isinstance(filters, str):
         filters = json.loads(filters)
 
     if data_fields and isinstance(data_fields, str):
         data_fields = json.loads(data_fields)
-        
+
+    if button_data_fields and isinstance(button_data_fields, str):
+        button_data_fields = json.loads(button_data_fields)
+
     doc = frappe.get_doc("WhatsApp Recipient List", list_name)
-    count = doc.import_list_from_doctype(doctype, mobile_field, name_field, filters, limit, data_fields)
+    count = doc.import_list_from_doctype(doctype, mobile_field, name_field, filters, limit, data_fields, button_data_fields)
     doc.save()
     
     return count
@@ -62,7 +65,9 @@ def process_scheduled_bulk_messages():
             # the remaining campaigns (and so log_error can write).
             frappe.db.rollback()
             frappe.log_error(
-                title=f"Bulk WhatsApp Message scheduling failed: {name}"
+                title=f"Bulk WhatsApp Message scheduling failed: {name}",
+                reference_doctype="Bulk WhatsApp Message",
+                reference_name=name,
             )
 
 

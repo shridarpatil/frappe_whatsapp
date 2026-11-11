@@ -170,3 +170,51 @@ class TestWhatsAppRecipientList(IntegrationTestCase):
         mobile = "+91-9900-112233"
         formatted = ''.join(char for char in mobile if char.isdigit() or char == '+')
         self.assertEqual(formatted, "+919900112233")
+
+    def test_import_list_with_button_data_fields(self):
+        """Button data fields are imported into Button Data, separately from
+        Recipient Data, and blank values are kept so positions do not shift."""
+        doc = self._make_recipient_list(
+            list_name="Test Recipient ButtonFields",
+            recipients=[{"mobile_number": "placeholder"}]
+        )
+
+        count = doc.import_list_from_doctype(
+            doctype="User",
+            mobile_field="mobile_no",
+            data_fields=["first_name"],
+            button_data_fields=["email", "middle_name"],
+            filters={"name": "Administrator"},
+        )
+
+        self.assertEqual(count, 1)
+        doc.save()
+        self.assertEqual(json.loads(doc.button_data_fields), ["email", "middle_name"])
+
+        recipient = doc.recipients[0]
+        button_data = json.loads(recipient.button_data)
+        self.assertEqual(list(button_data), ["email", "middle_name"])
+        self.assertEqual(button_data["email"], frappe.db.get_value("User", "Administrator", "email"))
+        self.assertEqual(
+            button_data["middle_name"],
+            frappe.db.get_value("User", "Administrator", "middle_name") or "",
+        )
+        self.assertNotIn("email", json.loads(recipient.recipient_data))
+
+    def test_import_list_without_button_data_fields(self):
+        """Existing imports are unchanged: Button Data stays empty."""
+        doc = self._make_recipient_list(
+            list_name="Test Recipient NoButtonFields",
+            recipients=[{"mobile_number": "placeholder"}]
+        )
+
+        doc.import_list_from_doctype(
+            doctype="User",
+            mobile_field="mobile_no",
+            data_fields=["first_name"],
+            filters={"name": "Administrator"},
+        )
+        doc.save()
+
+        self.assertEqual(json.loads(doc.recipients[0].button_data), {})
+        self.assertFalse(doc.button_data_fields)

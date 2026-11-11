@@ -268,8 +268,38 @@ class TestBulkMessagingUtils(IntegrationTestCase):
         self.assertTrue(
             frappe.get_all(
                 "Error Log",
-                filters={"error": ["like", f"%{doc.name}%"]},
+                # Match on the linked document, not the traceback text: Frappe
+                # v15+ only includes local variables in the traceback when
+                # developer_mode is on, so the name is not reliably in `error`.
+                filters={
+                    "reference_doctype": "Bulk WhatsApp Message",
+                    "reference_name": doc.name,
+                },
                 limit=1,
             ),
             "failure was swallowed without an Error Log entry",
+        )
+
+    def test_import_recipients_with_string_button_data_fields(self):
+        """import_recipients accepts button_data_fields as the JSON string the form sends."""
+        rec_list = frappe.get_doc({
+            "doctype": "WhatsApp Recipient List",
+            "list_name": "Test BulkUtil Import Btn",
+        })
+        rec_list.append("recipients", {"mobile_number": "placeholder"})
+        rec_list.insert(ignore_permissions=True)
+
+        count = import_recipients(
+            list_name=rec_list.name,
+            doctype="User",
+            mobile_field="mobile_no",
+            filters='{"name": "Administrator"}',
+            button_data_fields='["email"]',
+        )
+        self.assertEqual(count, 1)
+
+        rec_list.reload()
+        self.assertEqual(
+            json.loads(rec_list.recipients[0].button_data),
+            {"email": frappe.db.get_value("User", "Administrator", "email")},
         )

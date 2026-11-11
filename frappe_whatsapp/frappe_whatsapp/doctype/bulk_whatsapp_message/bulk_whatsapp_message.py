@@ -21,6 +21,7 @@ class BulkWhatsAppMessage(Document):
     def validate(self):
         # self.validate_message()
         self.validate_recipients()
+        self.validate_button_values()
         self.validate_scheduled_time()
 
     def validate_scheduled_time(self):
@@ -45,6 +46,60 @@ class BulkWhatsAppMessage(Document):
         elif self.recipients:
             self.recipient_count = len(self.recipients)
     
+    def get_dynamic_button_count(self):
+        """Number of dynamic link buttons on the selected template."""
+        if not (self.use_template and self.template):
+            return 0
+        return frappe.db.count("WhatsApp Button", {
+            "parent": self.template,
+            "parenttype": "WhatsApp Templates",
+            "button_type": "Visit Website",
+            "url_type": "Dynamic",
+        })
+
+    def validate_button_values(self):
+        """Every message must carry one value per dynamic link button.
+
+        Meta rejects a template send that omits them, so catch it here with
+        a message that names what is missing instead of failing per message.
+        """
+        needed = self.get_dynamic_button_count()
+        if not needed:
+            return
+
+        if self.variable_type == "Unique":
+            if self.recipient_type == "Recipient List" and self.recipient_list:
+                recipients = frappe.get_all(
+                    "WhatsApp Recipient",
+                    filters={"parent": self.recipient_list},
+                    fields=["mobile_number", "button_data"],
+                    order_by="idx asc",
+                )
+            else:
+                recipients = self.recipients or []
+
+            for recipient in recipients:
+                found = count_button_values(
+                    recipient.get("button_data"),
+                    _("Button Data of recipient {0}").format(recipient.get("mobile_number")),
+                )
+                if found < needed:
+                    frappe.throw(
+                        _(
+                            "Template {0} needs {1} dynamic link button value(s), but "
+                            "recipient {2} has {3} in Button Data."
+                        ).format(self.template, needed, recipient.get("mobile_number"), found)
+                    )
+        else:
+            found = count_button_values(self.button_variables, _("Button Variables"))
+            if found < needed:
+                frappe.throw(
+                    _(
+                        "Template {0} needs {1} dynamic link button value(s), but "
+                        "Button Variables has {2}."
+                    ).format(self.template, needed, found)
+                )
+
     def on_submit(self):
         if self.scheduled_time and get_datetime(self.scheduled_time) > get_datetime(now()):
             self.db_set("status", "Scheduled")
@@ -59,7 +114,7 @@ class BulkWhatsAppMessage(Document):
             recipients = frappe.get_all(
                 "WhatsApp Recipient", 
                 filters={"parent": self.recipient_list},
-                fields=["mobile_number", "name", "recipient_name", "recipient_data"]
+                fields=["mobile_number", "name", "recipient_name", "recipient_data", "button_data"]
             )
             
             for recipient in recipients:
@@ -121,6 +176,16 @@ class BulkWhatsAppMessage(Document):
                 wa_message.body_param = recipient.get("recipient_data")
             elif self.template_variables and self.variable_type=='Common':
                 wa_message.body_param = self.template_variables
+
+            # Values for the template's dynamic link buttons
+            button_param = (
+                recipient.get("button_data")
+                if self.variable_type == 'Unique'
+                else self.button_variables
+            )
+            if button_param:
+                wa_message.button_param = button_param
+
             if self.attach:
                 wa_message.attach = self.attach
         
@@ -130,6 +195,9 @@ class BulkWhatsAppMessage(Document):
             wa_message.insert(ignore_permissions=True)
         except Exception:
             self.db_set("status", "Partially Failed")
+            frappe.log_error(
+                title=f"WhatsApp bulk send failed: {self.name} to {recipient.get('mobile_number')}"
+            )
         # Update message count
         self.db_set("sent_count", cint(self.sent_count) + 1)
         if self.recipient_count == self.sent_count:
@@ -230,3 +298,16 @@ class BulkWhatsAppMessage(Document):
                 }
             ]
         }
+
+
+def count_button_values(raw, source):
+    """Count the non-empty values in a button values JSON (dict or list)."""
+    if not raw:
+        return 0
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError:
+            frappe.throw(_("{0} is not valid JSON").format(source))
+    values = raw.values() if isinstance(raw, dict) else raw
+    return len([value for value in values if value not in (None, "")])
