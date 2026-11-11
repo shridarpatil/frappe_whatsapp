@@ -4,6 +4,7 @@
 # For license information, please see license.txt
 import json
 import frappe
+from frappe import _, throw
 import magic
 import requests
 from frappe.model.document import Document
@@ -265,10 +266,28 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
         }
 
     def on_trash(self):
+        if self.flags.skip_meta_delete:
+            frappe.msgprint(
+                _(
+                    "Deleted the local copy of {0} only. The template still exists on "
+                    "Meta; use Sync from Meta to bring it back."
+                ).format(self.name),
+                alert=True,
+            )
+            return
+
         self.get_settings()
         url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
+        # Deleting by name alone removes every language version on Meta.
+        # Passing the template ID limits it to this one.
+        if self.id:
+            url += f"&hsm_id={self.id}"
         try:
             make_request("DELETE", url, headers=self._headers)
+            frappe.msgprint(
+                _("Template {0} was also deleted from Meta.").format(self.actual_name),
+                alert=True,
+            )
         except Exception:
             res = frappe.flags.integration_request.json().get("error", {})
             if res.get("error_user_title") == "Message Template Not Found":
@@ -298,6 +317,21 @@ class WhatsAppTemplates(Document):  # nosemgrep: frappe-modifying-but-not-commit
             header.update({"example": {"header_handle": [self._media_id]}})
 
         return header
+
+@frappe.whitelist()
+def delete_template(name, delete_on_meta=1):
+    """Delete a template, optionally keeping it on Meta.
+
+    Deleting a WhatsApp Templates document normally deletes the template on
+    Meta as well. With `delete_on_meta=0` only the local copy is removed, so
+    it can be pulled in again with Sync from Meta.
+    """
+    frappe.delete_doc(
+        "WhatsApp Templates",
+        name,
+        flags=frappe._dict(skip_meta_delete=not frappe.utils.cint(delete_on_meta)),
+    )
+
 
 @frappe.whitelist()
 def fetch():
@@ -338,6 +372,15 @@ def fetch():
                 doc.id = template["id"]
                 doc.whatsapp_account = account.name
 
+                # Meta only returns the components a template currently has.
+                # Clear the ones we mirror first, so a header, footer, body
+                # example or button removed on Meta is removed here too.
+                doc.header_type = ""
+                doc.header = None
+                doc.footer = None
+                doc.sample_values = None
+                doc.set("buttons", [])
+
                 # update components
                 for component in template["components"]:
 
@@ -364,8 +407,6 @@ def fetch():
 
                     # Update buttons
                     elif component["type"] == "BUTTONS":
-                        doc.set("buttons", [])
-                        frappe.db.delete("WhatsApp Button", {"parent": doc.name, "parenttype": "WhatsApp Templates"})
                         typeMap = {
                             "URL": "Visit Website",
                             "PHONE_NUMBER": "Call Phone",

@@ -49,6 +49,7 @@ class TestWhatsAppTemplates(IntegrationTestCase):
     def tearDown(self):
         # Use SQL-level delete to avoid triggering on_trash (which calls get_settings)
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_tmpl_%"]})
+        frappe.db.delete("WhatsApp Button", {"parent": ["like", "test_tmpl_%"]})
         frappe.db.delete("WhatsApp Templates", {"template_name": ["like", "test_msg_template%"]})
         frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
 
@@ -296,3 +297,125 @@ class TestWhatsAppTemplates(IntegrationTestCase):
 
         doc.reload()
         self.assertEqual(doc.template, "Updated body text")
+
+    def _add_button(self, template_name, **data):
+        frappe.get_doc({
+            "doctype": "WhatsApp Button",
+            "parent": template_name,
+            "parenttype": "WhatsApp Templates",
+            "parentfield": "buttons",
+            "idx": 1,
+            **data,
+        }).db_insert()
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+    def _sync_from_meta(self, template, components):
+        """Run fetch() with Meta returning `components` for `template`."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import fetch
+
+        meta_response = {
+            "data": [{
+                "name": template.actual_name,
+                "status": "APPROVED",
+                "language": template.language_code,
+                "category": "UTILITY",
+                "id": template.id,
+                "components": components,
+            }]
+        }
+        with patch("frappe.model.document.Document.get_password", return_value="mock_token"), patch(
+            "frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request",
+            return_value=meta_response,
+        ):
+            fetch()
+        return frappe.get_doc("WhatsApp Templates", template.name)
+
+    def test_fetch_removes_buttons_deleted_on_meta(self):
+        """Buttons removed from the template on Meta are removed on sync."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_sync_no_btn")
+        self._add_button(doc.name, button_type="Quick Reply", button_label="Yes")
+        self.assertEqual(len(frappe.get_doc("WhatsApp Templates", doc.name).buttons), 1)
+
+        synced = self._sync_from_meta(doc, [{"type": "BODY", "text": "Hello, no buttons now"}])
+
+        self.assertEqual(synced.template, "Hello, no buttons now")
+        self.assertEqual(len(synced.buttons), 0)
+
+    def test_fetch_replaces_buttons_changed_on_meta(self):
+        """Buttons edited on Meta replace the local ones on sync."""
+        doc = self._make_template_without_hooks(template_name="test_tmpl_sync_new_btn")
+        self._add_button(doc.name, button_type="Quick Reply", button_label="Old")
+
+        synced = self._sync_from_meta(doc, [
+            {"type": "BODY", "text": "Hello"},
+            {"type": "BUTTONS", "buttons": [
+                {"type": "URL", "text": "New", "url": "https://example.com/{{1}}", "example": ["abc"]},
+            ]},
+        ])
+
+        self.assertEqual(len(synced.buttons), 1)
+        self.assertEqual(synced.buttons[0].button_label, "New")
+        self.assertEqual(synced.buttons[0].button_type, "Visit Website")
+        self.assertEqual(synced.buttons[0].url_type, "Dynamic")
+
+    def test_fetch_clears_header_footer_and_samples_removed_on_meta(self):
+        """A header, footer or body example removed on Meta is cleared on sync."""
+        doc = self._make_template_without_hooks(
+            template_name="test_tmpl_sync_cleared",
+            header_type="TEXT",
+            header="Old header",
+            footer="Old footer",
+            sample_values="John",
+        )
+
+        synced = self._sync_from_meta(doc, [{"type": "BODY", "text": "Hello"}])
+
+        self.assertFalse(synced.header_type)
+        self.assertFalse(synced.header)
+        self.assertFalse(synced.footer)
+        self.assertFalse(synced.sample_values)
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_delete_local_copy_keeps_template_on_meta(self, mock_request):
+        """delete_template(delete_on_meta=0) removes the document without calling Meta."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import delete_template
+
+        doc = self._make_template_without_hooks(template_name="test_tmpl_delete_local")
+
+        delete_template(doc.name, delete_on_meta=0)
+
+        self.assertFalse(frappe.db.exists("WhatsApp Templates", doc.name))
+        mock_request.assert_not_called()
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_delete_template_on_meta(self, mock_request):
+        """delete_template(delete_on_meta=1) deletes on Meta as a normal delete does."""
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import delete_template
+
+        mock_request.return_value = {}
+        doc = self._make_template_without_hooks(template_name="test_tmpl_delete_meta")
+
+        delete_template(doc.name, delete_on_meta="1")
+
+        self.assertFalse(frappe.db.exists("WhatsApp Templates", doc.name))
+        mock_request.assert_called_once()
+        self.assertEqual(mock_request.call_args[0][0], "DELETE")
+        self.assertIn("name=test_tmpl_delete_meta", mock_request.call_args[0][1])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    def test_delete_on_meta_is_limited_to_this_template(self, mock_request):
+        """The Meta delete carries the template ID, so other language versions
+        that share the name are not deleted. Without an ID it falls back to name."""
+        mock_request.return_value = {}
+
+        with_id = self._make_template_without_hooks(template_name="test_tmpl_delete_one", id="meta_id_123")
+        with_id.delete()
+        url = mock_request.call_args[0][1]
+        self.assertIn("name=test_tmpl_delete_one", url)
+        self.assertIn("hsm_id=meta_id_123", url)
+
+        without_id = self._make_template_without_hooks(template_name="test_tmpl_delete_noid", id="")
+        without_id.delete()
+        url = mock_request.call_args[0][1]
+        self.assertIn("name=test_tmpl_delete_noid", url)
+        self.assertNotIn("hsm_id", url)
