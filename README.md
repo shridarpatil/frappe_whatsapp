@@ -60,6 +60,7 @@ Go to **WhatsApp Account** in Frappe and enter your credentials:
 - Business Account ID
 - App ID
 - Webhook Verify Token
+- App Secret (recommended, see [Webhook Setup](#webhook-setup))
 
 ![WhatsApp Settings](https://user-images.githubusercontent.com/11792643/198827382-90283b36-f8ab-430e-a909-1b600d6f5da4.png)
 
@@ -192,6 +193,7 @@ doc.set("_data_list", [
 4. Subscribe to webhook fields:
    - `messages` - to receive incoming messages
    - `message_template_status_update` - for template status updates
+5. Copy the App Secret from **App settings > Basic** into the WhatsApp Account's **App Secret** field. The webhook then rejects (HTTP 403) any POST without a valid `X-Hub-Signature-256` header. Without an App Secret on any account, unsigned requests are still accepted and a warning is logged.
 
 ### Incoming Messages
 Messages received via webhook are automatically created as WhatsApp Message documents:

@@ -1,6 +1,8 @@
 # Copyright (c) 2025, Shridhar Patil and Contributors
 # See license.txt
 
+import hashlib
+import hmac
 import json
 from unittest.mock import patch, MagicMock, PropertyMock
 
@@ -480,3 +482,113 @@ class TestWebhookEndpoint(IntegrationTestCase):
         # Should have created a notification log
         logs = frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"})
         self.assertTrue(len(logs) > 0)
+
+
+class TestWebhookSignature(IntegrationTestCase):
+    """Tests for X-Hub-Signature-256 verification on webhook POSTs."""
+
+    ACCOUNT = "Test WA Webhook Sig Account"
+    APP_SECRET = "test_app_secret"
+
+    def setUp(self):
+        if not frappe.db.exists("WhatsApp Account", self.ACCOUNT):
+            frappe.get_doc({
+                "doctype": "WhatsApp Account",
+                "account_name": self.ACCOUNT,
+                "status": "Active",
+                "url": "https://graph.facebook.com",
+                "version": "v17.0",
+                "phone_id": "webhook_sig_phone_id",
+                "business_id": "webhook_sig_business_id",
+                "app_id": "webhook_sig_app_id",
+                "webhook_verify_token": "webhook_sig_verify_token",
+            }).insert(ignore_permissions=True)
+        from frappe.utils.password import set_encrypted_password
+        set_encrypted_password("WhatsApp Account", self.ACCOUNT, self.APP_SECRET, "app_secret")
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+    def tearDown(self):
+        for name in frappe.get_all("WhatsApp Message", filters={"message_id": ["like", "wamid.webhook_sig_%"]}, pluck="name"):
+            frappe.delete_doc("WhatsApp Message", name, force=True)
+        for name in frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"}, pluck="name"):
+            frappe.delete_doc("WhatsApp Notification Log", name, force=True)
+        for name in frappe.get_all("WhatsApp Profiles", filters={"number": "919900112299"}, pluck="name"):
+            frappe.delete_doc("WhatsApp Profiles", name, force=True)
+        # Deleting the account also deletes its App Secret, so other tests
+        # see no secret configured.
+        frappe.delete_doc("WhatsApp Account", self.ACCOUNT, force=True)
+        frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+
+    def _post(self, message_id, signature=None):
+        """POST a text message to the webhook and return the response."""
+        payload = {
+            "entry": [{
+                "changes": [{
+                    "value": {
+                        "metadata": {"phone_number_id": "webhook_sig_phone_id"},
+                        "contacts": [{"profile": {"name": "Sig Test"}}],
+                        "messages": [{
+                            "from": "919900112299",
+                            "id": message_id,
+                            "type": "text",
+                            "text": {"body": "Signature test"},
+                        }]
+                    }
+                }]
+            }]
+        }
+        body = json.dumps(payload).encode()
+        mock_request = MagicMock()
+        mock_request.method = "POST"
+        mock_request.get_data.return_value = body
+        mock_request.headers = {}
+        if signature is not None:
+            mock_request.headers["X-Hub-Signature-256"] = signature(body)
+        frappe.local.form_dict = frappe._dict(payload)
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.request", mock_request):
+            from frappe_whatsapp.utils.webhook import webhook
+            return webhook()
+
+    @staticmethod
+    def _sign(secret):
+        return lambda body: "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+
+    def _assert_rejected(self, response, message_id):
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(frappe.db.exists("WhatsApp Message", {"message_id": message_id}))
+        self.assertFalse(frappe.get_all("WhatsApp Notification Log", filters={"template": "Webhook"}))
+
+    def test_valid_signature_is_accepted(self):
+        """A request signed with the App Secret is processed."""
+        self._post("wamid.webhook_sig_valid", signature=self._sign(self.APP_SECRET))
+        self.assertTrue(frappe.db.exists("WhatsApp Message", {"message_id": "wamid.webhook_sig_valid"}))
+
+    def test_wrong_signature_is_rejected(self):
+        """A request signed with another secret gets 403 and nothing is stored."""
+        response = self._post("wamid.webhook_sig_wrong", signature=self._sign("not_the_secret"))
+        self._assert_rejected(response, "wamid.webhook_sig_wrong")
+
+    def test_tampered_body_is_rejected(self):
+        """A valid signature for a different body is rejected."""
+        response = self._post(
+            "wamid.webhook_sig_tampered",
+            signature=lambda body: self._sign(self.APP_SECRET)(body + b" "),
+        )
+        self._assert_rejected(response, "wamid.webhook_sig_tampered")
+
+    def test_missing_signature_is_rejected(self):
+        """An unsigned request gets 403 once an App Secret is configured."""
+        response = self._post("wamid.webhook_sig_missing")
+        self._assert_rejected(response, "wamid.webhook_sig_missing")
+
+    def test_no_secret_configured_accepts_with_warning(self):
+        """Without any App Secret, unsigned requests are still accepted and a warning is logged."""
+        from frappe.utils.password import remove_encrypted_password
+        remove_encrypted_password("WhatsApp Account", self.ACCOUNT, "app_secret")
+
+        with patch("frappe_whatsapp.utils.webhook.frappe.logger") as logger:
+            self._post("wamid.webhook_sig_no_secret")
+
+        logger.return_value.warning.assert_called_once()
+        self.assertTrue(frappe.db.exists("WhatsApp Message", {"message_id": "wamid.webhook_sig_no_secret"}))

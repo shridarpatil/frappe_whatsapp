@@ -1,5 +1,7 @@
 """Webhook."""
 import frappe
+import hashlib
+import hmac
 import json
 import requests
 import time
@@ -35,8 +37,48 @@ def get():
 
 	return Response(hub_challenge, status=200)
 
+def get_app_secrets():
+	"""Return the App Secrets configured on WhatsApp Accounts."""
+	from frappe.utils.password import get_decrypted_password
+
+	secrets = []
+	for name in frappe.get_all("WhatsApp Account", pluck="name"):
+		secret = get_decrypted_password("WhatsApp Account", name, "app_secret", raise_exception=False)
+		if secret:
+			secrets.append(secret)
+	return secrets
+
+
+def is_valid_signature():
+	"""Check the X-Hub-Signature-256 header Meta sends with each webhook POST.
+
+	The payload is not trusted until it is verified, so the account cannot be
+	picked from it: a signature made with any configured App Secret is accepted.
+	Without any App Secret configured, unsigned requests are still accepted so
+	existing installs keep working, and a warning is logged.
+	"""
+	secrets = get_app_secrets()
+	if not secrets:
+		frappe.logger("frappe_whatsapp").warning(
+			"WhatsApp webhook: no App Secret set on any WhatsApp Account, "
+			"accepting the request without verifying its signature"
+		)
+		return True
+
+	signature = frappe.request.headers.get("X-Hub-Signature-256") or ""
+	payload = frappe.request.get_data()
+	for secret in secrets:
+		expected = "sha256=" + hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
+		if hmac.compare_digest(expected.encode(), signature.encode()):
+			return True
+	return False
+
+
 def post():
 	"""Post."""
+	if not is_valid_signature():
+		return Response("Invalid signature", status=403)
+
 	data = frappe.local.form_dict
 	frappe.get_doc({
 		"doctype": "WhatsApp Notification Log",

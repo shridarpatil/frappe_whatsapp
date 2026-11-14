@@ -14,6 +14,7 @@
   "url",
   "version",
   "webhook_verify_token",
+  "app_secret",
   "column_break_byyq",
   "phone_id",
   "app_id",
@@ -63,6 +64,12 @@
    "unique": 1
   },
   {
+   "description": "Meta App Dashboard > App settings > Basic > App secret. When set, incoming webhook requests must carry a valid X-Hub-Signature-256 header.",
+   "fieldname": "app_secret",
+   "fieldtype": "Password",
+   "label": "App Secret"
+  },
+  {
    "fieldname": "column_break_byyq",
    "fieldtype": "Column Break"
   },
@@ -105,7 +112,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-01 18:30:21.339317",
+ "modified": "2026-11-14 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Account",
