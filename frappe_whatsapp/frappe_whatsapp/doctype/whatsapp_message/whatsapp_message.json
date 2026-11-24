@@ -26,6 +26,7 @@
   "attach",
   "buttons",
   "body_param",
+  "button_param",
   "whatsapp_account",
   "section_break_flow",
   "flow",
@@ -213,6 +214,12 @@
    "label": "Body Param"
   },
   {
+   "description": "Values for template buttons that take one when the message is sent (a dynamic URL suffix, a one-time code), keyed by the button's index in the template, e.g. {\"0\": \"abc123\"}.",
+   "fieldname": "button_param",
+   "fieldtype": "JSON",
+   "label": "Button Param"
+  },
+  {
    "fieldname": "whatsapp_account",
    "fieldtype": "Link",
    "label": "WhatsApp Account",
@@ -280,7 +287,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-11 00:34:02.455955",
+ "modified": "2026-11-24 16:40:37.709058",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Message",

@@ -407,3 +407,124 @@ class TestWhatsAppMessage(IntegrationTestCase):
         self.assertNotIn("phone_number", sub_types)
         self.assertNotIn("url", sub_types)  # static URL button also excluded
         self.assertIn("quick_reply", sub_types)
+
+    def _template_with_buttons(self, name, buttons, body="Hello", sample_values=None):
+        """A template record (no Meta call) with the given button rows."""
+        template_name = f"{name}-en"
+        if not frappe.db.exists("WhatsApp Templates", template_name):
+            tmpl = frappe.get_doc({
+                "doctype": "WhatsApp Templates",
+                "template_name": name,
+                "actual_name": name,
+                "template": body,
+                "sample_values": sample_values,
+                "category": "TRANSACTIONAL",
+                "language": frappe.db.get_value("Language", {"language_code": "en"}) or "en",
+                "language_code": "en",
+                "whatsapp_account": "Test WA Msg Account",
+                "status": "APPROVED",
+                "id": f"{name}_id",
+                "name": template_name,
+            })
+            tmpl.flags.ignore_validate = True
+            tmpl.db_insert()
+            for idx, data in enumerate(buttons, start=1):
+                frappe.get_doc({
+                    "doctype": "WhatsApp Button",
+                    "parent": template_name,
+                    "parenttype": "WhatsApp Templates",
+                    "parentfield": "buttons",
+                    "idx": idx,
+                    **data,
+                }).db_insert()
+            frappe.db.commit()  # nosemgrep: frappe-manual-commit -- test fixture must be visible to later queries
+        return template_name
+
+    def _sent_buttons(self, mock_post):
+        sent_data = json.loads(mock_post.call_args.kwargs["data"])
+        return [c for c in sent_data["template"]["components"] if c.get("type") == "button"]
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_send_template_dynamic_url_button_takes_button_param(self, mock_post):
+        """A dynamic URL button gets the value passed for its index."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_url_param"}]}
+        template = self._template_with_buttons("test_msg_url_param_template", [{
+            "button_type": "Visit Website",
+            "button_label": "Open",
+            "website_url": "https://example.com/c/{{1}}",
+            "url_type": "Dynamic",
+        }])
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112265",
+            "message_type": "Template",
+            "content_type": "text",
+            "template": template,
+            "button_param": json.dumps({"0": "abc123"}),
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        self.assertEqual(self._sent_buttons(mock_post), [{
+            "type": "button",
+            "sub_type": "url",
+            "index": "0",
+            "parameters": [{"type": "text", "text": "abc123"}],
+        }])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_send_template_dynamic_url_button_without_button_param(self, mock_post):
+        """Without a passed value the button still reads the reference document's field."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_url_field"}]}
+        template = self._template_with_buttons("test_msg_url_field_template", [{
+            "button_type": "Visit Website",
+            "button_label": "Open",
+            "website_url": "name",
+            "url_type": "Dynamic",
+        }])
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112266",
+            "message_type": "Template",
+            "content_type": "text",
+            "template": template,
+            "reference_doctype": "User",
+            "reference_name": "Administrator",
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        buttons = self._sent_buttons(mock_post)
+        self.assertEqual(buttons[0]["parameters"], [{"type": "text", "text": "Administrator"}])
+
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_message.whatsapp_message.make_post_request")
+    def test_send_template_otp_button_carries_the_code(self, mock_post):
+        """An authentication template sends its code in the body and in the
+        copy-code button, also when the template has no sample values."""
+        mock_post.return_value = {"messages": [{"id": "wamid.test_otp"}]}
+        template = self._template_with_buttons(
+            "test_msg_otp_template",
+            [{"button_type": "OTP", "button_label": "Copy code"}],
+            body="{{1}} is your verification code.",
+        )
+        frappe.get_doc({
+            "doctype": "WhatsApp Message",
+            "type": "Outgoing",
+            "to": "919900112267",
+            "message_type": "Template",
+            "content_type": "text",
+            "template": template,
+            "body_param": json.dumps({"1": "482913"}),
+            "whatsapp_account": "Test WA Msg Account",
+        }).insert(ignore_permissions=True)
+
+        sent_data = json.loads(mock_post.call_args.kwargs["data"])
+        body = next(c for c in sent_data["template"]["components"] if c["type"] == "body")
+        self.assertEqual(body["parameters"], [{"type": "text", "text": "482913"}])
+        self.assertEqual(self._sent_buttons(mock_post), [{
+            "type": "button",
+            "sub_type": "url",
+            "index": "0",
+            "parameters": [{"type": "text", "text": "482913"}],
+        }])
+

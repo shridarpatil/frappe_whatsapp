@@ -210,8 +210,10 @@ class WhatsAppMessage(Document):
 
         parameters = []
         template_parameters = []
-        if template.sample_values:
-            field_names = template.field_names.split(",") if template.field_names else template.sample_values.split(",")
+        # Values passed in body_param are sent even when the template record
+        # has no sample values.
+        if template.sample_values or self.body_param is not None:
+            field_names = template.field_names.split(",") if template.field_names else (template.sample_values or "").split(",")
 
             if self.body_param is not None:
                 params = list(json.loads(self.body_param).values())
@@ -312,6 +314,10 @@ class WhatsAppMessage(Document):
             # "sub_type must be one of {...}" errors since Meta no longer
             # accepts `phone_number`. See issue #188.
             button_parameters = []
+            # Values given for this message, keyed by the button's index in
+            # the template ({"0": "abc123"}), take precedence over a field of
+            # the reference document.
+            button_values = frappe.parse_json(self.button_param) if self.button_param else {}
             for idx, btn in enumerate(template.buttons):
                 # Shift index if MPM was added at index 0
                 current_idx = str(idx + 1) if has_mpm else str(idx)
@@ -324,13 +330,29 @@ class WhatsAppMessage(Document):
                         "parameters": [{"type": "payload", "payload": btn.button_label}]
                     })
                 elif btn.button_type == "Visit Website" and btn.url_type == "Dynamic":
-                    ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
-                    url = ref_doc.get_formatted(btn.website_url)
+                    url = button_values.get(current_idx)
+                    if url is None:
+                        ref_doc = frappe.get_doc(self.reference_doctype, self.reference_name)
+                        url = ref_doc.get_formatted(btn.website_url)
                     button_parameters.append({
                         "type": "button",
                         "sub_type": "url",
                         "index": current_idx,
                         "parameters": [{"type": "text", "text": url}]
+                    })
+                elif btn.button_type == "OTP":
+                    # An authentication template carries the one-time code in
+                    # its body and again in its copy-code button, which Meta
+                    # takes as a url parameter. By default that is the first
+                    # body value.
+                    code = button_values.get(current_idx)
+                    if code is None and template_parameters:
+                        code = template_parameters[0]
+                    button_parameters.append({
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": current_idx,
+                        "parameters": [{"type": "text", "text": code}]
                     })
 
             if button_parameters:
