@@ -372,7 +372,8 @@ def fetch():
                             "QUICK_REPLY": "Quick Reply",
                             "FLOW": "Flow",
                             "MPM": "Multi-Product Message",
-                            "CATALOG": "Catalog"
+                            "CATALOG": "Catalog",
+                            "OTP": "OTP"
                         }
 
                         for i, button in enumerate(component.get("buttons", []), start=1):

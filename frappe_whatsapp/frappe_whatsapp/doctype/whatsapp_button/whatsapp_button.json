@@ -19,7 +19,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Button Type",
-   "options": "Quick Reply\nCall Phone\nVisit Website\nFlow\nMulti-Product Message\nCatalog",
+   "options": "Quick Reply\nCall Phone\nVisit Website\nFlow\nMulti-Product Message\nCatalog\nOTP",
    "reqd": 1
   },
   {
@@ -58,7 +58,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-10 10:57:52.134456",
+ "modified": "2026-11-24 16:40:37.709058",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Button",

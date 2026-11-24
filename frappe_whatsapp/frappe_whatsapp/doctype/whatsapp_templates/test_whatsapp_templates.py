@@ -284,6 +284,40 @@ class TestWhatsAppTemplates(IntegrationTestCase):
         result = fetch()
         self.assertEqual(result, "Successfully fetched templates from meta")
 
+    @patch("frappe.model.document.Document.get_password", return_value="mock_token")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_request")
+    @patch("frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates.make_post_request")
+    def test_fetch_keeps_otp_button(self, mock_post, mock_get, mock_get_password):
+        """An authentication template's copy-code button is kept on fetch."""
+        mock_get.return_value = {
+            "data": [
+                {
+                    "name": "test_tmpl_fetched_otp",
+                    "status": "APPROVED",
+                    "language": "en",
+                    "category": "AUTHENTICATION",
+                    "id": "fetched_otp_tmpl_id",
+                    "components": [
+                        {"type": "BODY", "text": "{{1}} is your verification code."},
+                        {"type": "BUTTONS", "buttons": [
+                            {"type": "OTP", "otp_type": "COPY_CODE", "text": "Copy code"},
+                        ]},
+                    ]
+                }
+            ]
+        }
+
+        from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import fetch
+        fetch()
+        self.assertEqual(
+            frappe.get_all(
+                "WhatsApp Button",
+                filters={"parent": "test_tmpl_fetched_otp-en", "parenttype": "WhatsApp Templates"},
+                fields=["button_type", "button_label"],
+            ),
+            [{"button_type": "OTP", "button_label": "Copy code"}],
+        )
+
     def test_upsert_doc_without_hooks(self):
         """Test upsert_doc_without_hooks inserts and updates correctly."""
         from frappe_whatsapp.frappe_whatsapp.doctype.whatsapp_templates.whatsapp_templates import upsert_doc_without_hooks
